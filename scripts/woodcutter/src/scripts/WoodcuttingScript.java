@@ -6,7 +6,7 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.ScriptConfig;
 import org.tribot.script.sdk.script.TribotScript;
 import org.tribot.script.sdk.script.TribotScriptManifest;
-import org.tribot.script.sdk.types.WorldTile;
+import org.tribot.script.sdk.types.*;
 import org.tribot.script.sdk.walking.GlobalWalking;
 
 import java.util.ArrayList;
@@ -20,10 +20,9 @@ import static java.lang.Thread.sleep;
 public class WoodcuttingScript implements TribotScript {
 
     private final WorldTile lumbridge = new WorldTile(3230,3233,0);
-    private final WorldTile draynor = new WorldTile(3085,2340,0);
+    private final WorldTile draynor = new WorldTile(3085,3235,0);
     private final WorldTile GE = new WorldTile(3161,3486,0);
-    private final WorldTile Oaks = new WorldTile(3165, 3417, 0);
-
+    private final WorldTile varrock = new WorldTile(3165, 3417, 0);
 
 
     private final ArrayList<Integer> freeWorlds = new ArrayList<>(Arrays.asList(301, 308, 316, 335, 371, 379, 380, 382, 384, 394, 397, 398, 399, 417, 418, 425, 426, 430, 431, 433, 434, 435, 436, 437, 451, 452, 453, 454, 455, 456, 469, 470 ,471, 472, 473, 474, 475, 476, 483, 497, 498, 499, 500, 501, 536, 537, 542, 543, 544, 545, 546, 547, 552, 553, 554, 555, 556, 557, 563, 564, 565, 566, 567, 571, 572, 573, 574, 575, 576));
@@ -42,8 +41,12 @@ public class WoodcuttingScript implements TribotScript {
     @Override
     public void execute(@NotNull String args) {
         init();
+        CombatManager.killChickens();
         while(true) {
-                init();
+
+            if (MyPlayer.getRunEnergy() > 50 && Options.isRunEnabled()) {
+                Options.setRunEnabled(true);
+            }
             if (Inventory.isFull()){
                 // DROP OR BANK YOUR STUFF
                 bank();
@@ -57,25 +60,33 @@ public class WoodcuttingScript implements TribotScript {
 
     public void init(){
             var currentWCLevel = Skill.WOODCUTTING.getCurrentLevel();
-
+        Log.info("initializing...");
+        Log.info("Woodcutting level: " + currentWCLevel);
             if (currentWCLevel < 15) {
-
-            }else if (currentWCLevel >= 15 && currentWCLevel < 30) {
-                currentWorldTile = Oaks;
-                setCurrentLogs("Oak logs");
+                currentWorldTile = lumbridge; // edit this to lumby
+                currentLogs = "logs";
+                currentAxe = "Bronze axe";
+            }else if (currentWCLevel > 15 && currentWCLevel < 30) {
+                Log.info("HITTT");
+                currentWorldTile = varrock;
+                currentLogs = "Oak logs";
                 currentAxe = "Mithril axe";
-            }/*else if (currentWCLevel >= 30 && currentWCLevel < 60) {
-                setCurrentLogs("Willow logs");
+            }else if (currentWCLevel >= 30 && currentWCLevel < 60) {
+                currentLogs = "Willow logs";
                 currentWorldTile = draynor;
                 currentAxe = "Adamant axe";
-            }*/else {
-                setCurrentLogs("Yew logs");
+            }else {
+                currentLogs = "Yew logs";
                 currentWorldTile = GE;
                 currentAxe = "Rune axe";
             }
 
+            //bank();
 
     }
+
+
+
 
 
     public void bank() {
@@ -86,46 +97,50 @@ public class WoodcuttingScript implements TribotScript {
                 Bank.open();
             }
                 Bank.depositInventory();
-                Bank.withdraw(currentAxe, 1);
+                //Bank.withdraw(currentAxe, 1);
                 Bank.close();
-                sellLogsIfPossible();
+                //sellLogsIfPossible();
         }
     }
 
     public void sellLogsIfPossible(){
-        var amountOfLogs = Bank.getCount(currentLogs);
-        if (amountOfLogs >= 200) {
+
             if (!Bank.isOpen()){
                 Bank.open();
-                Bank.withdrawAll(currentLogs);
-                Bank.close();
+                var amountOfLogs = Bank.getCount(currentLogs);
+                if (amountOfLogs >= 200) {
+                    Log.info("Have more than 200 logs");
+                    BankSettings.setNoteEnabled(true);
+                    Bank.withdrawAll(currentLogs);
+                    BankSettings.setNoteEnabled(false);
+                    Bank.close();
+                    Log.info("Withdrawing logs");
                 if (!GrandExchange.isNearby()) {
                     GlobalWalking.walkTo(GE);
-                    if (!GrandExchange.isOpen()) {
-                        GrandExchange.open();
-                        GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(currentLogs).quantity(amountOfLogs).priceAdjustment(-5).build());
+
+                }
+                if (!GrandExchange.isOpen()) {
+                    GrandExchange.open();
+                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(currentLogs).quantity(amountOfLogs).priceAdjustment(-5).type(GrandExchangeOffer.Type.SELL).build());
+                    GrandExchange.collectAll();
+                    GrandExchange.close();
+                    if (!Bank.contains(currentAxe) || !Inventory.contains(currentAxe) || !MyPlayer.get().flatMap(player -> player.getEquippedItem(Equipment.Slot.WEAPON)).get().getName().equals(currentAxe)){
+                        buyPrefferedAxe();
                         GrandExchange.collectAll();
                         GrandExchange.close();
-                        if (!Bank.contains(currentAxe) || !Inventory.contains(currentAxe) || !MyPlayer.get().flatMap(player -> player.getEquippedItem(Equipment.Slot.WEAPON)).get().getName().equals(currentAxe)){
-                            buyPrefferedAxe();
-                            GrandExchange.collectAll();
-                            GrandExchange.close();
-                        }
                     }
                 }
             }
-
         }
     }
 
     public void buyPrefferedAxe(){
-        GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().searchText(currentAxe).priceAdjustment(3).build());
+        GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().searchText(currentAxe).type(GrandExchangeOffer.Type.BUY).priceAdjustment(3).build());
     }
 
 
     public void chopTree(){
-
-        if (!currentWorldTile.isRendered()) {
+        if (!currentWorldTile.isVisible()) {
             GlobalWalking.walkTo(currentWorldTile);
         }
 
@@ -138,10 +153,6 @@ public class WoodcuttingScript implements TribotScript {
             Query.gameObjects().nameEquals(currentLogs.split(" ")[0]).findClosestByPathDistance().get().click("Chop down");
         }
 
-    }
-
-    public void setCurrentLogs(String logs){
-        currentLogs = logs;
     }
 
 }
