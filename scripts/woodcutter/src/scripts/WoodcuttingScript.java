@@ -58,7 +58,7 @@ public class WoodcuttingScript implements TribotScript {
             }
             if (Inventory.isFull()){
                 // DROP OR BANK YOUR STUFF
-                bank();
+                BankManager.bank(currentAxe);
                 //Inventory.drop(Inventory.getAll());
             }else {
                 // START CHOPPING LOGS
@@ -96,58 +96,6 @@ public class WoodcuttingScript implements TribotScript {
     }
 
 
-    public void bank() {
-        if (!Bank.isNearby()){
-            GlobalWalking.walkToBank();
-        }else {
-            if (!Bank.isOpen()){
-                Bank.open();
-            }
-                Bank.depositInventory();
-                Bank.withdraw(currentAxe, 1);
-                Bank.close();
-
-        }
-    }
-
-    public void sellLogsIfPossible(){
-
-                var amountOfLogs = logs.stream().mapToInt(Bank::getCount).sum();
-                Log.info(amountOfLogs);
-                if (amountOfLogs >= 400) {
-                    Log.info("Have more than 400 logs");
-                    BankSettings.setNoteEnabled(true);
-                    Log.info("Withdrawing logs");
-                    logs.forEach(Bank::withdrawAll);
-                    BankSettings.setNoteEnabled(false);
-                    Bank.close();
-
-                if (!GrandExchange.isNearby()) {
-                    GlobalWalking.walkTo(GE);
-                }
-                if (!GrandExchange.isOpen()) {
-                    GrandExchange.open();
-                    var inventory = Inventory.getAll();
-                    for (var item :
-                            inventory) {
-                        if (item.getName().contains("logs")) {
-                            logs.forEach(log -> GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(log).quantity(Inventory.getCount(item.getName())).priceAdjustment(-5).type(GrandExchangeOffer.Type.SELL).build()));
-                        }
-                    }
-                    GrandExchange.collectAll();
-                    GrandExchange.close();
-                    if (!Bank.contains(currentAxe) && !Inventory.contains(currentAxe) && !MyPlayer.get().flatMap(player -> player.getEquippedItem(Equipment.Slot.WEAPON)).get().getName().equals(currentAxe)){
-                        buyPrefferedAxe();
-                        GrandExchange.collectAll();
-                        GrandExchange.close();
-                    }
-                }
-        }
-    }
-
-    public void buyPrefferedAxe(){
-        GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().searchText(currentAxe).type(GrandExchangeOffer.Type.BUY).priceAdjustment(3).build());
-    }
 
 
     public void chopTree(){
@@ -157,7 +105,7 @@ public class WoodcuttingScript implements TribotScript {
             Bank.open();
             Bank.depositEquipment();
             if (!Query.bank().nameEquals(currentAxe).isAny() && !Query.inventory().nameEquals(currentAxe).isAny()) {
-                sellLogsIfPossible();
+                GrandExchangeManager.sellLogsIfPossible(logs, GE, currentAxe);
             }
             Bank.withdraw(currentAxe, 1);
             Bank.close();

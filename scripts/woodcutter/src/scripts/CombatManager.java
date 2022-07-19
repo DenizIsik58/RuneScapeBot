@@ -16,36 +16,32 @@ public class CombatManager {
     }
 
     public static void gearUp(){
-        if (MyPlayer.getCombatLevel() > 7) {
+        if (MyPlayer.getCombatLevel() >= 15) {
             return;
         }
+
         if (MyPlayer.get().get().getEquippedItem(Equipment.Slot.WEAPON).isPresent() && MyPlayer.get().get().getEquippedItem(Equipment.Slot.SHIELD).isPresent()) {
             return;
         }
-        if(!Bank.isNearby()) {
-            GlobalWalking.walkToBank();
-            if (!Bank.isOpen()){
-                Bank.open();
-                Bank.depositInventory();
-                Bank.withdraw("Bronze sword", 1);
-                Bank.withdraw("Wooden shield", 1);
-                Bank.withdraw("Bread", 1);
-                Bank.withdraw("Shrimps", 1);
-                Bank.close();
-                Inventory.getAll().forEach(item -> item.click("Wield"));
-            }
-        }
+
+       BankManager.bankToGearUp();
     }
 
     public static void train(){
-        while (MyPlayer.getCombatLevel() > 8){
+        while (MyPlayer.getCombatLevel() < 15){
 
             if (!chickenPlace.isVisible()) {
                 GlobalWalking.walkTo(chickenPlace);
             }
 
-            if (!Combat.isAttackStyleAvailable(Combat.AttackStyle.AGGRESSIVE) && Combat.getCurrentAttackStyle() != Combat.AttackStyle.AGGRESSIVE) {
-                Combat.setAttackStyle(Combat.AttackStyle.AGGRESSIVE);
+            if ((Skill.STRENGTH.getCurrentLevel() < 15)) {
+                if (!Combat.isAttackStyleSet(Combat.AttackStyle.AGGRESSIVE)) {
+                    Combat.setAttackStyle(Combat.AttackStyle.AGGRESSIVE);
+                }
+            }else {
+                if (!Combat.isAttackStyleSet(Combat.AttackStyle.DEFENSIVE)) {
+                    Combat.setAttackStyle(Combat.AttackStyle.DEFENSIVE);
+                }
             }
 
             if (MyPlayer.getCurrentHealthPercent() < 20) {
