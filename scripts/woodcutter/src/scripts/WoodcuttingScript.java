@@ -46,16 +46,14 @@ public class WoodcuttingScript implements TribotScript {
     @Override
     public void execute(@NotNull String args) {
         init();
+        BankManager.bank(currentAxe);
         CombatManager.killChickens();
         while(true) {
-
+            init();
             if (MyPlayer.getRunEnergy() > 50 && !Options.isRunEnabled()) {
                 Options.setRunEnabled(true);
             }
 
-            if (MyPlayer.isHealthBarVisible() && MyPlayer.get().get().isInteractingWithMe()) {
-                GlobalWalking.walkToBank();
-            }
             if (Inventory.isFull()){
                 // DROP OR BANK YOUR STUFF
                 BankManager.bank(currentAxe);
@@ -73,10 +71,9 @@ public class WoodcuttingScript implements TribotScript {
         Log.info("Woodcutting level: " + currentWCLevel);
             if (currentWCLevel < 15) {
                 currentWorldTile = lumbridge; // edit this to lumby
-                currentLogs = "logs";
+                currentLogs = "tree";
                 currentAxe = "Bronze axe";
-            }else if (currentWCLevel > 15 && currentWCLevel < 30) {
-                Log.info("HITTT");
+            }else if (currentWCLevel >= 15 && currentWCLevel < 30) {
                 currentWorldTile = varrock;
                 currentLogs = "Oak logs";
                 currentAxe = "Bronze axe";
@@ -93,14 +90,12 @@ public class WoodcuttingScript implements TribotScript {
                 currentWorldTile = GE;
                 currentAxe = "Rune axe";
             }
+
+
     }
 
-
-
-
-    public void chopTree(){
-
-        if (!Query.inventory().nameContains(currentAxe).isAny()) {
+    public void ensureUsingRightAxe(String currentAxe, List<String> logs, WorldTile GE){
+        if (!Query.inventory().nameEquals(currentAxe).isAny()) {
             GlobalWalking.walkToBank();
             Bank.open();
             Bank.depositEquipment();
@@ -110,9 +105,16 @@ public class WoodcuttingScript implements TribotScript {
             Bank.withdraw(currentAxe, 1);
             Bank.close();
         }
+    }
 
 
-        if (!currentWorldTile.isVisible()) {
+
+
+    public void chopTree(){
+
+        ensureUsingRightAxe(currentAxe, logs, GE);
+
+        if (!currentWorldTile.isVisible() && !currentWorldTile.isRendered()) {
             GlobalWalking.walkTo(currentWorldTile);
         }
 
@@ -122,7 +124,8 @@ public class WoodcuttingScript implements TribotScript {
         }
 
         if (MyPlayer.getAnimation() == -1 && !MyPlayer.isMoving()){
-            Query.gameObjects().nameEquals(currentLogs.split(" ")[0]).findClosestByPathDistance().get().click("Chop down");
+            Query.gameObjects().nameEquals(currentLogs.split(" ")[0]).findBestInteractable().get().click("Chop down");
+            Waiting.wait(3000);
         }
 
     }

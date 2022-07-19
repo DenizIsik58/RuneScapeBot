@@ -2,9 +2,15 @@ package scripts;
 
 import org.tribot.script.sdk.Bank;
 import org.tribot.script.sdk.Inventory;
+import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.types.World;
+import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 
+import java.util.List;
+
 public class BankManager {
+
 
 
     public static void bank(String currentAxe) {
@@ -23,6 +29,8 @@ public class BankManager {
             Bank.close();
         }
     }
+
+
 
     public static void bankToGearUp() {
         if(!Bank.isNearby()) {
