@@ -16,6 +16,9 @@ public class CombatManager {
     }
 
     public static void gearUp(){
+        if (MyPlayer.getCombatLevel() > 7) {
+            return;
+        }
         if (MyPlayer.get().get().getEquippedItem(Equipment.Slot.WEAPON).isPresent() && MyPlayer.get().get().getEquippedItem(Equipment.Slot.SHIELD).isPresent()) {
             return;
         }
@@ -35,7 +38,7 @@ public class CombatManager {
     }
 
     public static void train(){
-        while (MyPlayer.getCombatLevel() != 8){
+        while (MyPlayer.getCombatLevel() > 8){
 
             if (!chickenPlace.isVisible()) {
                 GlobalWalking.walkTo(chickenPlace);
