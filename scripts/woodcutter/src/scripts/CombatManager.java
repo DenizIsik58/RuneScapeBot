@@ -48,7 +48,7 @@ public class CombatManager {
                 Inventory.getAll().forEach(item -> item.click("Eat"));
             }
 
-            Query.groundItems().nameEquals("Feather").forEach(groundItem -> groundItem.click("Take"));
+            Query.groundItems().nameEquals("Feather").forEach(groundItem -> groundItem.interact("Take"));
 
             if (!MyPlayer.isAnimating() && !MyPlayer.isMoving()){
                 if (!MyPlayer.isHealthBarVisible()) {

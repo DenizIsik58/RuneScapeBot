@@ -62,6 +62,7 @@ public class WoodcuttingScript implements TribotScript {
                 // START CHOPPING LOGS
                 chopTree();
             }
+            Waiting.wait(100);
         }
     }
 
@@ -73,7 +74,7 @@ public class WoodcuttingScript implements TribotScript {
                 currentWorldTile = lumbridge; // edit this to lumby
                 currentLogs = "tree";
                 currentAxe = "Bronze axe";
-            }else if (currentWCLevel >= 15 && currentWCLevel < 30) {
+            }else if (currentWCLevel > 15 && currentWCLevel <= 30) {
                 currentWorldTile = varrock;
                 currentLogs = "Oak logs";
                 currentAxe = "Bronze axe";
@@ -124,8 +125,7 @@ public class WoodcuttingScript implements TribotScript {
         }
 
         if (MyPlayer.getAnimation() == -1 && !MyPlayer.isMoving()){
-            Query.gameObjects().nameEquals(currentLogs.split(" ")[0]).findBestInteractable().get().click("Chop down");
-            Waiting.wait(3000);
+            Query.gameObjects().nameEquals(currentLogs.split(" ")[0]).findClosestByPathDistance().map(tree -> tree.interact("Chop down"));
         }
 
     }
