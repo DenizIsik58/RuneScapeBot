@@ -67,10 +67,11 @@ public class RevenantScript implements TribotScript {
             }
         });
 
+
         OptionsManager.init();
         CameraManager.init();
         PrayerManager.init();
-        state = State.STARTING;
+        state = State.KILLING;
         Mouse.setSpeed(200);
         socketClient = new MulingClient();
 
@@ -121,8 +122,8 @@ public class RevenantScript implements TribotScript {
             if (state == State.BANKING) {
                 //Log.info(state);
                 Log.info("Total amount made this trip: " + LootingManager.getTripValue());
-
                 Log.info("Total amount made since script start: " + LootingManager.getTotalValue());
+                Log.info("Total times died so far: " + DeathManger.totalDeaths());
                 PrayerManager.disableQuickPrayer();
                 BankManagerRevenant.bankLoot();
             }
@@ -135,6 +136,10 @@ public class RevenantScript implements TribotScript {
             if (state == State.DEATH) {
                 DeathManger.reGearFromDeath();
                 state = State.BANKING;
+                DeathManger.incrementTotalDeaths();
+                Log.info("Oh dear! You have just died with: " + LootingManager.getTripValue() + " Gold!! BASTARD");
+                LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue());
+                LootingManager.resetTripValue();
             }
 
             if (state == State.SELLLOOT){

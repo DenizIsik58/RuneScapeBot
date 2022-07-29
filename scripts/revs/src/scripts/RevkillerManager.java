@@ -55,7 +55,8 @@ public class RevkillerManager {
             var lootingBag = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
 
             if (lootingBag != null) {
-                if (lootingBag.getId() == 19941) {
+                Log.info(lootingBag.getId());
+                if (lootingBag.getId() == 11941) {
                     lootingBag.click("Open");
                 }
             }
@@ -89,11 +90,20 @@ public class RevkillerManager {
             }
 
 
+
             if (target == null){
                 target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile));
             }
 
             if (target != null) {
+                var monster = Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile)).findRandom().orElse(null);
+                if (monster != null){
+                    if (monster.isInteractingWithMe() || !monster.isHealthBarVisible()){
+                        monster.adjustCameraTo();
+                        monster.click();
+                    }
+                }
+
                 //Log.info("I have a target: " + target);
                 if (!target.isVisible()){
                     GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
@@ -121,7 +131,7 @@ public class RevkillerManager {
             }
 
                 //Log.info("LOOT VALUE: " + LootingManager.getTripValue());
-            if (LootingManager.getTripValue() >= 2000000) {
+            if (LootingManager.getTripValue() >= 500000) {
                 RevenantScript.state = State.BANKING;
             }
 

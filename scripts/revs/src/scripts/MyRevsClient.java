@@ -7,7 +7,6 @@ import org.tribot.script.sdk.types.WorldTile;
 public class MyRevsClient {
 
 
-
     public static boolean myPlayerIsDead(){
         return Area.fromRectangle(new WorldTile(3217, 3223, 0), new WorldTile(3224, 3215, 0)).containsMyPlayer();
     }
@@ -43,5 +42,6 @@ public class MyRevsClient {
                 .isVisible()
                 .isAny();
     }
+
 
 }

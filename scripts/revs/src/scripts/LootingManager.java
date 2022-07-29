@@ -110,6 +110,10 @@ public class LootingManager {
         return totalValue;
     }
 
+    public static void setTotalValue(int totalValue) {
+        LootingManager.totalValue = totalValue;
+    }
+
     public static List<String> getLootToPickUp() {
         return lootToPickUp;
     }
