@@ -45,10 +45,10 @@ public class BankManagerRevenant {
         }
         EquipmentManager.checkCharges();
         Waiting.wait(3000);
-        Log.info(MyRevsClient.myPlayerHasEnoughChargesInBow());
+        //Log.info(MyRevsClient.myPlayerHasEnoughChargesInBow());
 
         if (!MyRevsClient.myPlayerHasEnoughChargesInBow()) {
-            Log.info(EquipmentManager.getBowCharges());
+            //Log.info(EquipmentManager.getBowCharges());
             openBank();
             if (Bank.getCount(21820) >= 500 + 100) {
                 Bank.withdraw(21820, 500);

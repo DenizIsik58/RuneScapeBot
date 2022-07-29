@@ -62,7 +62,6 @@ public class RevenantScript implements TribotScript {
         ScriptListening.addPreEndingListener(() -> {
             try {
                 socketClient.stopConnection();
-                Log.info("Connection to mule has been closed!");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -78,11 +77,8 @@ public class RevenantScript implements TribotScript {
         try{
             socketClient.startConnection("127.0.0.1", 6668);
         }catch (Exception e){
-            Log.info("The muling server is offline!");
         }
-        Log.info(Login.isLoggedIn());
         if (!Login.isLoggedIn()){
-            Log.info("LOGGING IND");
             Login.login();
             Waiting.waitUntil(Login::isLoggedIn);
         }
@@ -91,7 +87,6 @@ public class RevenantScript implements TribotScript {
             if (!Login.isLoggedIn()){
                 Login.login();
             }
-           //Log.info(state.name());
             if (state == State.STARTING) {
                 if (!MyRevsClient.myPlayerIsInGE()) {
                     if (!Bank.isNearby()) {
@@ -103,7 +98,6 @@ public class RevenantScript implements TribotScript {
             }
 
             if (state == State.WALKING) {
-                Log.info(state);
                 var tile = TeleportManager.refillAndWalkToCave();
                 selectedMonsterTile = tile;
                 if (tile.isRendered() || tile.isVisible()) {
@@ -113,10 +107,11 @@ public class RevenantScript implements TribotScript {
                     state = State.KILLING;
                     LootingManager.resetTripValue();
                     RevkillerManager.setiWasFirst(false);
+                    BoostingManager.resetBoost();
                 }
             }
             if (state == State.KILLING) {
-                Log.info(state);
+                //Log.info(state);
                 RevkillerManager.killMonster();
                 if (MyRevsClient.myPlayerIsDead()) {
                     state = State.DEATH;
@@ -124,13 +119,16 @@ public class RevenantScript implements TribotScript {
             }
 
             if (state == State.BANKING) {
-                Log.info(state);
+                //Log.info(state);
+                Log.info("Total amount made this trip: " + LootingManager.getTripValue());
+
+                Log.info("Total amount made since script start: " + LootingManager.getTotalValue());
                 PrayerManager.disableQuickPrayer();
                 BankManagerRevenant.bankLoot();
             }
 
             if (state == State.LOOTING) {
-                Log.info(state);
+                //Log.info(state);
                 LootingManager.loot();
             }
 

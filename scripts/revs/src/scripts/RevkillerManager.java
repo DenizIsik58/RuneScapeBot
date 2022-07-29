@@ -20,8 +20,14 @@ public class RevkillerManager {
         if (!GameTab.EQUIPMENT.isOpen()) {
             GameTab.EQUIPMENT.open();
         }
-        Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> PkerDetecter.quickTele());
+        var boss = Query.npcs().nameEquals("Revenant maledictus").findFirst().orElse(null);
 
+        if (boss != null){
+            if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
+                Log.info("Boss has been seen!");
+                PkerDetecter.quickTele();
+            }
+        }
         if (Query.players().count() == 0) {
             iWasFirst = true;
         }
@@ -88,7 +94,7 @@ public class RevkillerManager {
             }
 
             if (target != null) {
-                Log.info("I have a target: " + target);
+                //Log.info("I have a target: " + target);
                 if (!target.isVisible()){
                     GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
                 }
@@ -106,7 +112,7 @@ public class RevkillerManager {
                     }
                 }
 
-                if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile)).isAny()) || !target.isHealthBarVisible() && target.isInteractingWithMe() || !target.isValid()){
+                if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile)).isAny()) || !target.isHealthBarVisible() && target.isInteractingWithMe() || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
                     target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile));
                 }
 

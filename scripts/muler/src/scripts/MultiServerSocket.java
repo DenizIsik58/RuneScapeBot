@@ -72,7 +72,7 @@ import java.util.List;
         public void run() {
             serverSocket = new ServerSocket(6668, 32, InetAddress.getByName("localhost"));
             while (true){
-                Log.info("Accepting connections");
+                //Log.info("Accepting connections");
                 new EchoClientHandler(serverSocket.accept()).start();
                 Waiting.wait(20);
             }
@@ -100,7 +100,7 @@ import java.util.List;
 
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    Log.info(inputLine);
+                    //Log.info(inputLine);
                     if (inputLine.contains("I want to mule!")){
                         try {
                             var content = inputLine.split(" ");
@@ -114,7 +114,7 @@ import java.util.List;
                             }else if (content.length == 8){
                                 name = content[4] + " " + content[5] + " " + content[6] + " " + content[7];
                             }
-                            Log.info(name + " Wants to trade with you");
+                            //Log.info(name + " Wants to trade with you");
                             names.add(name);
                             MulerScript.setState(MulerState.MULING);
                             out.println(MyPlayer.getTile().getX() + " " + MyPlayer.getTile().getY() + " " + MyPlayer.getTile().getPlane() + " " + MyPlayer.get().get().getName() + " " + WorldHopper.getCurrentWorld());

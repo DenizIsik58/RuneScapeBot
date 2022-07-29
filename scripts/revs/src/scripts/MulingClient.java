@@ -18,7 +18,7 @@ public class MulingClient {
             clientSocket = new Socket(ip, port);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            Log.info("Connected");
+            //Log.info("Connected");
         }
 
         public String sendMessage(String msg) throws IOException {

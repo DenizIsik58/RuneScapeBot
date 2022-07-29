@@ -73,17 +73,17 @@ public class MulerScript implements TribotScript {
             //Log.info("I'm here");
 
             if (state == MulerState.IDLING){
-                Log.info(state);
+                //Log.info(state);
                 if (Login.isLoggedIn()){
-                    Log.info(Login.isLoggedIn());
-                    Log.info("Im logged in");
+                    //Log.info(Login.isLoggedIn());
+                    //Log.info("Im logged in");
                     Login.logout();
                     Waiting.wait(5000);
                 }
             }
 
             if (state == MulerState.MULING){
-                Log.info(state);
+                //Log.info(state);
                 //Log.info(Login.isLoggedIn());
                 if (!Login.isLoggedIn()){
                     Login.login();

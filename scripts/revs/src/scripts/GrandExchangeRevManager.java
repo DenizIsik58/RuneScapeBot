@@ -24,7 +24,7 @@ public class GrandExchangeRevManager {
             GrandExchange.open();
         }
     }
-    public static void sellLoot() throws IOException {
+    public static void sellLoot() {
         shouldRepeat = false;
         openBank();
         Bank.depositInventory();
@@ -92,25 +92,19 @@ public class GrandExchangeRevManager {
 
         var gp = Query.bank().nameEquals("Coins").findFirst().orElse(null);
         assert gp != null;
-        Log.info(gp.getStack());
         if (MuleManager.hasEnoughToMule()){
 
-            Log.info("I have more than 7m GP. Connecting to mule...");
             try {
                 if (!MulingClient.getClientSocket().getInetAddress().isReachable(5000)){
-                    Log.info("I'm not connected");
                 }
 
                 var msg = RevenantScript.getSocketClient().sendMessage("I want to mule! " + MyPlayer.get().get().getName());
-                //Log.info(Arrays.toString(msg.split(" ")));
-                var amount = MuleManager.takeOutGp();
                 Waiting.wait(2000);
                 var content = msg.split(" ");
                 int x = Integer.parseInt(content[0]);
                 int y = Integer.parseInt(content[1]);
                 int z = Integer.parseInt(content[2]);
                 WorldTile mulingPosition = new WorldTile(x, y ,z);
-                //Log.info(x + " " + y + " " + z );
                 if (!mulingPosition.isRendered() || !mulingPosition.isRendered()){
                     GlobalWalking.walkTo(mulingPosition);
                 }
@@ -152,7 +146,7 @@ public class GrandExchangeRevManager {
 
 
             }catch (Exception e){
-                Log.info(e);
+                //Log.info(e);
             }
 
         }

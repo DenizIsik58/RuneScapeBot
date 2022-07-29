@@ -30,6 +30,7 @@ public class LootingManager {
                     "Looting bag", "Dragonstone bolt tips", "Death rune", "Blood rune",
                     "Blighted super restore(4)", "Onyx bolt tips", "Law rune"));
     private static int tripValue = 0;
+    private static int totalValue = 0;
 
     public static void loot(){
 
@@ -50,6 +51,10 @@ public class LootingManager {
                     item.interact("Take");
 
                     while(true){
+                        if (MyPlayer.getCurrentHealthPercent() <= 10 || Inventory.getCount("Shark") == 0 || Query.inventory().nameContains("Prayer pot").count() == 0){
+                            PkerDetecter.quickTele();
+                            Waiting.wait(100);
+                        }
 
                         //Log.info(countBeforePickingUp);
                         if (hasDecreased(item.getName(), countBeforePickingUp)){
@@ -59,6 +64,7 @@ public class LootingManager {
                     }
 
                     tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
+                    totalValue += tripValue;
                     Log.info(tripValue);
 
                     return;
@@ -98,6 +104,10 @@ public class LootingManager {
             }
         }
         return false;
+    }
+
+    public static int getTotalValue() {
+        return totalValue;
     }
 
     public static List<String> getLootToPickUp() {
