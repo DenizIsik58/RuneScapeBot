@@ -244,6 +244,10 @@ public class BankManagerRevenant {
         for (var item : EquipmentManager.getBasicGear()) {
             if (item.equals("Craw's bow")){
                 if (Query.bank().nameEquals("Craw's bow (u)").isAny()){
+                    Bank.withdraw("Craw's bow (u)", 1);
+                    Waiting.waitUntil(2000, () -> Inventory.contains("Craw's bow (u)"));
+                    ensureItemIsWithdrawn("Craw's bow (u)", 1);
+
                     continue;
                 }
             }

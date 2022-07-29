@@ -27,6 +27,9 @@ public class TeleportManager {
 
 
     public static WorldTile refillAndWalkToCave(){
+        if (Equipment.getAll().size() != 9){
+            BankManagerRevenant.withdrawGear();
+        }
         var ring = Query.inventory().nameContains("Ring of dueling").findFirst().orElse(null);
         if (ring != null){
             if (!Area.fromRectangle(new WorldTile(3153,3638, 0), new WorldTile(3126, 3618, 0)).contains(MyPlayer.getTile())) {

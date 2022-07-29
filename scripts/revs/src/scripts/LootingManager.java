@@ -61,11 +61,12 @@ public class LootingManager {
                             break;
                         }
                         Waiting.wait(20);
+
                     }
 
                     tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                     totalValue += tripValue;
-                    Log.info(tripValue);
+                    //Log.info(tripValue);
 
                     return;
                 }

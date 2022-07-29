@@ -4,6 +4,8 @@ package scripts;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.tribot.script.sdk.*;
+import org.tribot.script.sdk.antiban.Antiban;
+import org.tribot.script.sdk.antiban.AntibanProperties;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.ScriptConfig;
@@ -71,7 +73,9 @@ public class RevenantScript implements TribotScript {
         OptionsManager.init();
         CameraManager.init();
         PrayerManager.init();
-        state = State.KILLING;
+        AntiBanManager.init();
+        GameTab.setSwitchPreference(GameTab.SwitchPreference.KEYS);
+        state = State.BANKING;
         Mouse.setSpeed(200);
         socketClient = new MulingClient();
 

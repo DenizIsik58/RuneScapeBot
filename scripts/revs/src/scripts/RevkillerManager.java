@@ -98,7 +98,7 @@ public class RevkillerManager {
             if (target != null) {
                 var monster = Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile)).findRandom().orElse(null);
                 if (monster != null){
-                    if (monster.isInteractingWithMe() || !monster.isHealthBarVisible()){
+                    if (monster.isInteractingWithMe() && !monster.isHealthBarVisible()){
                         monster.adjustCameraTo();
                         monster.click();
                     }
