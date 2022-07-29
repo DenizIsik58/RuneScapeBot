@@ -20,6 +20,7 @@ public class CombatManager {
             return;
         }
 
+
         if (MyPlayer.get().get().getEquippedItem(Equipment.Slot.WEAPON).isPresent() && MyPlayer.get().get().getEquippedItem(Equipment.Slot.SHIELD).isPresent()) {
             return;
         }
