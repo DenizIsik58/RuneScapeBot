@@ -32,5 +32,6 @@ public class DecantManager {
         GlobalWalking.walkTo(new WorldTile(3157, 3481, 0));
         Query.npcs().idEquals(5449).findBestInteractable().map(c -> c.interact("Decant"));
         hasDecanted = true;
+
     }
 }

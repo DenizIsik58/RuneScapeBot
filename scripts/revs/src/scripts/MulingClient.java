@@ -11,10 +11,10 @@ import java.net.Socket;
 public class MulingClient {
 
         private static Socket clientSocket;
-        private PrintWriter out;
-        private BufferedReader in;
+        private static PrintWriter out;
+        private static BufferedReader in;
 
-        public void startConnection(String ip, int port) throws IOException {
+        public static void startConnection(String ip, int port) throws IOException {
             clientSocket = new Socket(ip, port);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));

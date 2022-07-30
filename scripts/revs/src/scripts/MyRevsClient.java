@@ -15,8 +15,16 @@ public class MyRevsClient {
         return EquipmentManager.getBowCharges() >= 200;
     }
 
+    public static boolean myPlayerHasTooManyChargesInBow(){
+        return EquipmentManager.getBowCharges() >= 1500;
+    }
+
     public static boolean myPlayerHasEnoughChargesInBracelet(){
         return EquipmentManager.getBraceCharges() >= 100;
+    }
+
+    public static boolean myPlayerHasTooManyChargesInBrace(){
+        return EquipmentManager.getBraceCharges() >= 700;
     }
 
     public static boolean myPlayerIsInGE(){
@@ -26,6 +34,8 @@ public class MyRevsClient {
     public static boolean myPlayerIsInFerox(){
         return Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0)).containsMyPlayer();
     }
+
+
 
     public static boolean clickWidget(String action, int... indexPath) {
         return Query.widgets()

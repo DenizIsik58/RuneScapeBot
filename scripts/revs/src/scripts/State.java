@@ -7,7 +7,6 @@ public enum State {
     SELLLOOT,
     KILLING,
     DEATH,
-    LOOTING,
-    PKERDETECTION
+    LOOTING
 
 }

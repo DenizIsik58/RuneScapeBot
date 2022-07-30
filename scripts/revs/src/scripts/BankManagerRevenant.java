@@ -1,5 +1,6 @@
 package scripts;
 
+import net.sourceforge.jdistlib.InvNormal;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.EquipmentItem;
@@ -48,7 +49,7 @@ public class BankManagerRevenant {
         //Log.info(MyRevsClient.myPlayerHasEnoughChargesInBow());
 
         if (!MyRevsClient.myPlayerHasEnoughChargesInBow()) {
-            //Log.info(EquipmentManager.getBowCharges());
+            Log.debug("I need more ether");
             openBank();
             if (Bank.getCount(21820) >= 500 + 100) {
                 Bank.withdraw(21820, 500);
@@ -66,13 +67,43 @@ public class BankManagerRevenant {
                                 .orElse(false));
                 Waiting.wait(1000);
                 Query.inventory().nameEquals("Craw's bow").findFirst().map(InventoryItem::click);
-            } else { // REvenant maldictus
+            } else {
                 Bank.withdrawAll("Coins");
                 Bank.close();
                 GrandExchangeRevManager.openGE();
                 GrandExchangeRevManager.buy("Revenant ether");
                 GrandExchange.close();
             }
+        }
+        if (MyRevsClient.myPlayerHasTooManyChargesInBrace()){
+            var brace = Query.equipment().nameContains("Bracelet of eth").findFirst().orElse(null);
+            if (brace != null){
+                Waiting.waitUntil(1000, () -> Equipment.remove(brace.getId()) != 0);
+                Waiting.waitUntil(() -> Inventory.contains("Bracelet of ethereum"));
+                var invyBrace = Query.inventory().nameEquals("Bracelet of ethereum").findFirst().orElse(null);
+                if (invyBrace != null){
+                    Waiting.waitUntil(() -> invyBrace.click("Uncharge"));
+                    Waiting.waitUntil(ChatScreen::isOpen);
+                    if (MyRevsClient.isWidgetVisible(584, 0)){
+                        MyRevsClient.clickWidget("Yes", 584, 1);
+                        Waiting.waitUntil(() -> Inventory.contains("Revenant ether"));
+                    }
+
+                }
+                openBank();
+                var amount = Query.inventory().nameContains("Revenant eth").findFirst().map(InventoryItem::getStack).orElse(0);
+                Waiting.waitUntil(() -> Bank.deposit("Revenant ether", amount - (amount - 250)));
+                Bank.close();
+                Query.inventory()
+                        .nameEquals("Bracelet of ethereum")
+                        .findFirst()
+                        .map(b -> Query.inventory()
+                                .nameEquals("Revenant ether")
+                                .findFirst()
+                                .map(ether -> ether.useOn(b))
+                                .orElse(false));
+            }
+
         }
 
         if (!MyRevsClient.myPlayerHasEnoughChargesInBracelet()) {
@@ -96,11 +127,13 @@ public class BankManagerRevenant {
         openBank();
         var lb = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
         if (lb != null){
-            lb.click("View");
-                    if (MyRevsClient.isWidgetVisible(15, 3)) {
-                        Waiting.waitUntil(() -> MyRevsClient.clickWidget("Deposit loot", 15, 8));
-                        Waiting.waitUntil(() -> MyRevsClient.clickWidget("Dismiss", 15, 10));
+            if (lb.click("View")){
+                if (MyRevsClient.isWidgetVisible(15, 3)) {
+                    Waiting.waitUntil(() -> MyRevsClient.clickWidget("Deposit loot", 15, 8));
+                    Waiting.waitUntil(() -> MyRevsClient.clickWidget("Dismiss", 15, 10));
+                }
             }
+
         }
 
 
@@ -154,7 +187,7 @@ public class BankManagerRevenant {
 
         var staminapot = Query.bank().nameContains("Stamina potion").findFirst().orElse(null);
         if (staminapot != null) {
-            Bank.withdraw(staminapot, 1);
+            Waiting.waitUntil(() -> Bank.withdraw(staminapot, 1));
             Waiting.wait(1500);
             ensureItemIsWithdrawn(staminapot.getName(), 1);
         }else {
@@ -169,7 +202,7 @@ public class BankManagerRevenant {
             if (Bank.getCount("Shark") < 15){
                 stackablesToBuy.add("Shark");
             }
-            Bank.withdraw(shark, 15);
+            Waiting.waitUntil(() -> Bank.withdraw(shark, 15));
             Waiting.wait(1500);
             ensureItemIsWithdrawn(shark.getName(), 15);
         }else {
@@ -178,7 +211,7 @@ public class BankManagerRevenant {
 
         var dueling = Query.bank().nameContains("Ring of dueling(").findFirst().orElse(null);
         if (dueling != null) {
-            Bank.withdraw(dueling.getName(), 1);
+            Waiting.waitUntil(() -> Bank.withdraw(dueling.getName(), 1));
             Waiting.wait(1500);
             ensureItemIsWithdrawn(dueling.getName(), 1);
         }else {
@@ -190,6 +223,13 @@ public class BankManagerRevenant {
             Bank.withdraw(lootingBag.getName(), 1);
             Waiting.wait(1500);
             ensureItemIsWithdrawn(lootingBag.getName(), 1);
+            Waiting.waitUntil(() -> Inventory.contains("Looting bag"));
+            if (Query.inventory().nameEquals("Looting bag").findFirst().get().click("View")){
+                if (MyRevsClient.isWidgetVisible(15, 3)) {
+                    Waiting.waitUntil(() -> MyRevsClient.clickWidget("Deposit loot", 15, 8));
+                    Waiting.waitUntil(() -> MyRevsClient.clickWidget("Dismiss", 15, 10));
+                }
+            }
         }
 
 
@@ -200,11 +240,11 @@ public class BankManagerRevenant {
 
         if (stackablesToBuy.size() != 0){
             if (!GrandExchange.isNearby()){
-                RevenantScript.state = State.SELLLOOT;
                 GlobalWalking.walkTo(new WorldTile(3164, 3484, 0));
             }
+            GrandExchangeRevManager.sellLoot(false);
             openBank();
-            GrandExchangeRevManager.restockFromBank(stackablesToBuy, new ArrayList<>());
+            GrandExchangeRevManager.restockFromBank(stackablesToBuy);
         }
 
         if (Bank.isOpen()) {
@@ -240,16 +280,9 @@ public class BankManagerRevenant {
         Bank.depositEquipment();
         Waiting.wait(2000);
         itemsToBuy = new ArrayList<>();
-        List<String> stackables = new ArrayList<>();
         for (var item : EquipmentManager.getBasicGear()) {
-            if (item.equals("Craw's bow")){
-                if (Query.bank().nameEquals("Craw's bow (u)").isAny()){
-                    Bank.withdraw("Craw's bow (u)", 1);
-                    Waiting.waitUntil(2000, () -> Inventory.contains("Craw's bow (u)"));
-                    ensureItemIsWithdrawn("Craw's bow (u)", 1);
-
+            if (item.equals("Craw's bow") || item.equals("Salve amulet(i)")){
                     continue;
-                }
             }
             if (!Query.bank().nameEquals(item).isAny()) {
                 //Log.info(item);
@@ -270,9 +303,8 @@ public class BankManagerRevenant {
                 }
             }
             if (!Inventory.contains(item) && !EquipmentManager.equipmentContains(item)) {
-                Bank.withdraw(item, 1);
-                Waiting.waitUntil(2000, () -> Inventory.contains(item));
-                ensureItemIsWithdrawn(item, 1);
+                Waiting.waitUntil(() -> Bank.withdraw(item, 1));
+                //ensureItemIsWithdrawn(item, 1);
             }
 
         }
@@ -397,11 +429,15 @@ public class BankManagerRevenant {
 
         if (itemsToBuy.size() != 0) {
             if (!GrandExchange.isNearby()){
-                RevenantScript.state = State.SELLLOOT;
                 GlobalWalking.walkTo(new WorldTile(3164, 3484, 0));
             }
             openBank();
-            GrandExchangeRevManager.restockFromBank(itemsToBuy, stackables);
+            var gp = Query.bank().idEquals(995).findFirst().orElse(null);
+            assert gp != null;
+            if (gp.getStack() < 1000000){
+                GrandExchangeRevManager.sellLoot(false);
+            }
+            GrandExchangeRevManager.restockFromBank(itemsToBuy);
         }
 
         if (Bank.isOpen()) {

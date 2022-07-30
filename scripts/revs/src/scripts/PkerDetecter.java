@@ -14,7 +14,10 @@ public class PkerDetecter implements Runnable {
         if (MyRevsClient.myPlayerIsInGE()) {
             RevenantScript.state = State.BANKING;
         }
-        //Log.info("Quick teleporting");
+        if (!GameTab.EQUIPMENT.isOpen()) {
+            GameTab.EQUIPMENT.open();
+        }
+        Log.info("Quick teleporting");
         Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
         Waiting.waitUntil(MyRevsClient::myPlayerIsInGE);
         Mouse.setSpeed(200);
@@ -25,16 +28,16 @@ public class PkerDetecter implements Runnable {
         var interactables = Query.players().withinCombatLevels(Combat.getWildernessLevel());
         if (interactables.count() != 0) {
             if (Query.players().withinCombatLevels(Combat.getWildernessLevel()).hasSkullIcon().isAny()) {
-                //Log.info("PKer detected");
+                Log.info("PKer detected");
                 return true;
             }
 
             if (Query.players().withinCombatLevels(Combat.getWildernessLevel()).isAny()) {
-                if (Query.players().isEquipped(22550).isAny() || Query.players().isEquipped(12926).isAny() || Query.players().isEquipped("Viggora's chainmace").isAny()) {
-                    //Log.info("Pvmer detected");
+                if (Query.players().isEquipped(22550).isAny() || Query.players().isEquipped(12926).isAny() || Query.players().isEquipped("Viggora's chainmace").isAny() || Query.players().isEquipped("Magic shortbow").isAny() || Query.players().isEquipped("Magic shortbow (i)").isAny()) {
+                    Log.info("Pvmer detected");
                     return false;
                 } else {
-                    //Log.info("Possible PKer detected");
+                    Log.info("Possible PKer detected");
                     return true;
                 }
             }
@@ -46,7 +49,8 @@ public class PkerDetecter implements Runnable {
     public void run() {
         //Log.info("NEW THREAD HAS BEEN STARTED");
         while(true){
-            while (RevenantScript.state == State.WALKING || RevenantScript.state == State.KILLING) {
+            while (RevenantScript.state == State.WALKING || RevenantScript.state == State.KILLING ||RevenantScript.state == State.LOOTING) {
+
                 //Log.info("I'm CURRENTLY RUNNING!");
                 if (PkerDetecter.isPkerDetected()) {
                     //Log.info("PKER DETECTED!!");

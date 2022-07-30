@@ -12,7 +12,7 @@ public class GrandExchangeManager {
     public static void sellLogsIfPossible(List<String> logs, WorldTile GE, String currentAxe){
 
         var amountOfLogs = logs.stream().mapToInt(Bank::getCount).sum();
-        Log.info(amountOfLogs);
+        //Log.info(amountOfLogs);
         if (amountOfLogs >= 400) {
             BankSettings.setNoteEnabled(true);
             logs.forEach(Bank::withdrawAll);

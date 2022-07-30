@@ -30,11 +30,15 @@ public class RevenantScript implements TribotScript {
 
 
     private void processMessage(String message) {
-        if (message.equals("The effects of the divine potion have worn off.")){
+        if (message.equals("<col=ef1020>Your weapon has run out of revenant ether.</col>")){
+            RevenantScript.state = State.BANKING;
+            return;
+        }
+        Log.debug(message);
+        if (message.equals("<col=ef1020>The effects of the divine potion have worn off.")){
             BoostingManager.resetBoost();
             return;
         }
-
         if (message.equals("You don't have enough inventory space.")){
             Bank.depositInventory();
             BankManagerRevenant.withdrawGear();
@@ -75,12 +79,12 @@ public class RevenantScript implements TribotScript {
         PrayerManager.init();
         AntiBanManager.init();
         GameTab.setSwitchPreference(GameTab.SwitchPreference.KEYS);
-        state = State.BANKING;
+        state = State.STARTING;
         Mouse.setSpeed(200);
         socketClient = new MulingClient();
 
         try{
-            socketClient.startConnection("127.0.0.1", 6668);
+            MulingClient.startConnection("127.0.0.1", 6668);
         }catch (Exception e){
         }
         if (!Login.isLoggedIn()){
@@ -115,6 +119,7 @@ public class RevenantScript implements TribotScript {
                     BoostingManager.resetBoost();
                 }
             }
+
             if (state == State.KILLING) {
                 //Log.info(state);
                 RevkillerManager.killMonster();
@@ -147,7 +152,7 @@ public class RevenantScript implements TribotScript {
             }
 
             if (state == State.SELLLOOT){
-                GrandExchangeRevManager.sellLoot();
+                GrandExchangeRevManager.sellLoot(true);
             }
             // RUN BOT
             Waiting.wait(50);

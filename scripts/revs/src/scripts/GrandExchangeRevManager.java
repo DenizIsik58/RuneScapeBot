@@ -24,7 +24,7 @@ public class GrandExchangeRevManager {
             GrandExchange.open();
         }
     }
-    public static void sellLoot() {
+    public static void sellLoot(boolean shouldContinue) {
         shouldRepeat = false;
         openBank();
         Bank.depositInventory();
@@ -34,14 +34,14 @@ public class GrandExchangeRevManager {
         Bank.withdrawAll("Coins");
 
         for (var item : LootingManager.getLootToPickUp()) {
-            if (item.equals("Looting bag") || item.equals("Coins")){
+            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")){
                 continue;
             }
             if (item.contains("Bracelet of eth")){
                 if (Bank.getCount(item) < 10) {
                     continue;
                 }
-                Bank.withdraw(item, Bank.getCount(item) - Bank.getCount(item) - 10);
+                Bank.withdraw(item, Bank.getCount(item) - (Bank.getCount(item) - 10));
             }
             if (Inventory.isFull()){
                 shouldRepeat = true;
@@ -87,6 +87,7 @@ public class GrandExchangeRevManager {
 
         GrandExchange.close();
         BankManagerRevenant.openBank();
+
         Bank.depositAll("Coins");
         Waiting.wait(5000);
 
@@ -96,6 +97,7 @@ public class GrandExchangeRevManager {
 
             try {
                 if (!MulingClient.getClientSocket().getInetAddress().isReachable(5000)){
+                    MulingClient.startConnection( "127.0.0.1", 6668);
                 }
 
                 var msg = RevenantScript.getSocketClient().sendMessage("I want to mule! " + MyPlayer.get().get().getName());
@@ -150,8 +152,12 @@ public class GrandExchangeRevManager {
             }
 
         }
+        if (!shouldContinue){
+            return;
+        }
+
         if (shouldRepeat){
-            sellLoot();
+            sellLoot(true);
         }else {
             RevenantScript.state = State.BANKING;
         }
@@ -160,7 +166,7 @@ public class GrandExchangeRevManager {
 
 
 
-    public static void restockFromBank(List<String> itemsTobuy, List<String> stackables){
+    public static void restockFromBank(List<String> itemsTobuy){
 
         Bank.withdrawAll("Coins");
         Waiting.wait(3500);
@@ -172,11 +178,15 @@ public class GrandExchangeRevManager {
             if (item.contains("Prayer pot") || item.contains("Shark") || item.contains("Divine ranging potion")) {
                 GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(100).priceAdjustment(2).type(GrandExchangeOffer.Type.BUY).build());
             }else {
-                GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).priceAdjustment(2).type(GrandExchangeOffer.Type.BUY).build());
+                if (item.equals("Leather boots") || item.equals("Leather body") || item.equals("Coif")){
+                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).price(1000).type(GrandExchangeOffer.Type.BUY).build());
+                }else {
+                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).priceAdjustment(2).type(GrandExchangeOffer.Type.BUY).build());
+                }
             }
             Waiting.wait(3000);
         }
-        if (stackables.contains("Revenant ether")) {
+        if (itemsTobuy.contains("Revenant ether")) {
             GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName("Revenant ether").quantity(4000).priceAdjustment(2).type(GrandExchangeOffer.Type.BUY).build());
             Waiting.wait(3000);
         }

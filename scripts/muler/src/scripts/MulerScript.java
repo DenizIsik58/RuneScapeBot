@@ -19,27 +19,26 @@ public class MulerScript implements TribotScript {
     private MultiServerSocket muler;
 
     public static void processTrade(String name){
-        var player = "";
-        //Log.info("Got a muling request by from " + name);
-        for(var playerName: MultiServerSocket.getNames()){
-            if (playerName.equals(name)){
-                player = playerName;
-                Chatbox.acceptTradeRequest(name);
-                Waiting.wait(10000);
-                TradeScreen.OtherPlayer.contains("Coins");
-                Waiting.wait(10000);
-                if (TradeScreen.OtherPlayer.hasAccepted()){
-                    TradeScreen.accept();
-                    Waiting.wait(10000);
-                }
-                if (TradeScreen.OtherPlayer.hasAccepted()){
-                    TradeScreen.accept();
-                    Waiting.wait(10000);
-                }
 
+        while(MultiServerSocket.getNames().size() != 0){
+            var player = "";
+            //Log.info("Got a muling request by from " + name);
+            for(var playerName: MultiServerSocket.getNames()){
+                if (playerName.equals(name)){
+                    player = playerName;
+                    Chatbox.acceptTradeRequest(name);
+                    Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
+
+                    // First trade
+                    Waiting.waitUntil(TradeScreen.OtherPlayer::hasAccepted);
+                    TradeScreen.accept();
+
+                    // Second trade
+                    Waiting.waitUntil(TradeScreen.OtherPlayer::hasAccepted);
+                    MultiServerSocket.getNames().remove(player);
+                }
             }
         }
-        MultiServerSocket.getNames().remove(player);
         state = MulerState.IDLING;
     }
 

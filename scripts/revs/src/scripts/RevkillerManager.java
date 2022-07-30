@@ -20,6 +20,7 @@ public class RevkillerManager {
         if (!GameTab.EQUIPMENT.isOpen()) {
             GameTab.EQUIPMENT.open();
         }
+
         var boss = Query.npcs().nameEquals("Revenant maledictus").findFirst().orElse(null);
 
         if (boss != null){
@@ -32,21 +33,19 @@ public class RevkillerManager {
             iWasFirst = true;
         }
 
-        if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
-            RevenantScript.state = State.LOOTING;
-        }
-
         if (iWasFirst) {
             PrayerManager.enableQuickPrayer();
             CameraManager.setCameraAngle();
 
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
+                Log.info("Low on prayer");
                 Query.equipment().nameContains("Ring of wealth (").findFirst().map(ring -> ring.click("Grand exchange"));
                 RevenantScript.state = State.BANKING;
                 PrayerManager.disableQuickPrayer();
             }
 
             if (Query.inventory().nameEquals("Shark").count() < 4) {
+                Log.info("Low on shark");
                 Query.equipment().nameContains("Ring of wealth (").findFirst().map(ring -> ring.click("Grand exchange"));
                 RevenantScript.state = State.BANKING;
                 PrayerManager.disableQuickPrayer();
@@ -55,7 +54,7 @@ public class RevkillerManager {
             var lootingBag = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
 
             if (lootingBag != null) {
-                Log.info(lootingBag.getId());
+                //Log.info(lootingBag.getId());
                 if (lootingBag.getId() == 11941) {
                     lootingBag.click("Open");
                 }
@@ -81,7 +80,7 @@ public class RevkillerManager {
                 Combat.setAttackStyle(Combat.AttackStyle.RAPID);
             }
 
-            if (MyPlayer.getCurrentHealthPercent() < 50) {
+            if (MyPlayer.getCurrentHealthPercent() < 70) {
                 Query.inventory().nameEquals("Shark").findClosestToMouse().map(InventoryItem::click);
                 if (target != null){
                     target.click();
@@ -122,16 +121,18 @@ public class RevkillerManager {
                     }
                 }
 
-                if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile)).isAny()) || !target.isHealthBarVisible() && target.isInteractingWithMe() || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
+                if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile)).isAny()) || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
                     target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile));
                 }
 
-
-
+            }
+            if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
+                RevenantScript.state = State.LOOTING;
             }
 
                 //Log.info("LOOT VALUE: " + LootingManager.getTripValue());
             if (LootingManager.getTripValue() >= 500000) {
+                Log.info("Teleporting with: " + LootingManager.getTripValue());
                 RevenantScript.state = State.BANKING;
             }
 
@@ -143,6 +144,10 @@ public class RevkillerManager {
                 WorldManager.hopToRandomMemberWorldWithRequirements();
             }
         }
+    }
+
+    public static Npc getTarget() {
+        return target;
     }
 
     public static boolean isiWasFirst() {

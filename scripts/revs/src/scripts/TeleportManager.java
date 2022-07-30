@@ -36,7 +36,7 @@ public class TeleportManager {
                 ring.click("Rub");
                 Waiting.waitUntil(2000, () -> ChatScreen.containsOption("Ferox Enclave."));
                 ChatScreen.selectOption("Ferox enclave.");
-                Waiting.wait(6000);
+                Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
             }
         }else {
                 BankManagerRevenant.withdrawItemByName("Ring of dueling");
@@ -53,7 +53,7 @@ public class TeleportManager {
             if (pool != null) {
                 if (pool.isVisible()) {
                     pool.interact("Drink");
-                    waitUntil(10000, () -> MyPlayer.getAnimation() == 7305);
+                    waitUntil(4000, () -> MyPlayer.getAnimation() == 7305);
                 }
 
             }
@@ -67,14 +67,15 @@ public class TeleportManager {
                 }
 
             }
-            GlobalWalking.walkTo(caveEntrance, TeleportManager::processWalking); // Cave entrance
-            Query.gameObjects().idEquals(31555).findBestInteractable().map(c -> c.interact("Enter"));
-            Waiting.waitUntilInArea(Area.fromRectangle(new WorldTile(3192, 10062, 0), new WorldTile(3202, 10051, 0)), 10000);
+            //GlobalWalking.walkTo(caveEntrance, TeleportManager::processWalking); // Cave entrance
+            //Query.gameObjects().idEquals(31555).findBestInteractable().map(c -> c.interact("Enter"));
+            //Waiting.waitUntilInArea(Area.fromRectangle(new WorldTile(3192, 10062, 0), new WorldTile(3202, 10051, 0)), 10000);
+            GlobalWalking.walkTo(randomMonsterTile, TeleportManager::processWalking);
 
             if (!MyPlayer.isStaminaActive()) {
                 Query.inventory().nameContains("Stamina potion").findFirst().map(InventoryItem::click);
             }
-            GlobalWalking.walkTo(randomMonsterTile, TeleportManager::processWalking);
+
 
         }
         return randomMonsterTile;
@@ -92,7 +93,7 @@ public class TeleportManager {
             GameTab.LOGOUT.open();
         }
 
-        if (PkerDetecter.isPkerDetected() && !MyRevsClient.myPlayerIsInFerox()){
+        if (PkerDetecter.isPkerDetected() && !MyRevsClient.myPlayerIsInFerox() && !MyRevsClient.myPlayerIsInGE()){
             if (!Query.players().isInteractingWithMe().isAny()){
                 WorldManager.hopToRandomMemberWorldWithRequirements();
                 return WalkState.CONTINUE;

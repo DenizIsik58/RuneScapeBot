@@ -28,12 +28,13 @@ public class LootingManager {
                     "Viggora's chainmace (u)", "Ancient emblem", "Ancient totem", "Ancient crystal",
                     "Ancient statuette", "Ancient medallion", "Ancient effigy", "Ancient relic",
                     "Looting bag", "Dragonstone bolt tips", "Death rune", "Blood rune",
-                    "Blighted super restore(4)", "Onyx bolt tips", "Law rune"));
+                    "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth"));
     private static int tripValue = 0;
     private static int totalValue = 0;
 
     public static void loot(){
 
+        while(hasLootBeenDetected()){
             for (var loot : lootToPickUp){
                 var item = Query.groundItems().nameEquals(loot).findFirst().orElse(null);
                 if (item != null){
@@ -52,30 +53,41 @@ public class LootingManager {
 
                     while(true){
                         if (MyPlayer.getCurrentHealthPercent() <= 10 || Inventory.getCount("Shark") == 0 || Query.inventory().nameContains("Prayer pot").count() == 0){
+                            Log.info("Low food");
                             PkerDetecter.quickTele();
-                            Waiting.wait(100);
                         }
 
                         //Log.info(countBeforePickingUp);
                         if (hasDecreased(item.getName(), countBeforePickingUp)){
                             break;
                         }
+
                         Waiting.wait(20);
 
                     }
 
                     tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
-                    totalValue += tripValue;
+                    totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
                     //Log.info(tripValue);
-
-                    return;
+                    break;
                 }
         }
 
+        }
 
         RevenantScript.state = State.KILLING;
-        RevenantScript.selectedMonsterTile.click();
+            if(RevkillerManager.getTarget() != null){
+                if (!RevkillerManager.getTarget().getTile().isVisible() && RevkillerManager.getTarget().isValid()){
+                    GlobalWalking.walkTo(RevkillerManager.getTarget().getTile());
+                    RevkillerManager.getTarget().adjustCameraTo();
+                    RevkillerManager.getTarget().click();
+                }else if(!RevkillerManager.getTarget().isValid()){
+                    GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
+                }
 
+            }else {
+                GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
+            }
     }
 
     public static boolean hasDecreased(String itemName, int count){

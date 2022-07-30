@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class EquipmentManager {
-    private static final List<String> basicGear = new ArrayList<>(Arrays.asList("Coif", "Bandos cloak", "Leather body", "Black d'hide chaps", "Leather boots", "Amulet of glory(6)", "Craw's bow"));
+    private static final List<String> basicGear = new ArrayList<>(Arrays.asList("Coif", "Bandos cloak", "Leather body", "Black d'hide chaps", "Leather boots", "Amulet of glory(6)", "Craw's bow", "Salve amulet(i)")); //
     private static int braceCharges = 0;
     private static int bowCharges = 0;
 
