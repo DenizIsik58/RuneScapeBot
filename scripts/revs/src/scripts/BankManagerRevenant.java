@@ -296,7 +296,7 @@ public class BankManagerRevenant {
                     }else if(Query.bank().nameEquals("Salve amulet(i)").isAny()){
                         if (Query.bank().nameEquals("Salve amulet(i)").isAny()){
                             hasSalve = true;
-                            salve = 25250;
+                            salve = 12017;
                         }
                     }
                 }
