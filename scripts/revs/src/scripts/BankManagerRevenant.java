@@ -310,6 +310,7 @@ public class BankManagerRevenant {
             }
 
             Waiting.waitUntil(() -> Bank.withdraw(21820, 1750));
+            Waiting.waitUntil(() -> Bank.withdraw("Craw's bow (u)", 1));
             Bank.close();
             Waiting.waitUntil(2000, () -> Query.inventory().idEquals(21820).isAny());
             Query.inventory()
@@ -365,9 +366,6 @@ public class BankManagerRevenant {
                 Bank.depositInventory();
                 withdrawGears();
             }
-
-
-
 
         var glory = EquipmentReq.slot(Equipment.Slot.NECK).chargedItem("Amulet of glory", 1);
         var sal =  EquipmentReq.slot(Equipment.Slot.NECK).item(salve, Amount.of(1));
@@ -750,7 +748,6 @@ public class BankManagerRevenant {
 
     public static void init() {
         withdrawGears();
-        Bank.depositInventory();
     }
 
 }
