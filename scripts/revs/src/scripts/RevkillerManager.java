@@ -34,6 +34,7 @@ public class RevkillerManager {
 
             }
         }
+
         if (Combat.isAutoRetaliateOn()){
             Combat.setAutoRetaliate(false);
         }

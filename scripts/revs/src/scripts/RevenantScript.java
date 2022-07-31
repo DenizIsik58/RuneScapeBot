@@ -73,7 +73,9 @@ public class RevenantScript implements TribotScript {
         MessageListening.addServerMessageListener(this::processMessage);
         ScriptListening.addPreEndingListener(() -> {
             try {
-                PkerDetecter.quickTele();
+                if (Combat.isInWilderness()){
+                    PkerDetecter.quickTele();
+                }
                 socketClient.stopConnection();
             } catch (IOException e) {
                 e.printStackTrace();

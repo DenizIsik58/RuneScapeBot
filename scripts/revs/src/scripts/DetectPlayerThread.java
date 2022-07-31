@@ -148,6 +148,7 @@ public class DetectPlayerThread extends Thread {
                         }
                         PkerDetecter.quickTele();
                         RevenantScript.state = scripts.State.BANKING;
+                        return;
                     } else {
                         setWaitingForDeath(true);
                     }
