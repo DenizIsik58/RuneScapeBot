@@ -172,6 +172,7 @@ public class RevenantScript implements TribotScript {
             }
 
             if (state == State.DEATH) {
+                TeleportManager.setHasVisitedBeforeTrip(false);
                 DeathManger.incrementTotalDeaths();
                 Log.info("Oh dear! You have just died with: " + LootingManager.getTripValue() + " Gold!! BASTARD");
                 Log.info("Total times died so far: " + DeathManger.totalDeaths());

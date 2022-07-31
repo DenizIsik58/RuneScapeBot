@@ -29,10 +29,8 @@ public class RevkillerManager {
             if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
                 Log.info("Boss has been seen!");
                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                Waiting.waitUntil(MyRevsClient::myPlayerIsInGE);
-                if (MyRevsClient.myPlayerIsInGE()){
-                    RevenantScript.state = State.BANKING;
-                }
+                RevenantScript.state = State.BANKING;
+
             }
         }
         if (Query.players().count() == 0) {
@@ -46,21 +44,17 @@ public class RevkillerManager {
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
                 Log.info("We are low on prayer. Teleporting out..");
                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                Waiting.waitUntil(10000,MyRevsClient::myPlayerIsInGE);
-                if (MyRevsClient.myPlayerIsInGE()){
-                    RevenantScript.state = State.BANKING;
-                }
+                RevenantScript.state = State.BANKING;
+
                 PrayerManager.disableQuickPrayer();
             }
 
             if (Query.inventory().nameEquals("Shark").count() < 4) {
                 Log.info("We are low on shark. Teleporting out...");
                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                Waiting.waitUntil(10000, MyRevsClient::myPlayerIsInGE);
-                if (MyRevsClient.myPlayerIsInGE()){
-                    Log.debug("BANKING");
-                    RevenantScript.state = State.BANKING;
-                }
+                Log.debug("BANKING");
+                RevenantScript.state = State.BANKING;
+
                 PrayerManager.disableQuickPrayer();
             }
 

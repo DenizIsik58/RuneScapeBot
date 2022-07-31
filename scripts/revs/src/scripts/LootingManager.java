@@ -42,6 +42,7 @@ public class LootingManager {
                     if (!item.isVisible()){
                         item.adjustCameraTo();
                     }
+
                     //Log.info(item);
                     var countBeforePickingUp = Query.groundItems().nameEquals(item.getName()).count();
                     item.hover();

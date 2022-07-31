@@ -168,6 +168,12 @@ public class DetectPlayerThread extends Thread {
                     }
                 }
 
+            }else {
+                if (isAtRespawn()){
+                    Log.warn("[DEATH] I'm at spawn");
+                    RevenantScript.state = scripts.State.DEATH;
+                    setHasPkerBeenDetected(false);
+                }
             }
 
             try {
