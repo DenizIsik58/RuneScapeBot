@@ -112,10 +112,10 @@ public class RevenantScript implements TribotScript {
         //antiPkThread.start();
 
         while (true) {
-            Log.info(state);
 
             if (MyRevsClient.myPlayerIsInGE() && DetectPlayerThread.isHasPkerBeenDetected()){
                 RevenantScript.state = State.BANKING;
+                Log.debug("Banking after pk detection");
                 DetectPlayerThread.setHasPkerBeenDetected(false);
             }
 
@@ -141,6 +141,7 @@ public class RevenantScript implements TribotScript {
                 }
                 BankManagerRevenant.init();
                 state = State.WALKING;
+                Log.debug(state);
             }
 
             if (state == State.WALKING) {
@@ -169,9 +170,9 @@ public class RevenantScript implements TribotScript {
                 Log.info("Total amount made since script start: " + LootingManager.getTotalValue());
                 Log.info("Total times died so far: " + DeathManger.totalDeaths());
                 PrayerManager.disableQuickPrayer();
-                BankManagerRevenant.bankLoot();
                 DetectPlayerThread.setHasPkerBeenDetected(false);
                 TeleportManager.setHasVisitedBeforeTrip(false);
+                BankManagerRevenant.bankLoot();
             }
 
             if (state == State.LOOTING) {
@@ -179,6 +180,7 @@ public class RevenantScript implements TribotScript {
             }
 
             if (state == State.DEATH) {
+                Log.debug(state);
                 TeleportManager.setHasVisitedBeforeTrip(false);
                 DeathManger.incrementTotalDeaths();
                 Log.info("Oh dear! You have just died with: " + LootingManager.getTripValue() + " Gold!! BASTARD");

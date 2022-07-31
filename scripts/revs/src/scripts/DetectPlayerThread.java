@@ -164,23 +164,17 @@ public class DetectPlayerThread extends Thread {
                                 Log.warn("[DEATH] I'm at spawn");
                                 RevenantScript.state = scripts.State.DEATH;
                                 setHasPkerBeenDetected(false);
-                                return;
+                                setDangerFlag(false);
+                                setWaitingForDeath(false);
+                                setInDanger(false);
+                                setTeleblocked(false);
+
                             }
 
                         }
                     }
                 }
 
-            }else {
-                if (isAtRespawn()){
-                    Log.warn("[DEATH] I'm at spawn");
-                    RevenantScript.state = scripts.State.DEATH;
-                    setHasPkerBeenDetected(false);
-                    setDangerFlag(false);
-                    setWaitingForDeath(false);
-                    setInDanger(false);
-                    setTeleblocked(false);
-                }
             }
 
             try {
