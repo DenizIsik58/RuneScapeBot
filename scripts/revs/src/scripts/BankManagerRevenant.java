@@ -45,6 +45,7 @@ public class BankManagerRevenant {
         List<String> valueAbles = new ArrayList<>(Arrays.asList("Ancient relic", "Ancient effigy", "Ancient medallion"));
         for (var item : valueAbles){
             if (Query.bank().nameEquals(item).isAny()){
+                Log.debug("We have: " + item);
                 GrandExchangeRevManager.sellLoot();
                 return;
             }
@@ -253,10 +254,12 @@ public class BankManagerRevenant {
         Bank.close();
 
         if (Equipment.getAll().size() != 9){
+            Log.debug("I dont have 9 items on");
             withdrawGears();
         }
-        WorldManager.hopToRandomMemberWorldWithRequirements();
-        Waiting.wait(4000);
+
+        Log.debug("End of withdrawpotsandfood");
+
         RevenantScript.state = State.WALKING;
 
     }

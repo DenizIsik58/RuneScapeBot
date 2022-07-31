@@ -30,7 +30,8 @@ public class TeleportManager {
         List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(south_ork, north_ork, demons));
         Collections.shuffle(monsterTiles);
         var chosenMobArea = monsterTiles.get(0);
-
+        WorldManager.hopToRandomMemberWorldWithRequirements();
+        Waiting.waitUntil(10000, MyRevsClient::myPlayerIsInFerox);
 
         if (!chosenMobArea.isVisible()) {
             Log.debug("Trying to walk to cave");

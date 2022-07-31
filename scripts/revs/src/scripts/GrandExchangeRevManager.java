@@ -60,6 +60,8 @@ public class GrandExchangeRevManager {
             }
             if (Query.bank().nameEquals(item).isAny()) {
                 Waiting.waitUntil(() -> Bank.withdrawAll(item));
+            }else {
+                RevenantScript.state = State.BANKING;
             }
         }
         Log.warn("IM HERE");

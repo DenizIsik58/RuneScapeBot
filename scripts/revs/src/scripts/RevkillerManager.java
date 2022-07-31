@@ -34,6 +34,9 @@ public class RevkillerManager {
 
             }
         }
+        if (Combat.isAutoRetaliateOn()){
+            Combat.setAutoRetaliate(false);
+        }
         if (Query.players().count() == 0) {
             iWasFirst = true;
         }

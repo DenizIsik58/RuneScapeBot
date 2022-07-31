@@ -73,6 +73,7 @@ public class RevenantScript implements TribotScript {
         MessageListening.addServerMessageListener(this::processMessage);
         ScriptListening.addPreEndingListener(() -> {
             try {
+                PkerDetecter.quickTele();
                 socketClient.stopConnection();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -84,6 +85,9 @@ public class RevenantScript implements TribotScript {
         CameraManager.init();
         PrayerManager.init();
         AntiBanManager.init();
+        if (Options.isAllSettingsOpen()){
+            Options.closeAllSettings();
+        }
         GameTab.setSwitchPreference(GameTab.SwitchPreference.KEYS);
         state = State.STARTING;
         Mouse.setSpeed(200);
@@ -141,7 +145,7 @@ public class RevenantScript implements TribotScript {
                 var tile = TeleportManager.refill();
 
                 selectedMonsterTile = tile;
-                if (tile.isInLineOfSight()) {
+                if (tile.isRendered() || tile.isVisible() || tile.isInLineOfSight()) {
                     OptionsManager.init();
                     CameraManager.init();
                     PrayerManager.init();
