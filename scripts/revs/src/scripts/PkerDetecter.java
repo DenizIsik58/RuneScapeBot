@@ -21,12 +21,14 @@ public class PkerDetecter implements Runnable {
         Log.info("Quick teleporting");
         Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
         Waiting.waitUntil(6000, MyRevsClient::myPlayerIsInGE);
-        if (MyRevsClient.myPlayerIsInGE()) {
-            RevenantScript.state = State.BANKING;
-        }
         if (!GameTab.EQUIPMENT.isOpen()) {
             GameTab.EQUIPMENT.open();
         }
+        if (MyRevsClient.myPlayerIsInGE()) {
+            RevenantScript.state = State.BANKING;
+            return;
+        }
+
 
     }
 

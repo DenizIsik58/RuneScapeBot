@@ -41,13 +41,22 @@ public class BankManagerRevenant {
         //withdrawPVMInventory();
     }
 
+    public static void checkIfWeHaveEmblemDrop(){
+        List<String> valueAbles = new ArrayList<>(Arrays.asList("Ancient relic, Ancient effigy", "Ancient medallion"));
+        for (var item : valueAbles){
+            if (Query.bank().nameEquals(item).isAny()){
+                GrandExchangeRevManager.sellLoot(false);
+            }
+        }
+    }
+
     public static void returnFromTrip(){
         EquipmentManager.checkCharges();
         BankManagerRevenant.openBank();
         Waiting.waitUntil(Bank::isOpen);
         equipNewWealthIfNeeded();
         chargeBraceletOrBowIfNeeded();
-
+        checkIfWeHaveEmblemDrop();
         withdrawFoodAndPots();
 
     }

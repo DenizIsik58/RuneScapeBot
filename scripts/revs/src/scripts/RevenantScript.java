@@ -106,7 +106,7 @@ public class RevenantScript implements TribotScript {
         //antiPkThread.start();
 
         while (true) {
-
+            Log.info(state);
 
             if (MyRevsClient.myPlayerIsInGE() && DetectPlayerThread.isHasPkerBeenDetected()){
                 RevenantScript.state = State.BANKING;
@@ -114,6 +114,7 @@ public class RevenantScript implements TribotScript {
             }
 
             if (DetectPlayerThread.isHasPkerBeenDetected()){
+                Log.info("Pker detected.");
                 Waiting.wait(50);
                 continue;
             }

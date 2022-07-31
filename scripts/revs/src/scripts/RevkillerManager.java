@@ -30,6 +30,7 @@ public class RevkillerManager {
                 Log.info("Boss has been seen!");
                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                 RevenantScript.state = State.BANKING;
+                return;
 
             }
         }
@@ -47,15 +48,25 @@ public class RevkillerManager {
                 RevenantScript.state = State.BANKING;
 
                 PrayerManager.disableQuickPrayer();
+                return;
             }
 
             if (Query.inventory().nameEquals("Shark").count() < 4) {
+                if (target.isValid()){
+                    target.interact("Attack");
+                    Waiting.waitUntil(() -> !target.isValid());
+                    Waiting.wait(5000);
+                    if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
+                        RevenantScript.state = State.LOOTING;
+                    }
+                }
+
                 Log.info("We are low on shark. Teleporting out...");
                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                 Log.debug("BANKING");
                 RevenantScript.state = State.BANKING;
-
                 PrayerManager.disableQuickPrayer();
+                return;
             }
 
             var lootingBag = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
@@ -141,6 +152,7 @@ public class RevkillerManager {
             }
             if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
                 RevenantScript.state = State.LOOTING;
+                return;
             }
 
             if (LootingManager.getTripValue() >= 500000) {

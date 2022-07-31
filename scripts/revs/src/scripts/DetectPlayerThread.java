@@ -162,6 +162,7 @@ public class DetectPlayerThread extends Thread {
                                 Log.warn("[DEATH] I'm at spawn");
                                 RevenantScript.state = scripts.State.DEATH;
                                 setHasPkerBeenDetected(false);
+                                return;
                             }
 
                         }
@@ -173,6 +174,17 @@ public class DetectPlayerThread extends Thread {
                     Log.warn("[DEATH] I'm at spawn");
                     RevenantScript.state = scripts.State.DEATH;
                     setHasPkerBeenDetected(false);
+                    setDangerFlag(false);
+                    setWaitingForDeath(false);
+                    setInDanger(false);
+                    setTeleblocked(false);
+                } else if (MyRevsClient.myPlayerIsInGE()){
+                    RevenantScript.state = scripts.State.BANKING;
+                    setHasPkerBeenDetected(false);
+                    setDangerFlag(false);
+                    setWaitingForDeath(false);
+                    setInDanger(false);
+                    setTeleblocked(false);
                 }
             }
 

@@ -58,6 +58,7 @@ public class LootingManager {
                         Waiting.waitUntil(5000,MyRevsClient::myPlayerIsInGE);
                         if (MyRevsClient.myPlayerIsInGE()){
                             RevenantScript.state = State.BANKING;
+                            return;
                         }
                     }
                     break;
