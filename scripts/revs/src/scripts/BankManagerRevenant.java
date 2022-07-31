@@ -42,10 +42,10 @@ public class BankManagerRevenant {
     }
 
     public static void checkIfWeHaveEmblemDrop(){
-        List<String> valueAbles = new ArrayList<>(Arrays.asList("Ancient relic, Ancient effigy", "Ancient medallion"));
+        List<String> valueAbles = new ArrayList<>(Arrays.asList("Ancient relic", "Ancient effigy", "Ancient medallion"));
         for (var item : valueAbles){
             if (Query.bank().nameEquals(item).isAny()){
-                GrandExchangeRevManager.sellLoot(false);
+                GrandExchangeRevManager.sellLoot();
                 return;
             }
         }
@@ -70,7 +70,7 @@ public class BankManagerRevenant {
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1)).build().execute();
             }else {
                 Log.debug("Out of ring of wealths. Selling loot to buy more!");
-                GrandExchangeRevManager.sellLoot(false);
+                GrandExchangeRevManager.sellLoot();
                 GrandExchangeRevManager.restockFromBank(new ArrayList<>(Arrays.asList("Ring of wealth (5)")));
             }
         }
@@ -203,7 +203,7 @@ public class BankManagerRevenant {
                 GlobalWalking.walkTo(new WorldTile(3164, 3484, 0));
             }
             Log.debug("I'm out of supplies. Selling loot and buying more.");
-            GrandExchangeRevManager.sellLoot(false);
+            GrandExchangeRevManager.sellLoot();
             openBank();
             GrandExchangeRevManager.restockFromBank(itemsToBuy);
             Bank.depositInventory();
@@ -315,7 +315,7 @@ public class BankManagerRevenant {
             Bank.withdraw(22547, 1);
             if (Bank.getCount(21820) < 1750 + 250) {
                 Log.debug("I'm out of ether. Selling loot and buying more");
-                GrandExchangeRevManager.sellLoot(false);
+                GrandExchangeRevManager.sellLoot();
                 GrandExchangeRevManager.buyFromBank(21820, 4000);
             }
 
@@ -345,7 +345,7 @@ public class BankManagerRevenant {
 
                 if (Bank.getCount(21820) < 250) {
                     Log.debug("I'm out of ether. Selling loot and buying more");
-                    GrandExchangeRevManager.sellLoot(false);
+                    GrandExchangeRevManager.sellLoot();
                     GrandExchangeRevManager.buyFromBank(21820, 4000);
 
                 }
@@ -370,7 +370,7 @@ public class BankManagerRevenant {
                 if (!GrandExchange.isNearby()){
                     GlobalWalking.walkTo(new WorldTile(3164, 3484, 0));
                 }
-               GrandExchangeRevManager.sellLoot(false);
+               GrandExchangeRevManager.sellLoot();
                 openBank();
                 GrandExchangeRevManager.restockFromBank(itemsToBuy);
                 Bank.depositInventory();
@@ -526,7 +526,7 @@ public class BankManagerRevenant {
             if (!GrandExchange.isNearby()){
                 GlobalWalking.walkTo(new WorldTile(3164, 3484, 0));
             }
-            GrandExchangeRevManager.sellLoot(false);
+            GrandExchangeRevManager.sellLoot();
             openBank();
             GrandExchangeRevManager.restockFromBank(stackablesToBuy);
         }
@@ -714,7 +714,7 @@ public class BankManagerRevenant {
             var gp = Query.bank().idEquals(995).findFirst().orElse(null);
             assert gp != null;
             if (gp.getStack() < 1000000){
-                GrandExchangeRevManager.sellLoot(false);
+                GrandExchangeRevManager.sellLoot();
             }
             GrandExchangeRevManager.restockFromBank(itemsToBuy);
         }

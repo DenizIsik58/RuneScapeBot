@@ -27,7 +27,7 @@ public class GrandExchangeRevManager {
             GrandExchange.open();
         }
     }
-    public static void sellLoot(boolean shouldContinue) {
+    public static void sellLoot() {
         shouldRepeat = false;
         openBank();
         Bank.depositInventory();
@@ -60,8 +60,6 @@ public class GrandExchangeRevManager {
             }
             if (Query.bank().nameEquals(item).isAny()) {
                 Waiting.waitUntil(() -> Bank.withdrawAll(item));
-            }else {
-                RevenantScript.state = State.BANKING;
             }
         }
         Log.warn("IM HERE");
@@ -99,10 +97,6 @@ public class GrandExchangeRevManager {
 
         GrandExchange.close();
         BankManagerRevenant.openBank();
-
-        if (shouldRepeat){
-            sellLoot(true);
-        }
 
         Bank.depositAll("Coins");
         Waiting.wait(5000);
@@ -164,14 +158,8 @@ public class GrandExchangeRevManager {
             }catch (Exception e){
 
             }
-
         }
 
-        if (!shouldContinue){
-            return;
-        }
-
-        RevenantScript.state = State.BANKING;
 
     }
 
