@@ -147,7 +147,6 @@ public class DetectPlayerThread extends Thread {
                             setWaitingForDeath(false);
                         }
                         PkerDetecter.quickTele();
-                        RevenantScript.state = scripts.State.BANKING;
                         return;
                     } else {
                         setWaitingForDeath(true);
@@ -163,14 +162,7 @@ public class DetectPlayerThread extends Thread {
                             if (isAtRespawn()){
                                 Log.warn("[DEATH] I'm at spawn");
                                 RevenantScript.state = scripts.State.DEATH;
-                                setHasPkerBeenDetected(false);
-                                setDangerFlag(false);
-                                setWaitingForDeath(false);
-                                setInDanger(false);
-                                setTeleblocked(false);
-
                             }
-
                         }
                     }
                 }

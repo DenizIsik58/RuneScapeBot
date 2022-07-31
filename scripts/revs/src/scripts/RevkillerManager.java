@@ -56,12 +56,14 @@ public class RevkillerManager {
             }
 
             if (Query.inventory().nameEquals("Shark").count() < 4) {
-                if (target.isValid()){
-                    target.interact("Attack");
-                    Waiting.waitUntil(() -> !target.isValid());
-                    Waiting.wait(5000);
-                    if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
-                        RevenantScript.state = State.LOOTING;
+                if (target != null){
+                    if (target.isValid()){
+                        target.interact("Attack");
+                        Waiting.waitUntil(() -> !target.isValid());
+                        Waiting.wait(5000);
+                        if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
+                            RevenantScript.state = State.LOOTING;
+                        }
                     }
                 }
 
@@ -86,7 +88,6 @@ public class RevkillerManager {
                 if (target != null){
                     target.click();
                 }
-                GameTab.EQUIPMENT.open();
                 Waiting.wait(1500);
             }
 
@@ -95,7 +96,6 @@ public class RevkillerManager {
                 if (target != null){
                     target.click();
                 }
-                GameTab.EQUIPMENT.open();
                 Waiting.wait(2000);
             }
 
@@ -108,7 +108,6 @@ public class RevkillerManager {
                 if (target != null){
                     target.click();
                 }
-                GameTab.EQUIPMENT.open();
                 Waiting.wait(1500);
             }
 

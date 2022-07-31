@@ -265,8 +265,19 @@ public class BankManagerRevenant {
 
     }
 
+    public static void goToGeIfNotThere(){
+        Bank.close();
+        if (!Query.inventory().nameContains("Ring of wealth (").isAny() || !Query.equipment().nameContains("Ring of wealth (").isAny()){
+            openBank();
+            BankTask.builder().addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1));
+            Bank.close();
+        }
+        Equipment.Slot.RING.getItem().map(c -> c.click("Grand exchange"));
+    }
+
     public static void withdrawGears(){
         Log.debug("Withdrawing gear");
+        goToGeIfNotThere();
         openBank();
         setPlaceHolder();
         Waiting.waitUntil(100000, Bank::isOpen);
