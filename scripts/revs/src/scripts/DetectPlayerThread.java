@@ -140,7 +140,6 @@ public class DetectPlayerThread extends Thread {
                         int dangerMouseSpeed = getRandomNumber(800, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
                         Log.warn("[DANGER_LISTENER] DANGER MOUSE SPEED SET AT: " + dangerMouseSpeed);
-
                     }
 
                     if (!isTeleblocked()) {
@@ -153,8 +152,8 @@ public class DetectPlayerThread extends Thread {
                     }
 
                     if (isWaitingForDeath()) {
-                        if (!Prayer.isQuickPrayerEnabled()) {
-                            PrayerManager.enableQuickPrayer();
+                        if (!Prayer.PROTECT_ITEMS.isEnabled()) {
+                            Prayer.PROTECT_ITEMS.enable();
                         }
                         if (Prayer.PROTECT_ITEMS.isEnabled() && !Combat.isInWilderness()) {
                             Log.warn("[DANGER_LISTENER]WAITING TO BE KILLED");

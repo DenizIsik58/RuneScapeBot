@@ -56,7 +56,7 @@ public class RevkillerManager {
             if (Query.inventory().nameEquals("Shark").count() < 4) {
                 Log.info("We are low on shark. Teleporting out...");
                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                Waiting.waitUntil(10000,MyRevsClient::myPlayerIsInGE);
+                Waiting.waitUntil(10000, MyRevsClient::myPlayerIsInGE);
                 if (MyRevsClient.myPlayerIsInGE()){
                     Log.debug("BANKING");
                     RevenantScript.state = State.BANKING;

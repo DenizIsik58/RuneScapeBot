@@ -109,7 +109,7 @@ public class RevenantScript implements TribotScript {
 
 
             if (MyRevsClient.myPlayerIsInGE() && DetectPlayerThread.isHasPkerBeenDetected()){
-                RevenantScript.state = State.STARTING;
+                RevenantScript.state = State.BANKING;
                 DetectPlayerThread.setHasPkerBeenDetected(false);
             }
 
