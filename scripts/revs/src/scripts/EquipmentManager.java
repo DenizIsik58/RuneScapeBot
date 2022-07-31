@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class EquipmentManager {
-    private static final List<String> basicGear = new ArrayList<>(Arrays.asList("Coif", "Bandos cloak", "Leather body", "Black d'hide chaps", "Leather boots", "Amulet of glory(6)", "Craw's bow", "Salve amulet(i)")); //
+    private static final List<String> basicGear = new ArrayList<>(Arrays.asList("Coif", "Bandos cloak", "Leather body", "Black d'hide chaps", "Leather boots", "Amulet of glory(6)", "Craw's bow", "Salve amulet(i)", "Salve amulet(ei)")); //
     private static int braceCharges = 0;
     private static int bowCharges = 0;
 
@@ -50,6 +50,14 @@ public class EquipmentManager {
 
     public static boolean equipmentContains(String itemName){
         return Query.equipment().nameContains(itemName).isAny();
+    }
+
+    public static boolean hasWealthCharges(){
+        return Query.equipment().nameContains("Ring of wealth (").isAny();
+    }
+
+    public static void toggleBraceletAbsorbOn(){
+        Equipment.Slot.HANDS.getItem().map(c -> c.click("Toggle absorption"));
     }
 
     public static List<String> getBasicGear() {

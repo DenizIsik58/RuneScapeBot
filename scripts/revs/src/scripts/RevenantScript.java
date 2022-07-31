@@ -14,6 +14,7 @@ import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @TribotScriptManifest(name = "revs", author = "Deniz", category = "Moneymaking", description = "revs")
 
@@ -21,6 +22,7 @@ public class RevenantScript implements TribotScript {
     public static State state;
     public static WorldTile selectedMonsterTile = new WorldTile(3160, 10115,0 );
     private static MulingClient socketClient;
+    private final AtomicBoolean running = new AtomicBoolean(true);
 
     @Override
     public void configure(@NotNull ScriptConfig config) {
@@ -34,7 +36,6 @@ public class RevenantScript implements TribotScript {
             RevenantScript.state = State.BANKING;
             return;
         }
-        Log.debug(message);
         if (message.equals("<col=ef1020>The effects of the divine potion have worn off.")){
             BoostingManager.resetBoost();
             return;
@@ -49,6 +50,9 @@ public class RevenantScript implements TribotScript {
             var content = message.split(" ");
             var type = content[1];
             if (type.equals("bracelet")) {
+                if (message.contains("it will not absorb")){
+                    EquipmentManager.toggleBraceletAbsorbOn();
+                }
                 // Update bracelet charges
                 EquipmentManager.setBraceCharges(Integer.parseInt(content[3]));
             } else if (type.equals("bow")) {
@@ -61,9 +65,11 @@ public class RevenantScript implements TribotScript {
 
     }
 
+
     @SneakyThrows
     @Override
     public void execute(@NotNull String args) {
+        ScriptListening.addEndingListener(() -> running.set(false));
         MessageListening.addServerMessageListener(this::processMessage);
         ScriptListening.addPreEndingListener(() -> {
             try {
@@ -86,16 +92,40 @@ public class RevenantScript implements TribotScript {
         try{
             MulingClient.startConnection("127.0.0.1", 6668);
         }catch (Exception e){
+
         }
+
+
         if (!Login.isLoggedIn()){
             Login.login();
             Waiting.waitUntil(Login::isLoggedIn);
         }
-        new Thread(new PkerDetecter()).start();
+
+        //var antiPkThread = new Thread(new PkerDetecter(running::get));
+        new Thread(new DetectPlayerThread(running::get)).start();
+        //antiPkThread.start();
+
         while (true) {
+
+
+            if (MyRevsClient.myPlayerIsInGE() && DetectPlayerThread.isHasPkerBeenDetected()){
+                RevenantScript.state = State.STARTING;
+                DetectPlayerThread.setHasPkerBeenDetected(false);
+            }
+
+            if (DetectPlayerThread.isHasPkerBeenDetected()){
+                Waiting.wait(50);
+                continue;
+            }
+
+
+            OptionsManager.setRunOn();
+
+
             if (!Login.isLoggedIn()){
                 Login.login();
             }
+
             if (state == State.STARTING) {
                 if (!MyRevsClient.myPlayerIsInGE()) {
                     if (!Bank.isNearby()) {
@@ -107,53 +137,50 @@ public class RevenantScript implements TribotScript {
             }
 
             if (state == State.WALKING) {
-                var tile = TeleportManager.refillAndWalkToCave();
+                var tile = TeleportManager.refill();
+
                 selectedMonsterTile = tile;
-                if (tile.isRendered() || tile.isVisible()) {
+                if (tile.isInLineOfSight()) {
                     OptionsManager.init();
                     CameraManager.init();
                     PrayerManager.init();
-                    state = State.KILLING;
                     LootingManager.resetTripValue();
                     RevkillerManager.setiWasFirst(false);
                     BoostingManager.resetBoost();
+                    state = State.KILLING;
+                    Log.debug(state);
                 }
             }
 
             if (state == State.KILLING) {
-                //Log.info(state);
                 RevkillerManager.killMonster();
-                if (MyRevsClient.myPlayerIsDead()) {
-                    state = State.DEATH;
-                }
             }
 
             if (state == State.BANKING) {
-                //Log.info(state);
+                Log.debug(state);
                 Log.info("Total amount made this trip: " + LootingManager.getTripValue());
                 Log.info("Total amount made since script start: " + LootingManager.getTotalValue());
                 Log.info("Total times died so far: " + DeathManger.totalDeaths());
                 PrayerManager.disableQuickPrayer();
                 BankManagerRevenant.bankLoot();
+                DetectPlayerThread.setHasPkerBeenDetected(false);
+                TeleportManager.setHasVisitedBeforeTrip(false);
             }
 
             if (state == State.LOOTING) {
-                //Log.info(state);
                 LootingManager.loot();
             }
 
             if (state == State.DEATH) {
-                DeathManger.reGearFromDeath();
-                state = State.BANKING;
                 DeathManger.incrementTotalDeaths();
                 Log.info("Oh dear! You have just died with: " + LootingManager.getTripValue() + " Gold!! BASTARD");
+                Log.info("Total times died so far: " + DeathManger.totalDeaths());
                 LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue());
                 LootingManager.resetTripValue();
+                DeathManger.reGearFromDeath();
             }
 
-            if (state == State.SELLLOOT){
-                GrandExchangeRevManager.sellLoot(true);
-            }
+
             // RUN BOT
             Waiting.wait(50);
         }

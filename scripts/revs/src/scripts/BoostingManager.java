@@ -1,5 +1,6 @@
 package scripts;
 
+import org.tribot.script.sdk.GameTab;
 import org.tribot.script.sdk.Inventory;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
@@ -21,6 +22,7 @@ public class BoostingManager {
     public static void boost() {
         BoostingManager.isBoosted = true;
         Query.inventory().nameContains("Divine ranging potion").findClosestToMouse().map(InventoryItem::click);
+        GameTab.EQUIPMENT.open();
         Waiting.wait(2000);
         Query.inventory().nameEquals("Shark").findFirst().map(InventoryItem::click);
     }

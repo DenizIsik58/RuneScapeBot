@@ -114,7 +114,6 @@ import java.util.List;
                             }else if (content.length == 8){
                                 name = content[4] + " " + content[5] + " " + content[6] + " " + content[7];
                             }
-                            //Log.info(name + " Wants to trade with you");
                             names.add(name);
                             MulerScript.setState(MulerState.MULING);
                             out.println(MyPlayer.getTile().getX() + " " + MyPlayer.getTile().getY() + " " + MyPlayer.getTile().getPlane() + " " + MyPlayer.get().get().getName() + " " + WorldHopper.getCurrentWorld());

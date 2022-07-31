@@ -1,10 +1,7 @@
 package scripts;
 
 
-import org.tribot.script.sdk.Inventory;
-import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.MyPlayer;
-import org.tribot.script.sdk.Waiting;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GroundItem;
@@ -40,7 +37,6 @@ public class LootingManager {
                 if (item != null){
                     if (Inventory.isFull() && Inventory.contains("Shark")){
                         Query.inventory().nameEquals("Shark").findClosestToMouse().map(InventoryItem::click);
-                        Waiting.wait(1500);
                     }
 
                     if (!item.isVisible()){
@@ -49,70 +45,48 @@ public class LootingManager {
                     //Log.info(item);
                     var countBeforePickingUp = Query.groundItems().nameEquals(item.getName()).count();
                     item.hover();
-                    item.interact("Take");
+                    item.click("Take");
 
-                    while(true){
-                        if (MyPlayer.getCurrentHealthPercent() <= 10 || Inventory.getCount("Shark") == 0 || Query.inventory().nameContains("Prayer pot").count() == 0){
-                            Log.info("Low food");
-                            PkerDetecter.quickTele();
-                        }
-
-                        //Log.info(countBeforePickingUp);
-                        if (hasDecreased(item.getName(), countBeforePickingUp)){
-                            break;
-                        }
-
-                        Waiting.wait(20);
-
-                    }
+                    Waiting.waitUntil(8000, () -> hasDecreased(item.getName(), countBeforePickingUp));
 
                     tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                     totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
-                    //Log.info(tripValue);
+                    if (tripValue > 450000){
+                        Log.debug("Teleporting out. I have: " + tripValue);
+                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                        Waiting.waitUntil(5000,MyRevsClient::myPlayerIsInGE);
+                        if (MyRevsClient.myPlayerIsInGE()){
+                            RevenantScript.state = State.BANKING;
+                        }
+                    }
                     break;
                 }
         }
-
         }
 
-        RevenantScript.state = State.KILLING;
-            if(RevkillerManager.getTarget() != null){
-                if (!RevkillerManager.getTarget().getTile().isVisible() && RevkillerManager.getTarget().isValid()){
-                    GlobalWalking.walkTo(RevkillerManager.getTarget().getTile());
-                    RevkillerManager.getTarget().adjustCameraTo();
-                    RevkillerManager.getTarget().click();
-                }else if(!RevkillerManager.getTarget().isValid()){
-                    GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
-                }
+            GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
+            if(RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()){
+
+               if (!RevkillerManager.getTarget().isVisible()){
+                   RevkillerManager.getTarget().adjustCameraTo();
+               }
+                RevkillerManager.getTarget().click();
 
             }else {
                 GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
             }
+
+        RevenantScript.state = State.KILLING;
     }
 
     public static boolean hasDecreased(String itemName, int count){
         return Query.groundItems().nameEquals(itemName).count() == count -1;
     }
-    public static void lot() {
-        if (!hasLootBeenDetected()){
-            return;
-        }
-
-        for (var item : lootToPickUp) {
-            var loot = Query.groundItems().nameContains(item).findFirst().orElse(null);
-            if (loot != null) {
-                loot.interact("Take", () -> !loot.isVisible());
-                //Log.info("Picking up: " + loot.getName());
-                tripValue += Pricing.lookupPrice(loot.getId()).orElse(0);
-            }
-        }
-
-    }
 
     public static boolean hasLootBeenDetected() {
         for (var item : lootToPickUp) {
             if (Query.groundItems().nameEquals(item).isAny()) {
-                //Log.info("Found loot!");
+
                 return true;
             }
         }

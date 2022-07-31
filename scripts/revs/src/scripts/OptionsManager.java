@@ -1,9 +1,10 @@
 package scripts;
 
-import org.tribot.script.sdk.Camera;
 import org.tribot.script.sdk.GameState;
+import org.tribot.script.sdk.MyPlayer;
 import org.tribot.script.sdk.Options;
-import org.tribot.script.sdk.util.ScriptSettings;
+import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.types.InventoryItem;
 
 public class OptionsManager {
 
@@ -13,9 +14,26 @@ public class OptionsManager {
         }
     }
 
+    public static void setOnPkSkullPrevention(){
+
+        if (GameState.getVarbit(13131) != 1){
+            if (!Options.Tab.CONTROLS.open()){
+                Options.Tab.CONTROLS.open();
+            }
+            if (MyRevsClient.isWidgetVisible(116, 5)){
+                MyRevsClient.clickWidget("Toggle skull prevention", 116, 5);
+            }
+        }
+
+    }
+
     public static void setRunOn(){
         if (!Options.isRunEnabled()) {
             Options.setRunEnabled(true);
+        }
+
+        if (MyPlayer.getRunEnergy() < 20){
+            Query.inventory().nameContains("Stamina potion").findFirst().map(InventoryItem::click);
         }
     }
 
@@ -46,5 +64,6 @@ public class OptionsManager {
         setSoundOff();
         setZoomScrollable();
         setPkerProtectionOn();
+        setOnPkSkullPrevention();
     }
 }

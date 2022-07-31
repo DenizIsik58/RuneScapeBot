@@ -2,7 +2,10 @@ package scripts;
 
 import net.sourceforge.jdistlib.InvNormal;
 import org.tribot.script.sdk.*;
+import org.tribot.script.sdk.interfaces.Stackable;
 import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.tasks.Amount;
+import org.tribot.script.sdk.tasks.ItemReq;
 import org.tribot.script.sdk.types.GrandExchangeOffer;
 import org.tribot.script.sdk.types.World;
 import org.tribot.script.sdk.types.WorldTile;
@@ -37,14 +40,22 @@ public class GrandExchangeRevManager {
             if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")){
                 continue;
             }
-            if (item.contains("Bracelet of eth")){
-                if (Bank.getCount(item) < 10) {
+            if (item.equals("Bracelet of ethereum (uncharged)")){
+                if (Bank.getCount(item) <= 10) {
                     continue;
                 }
-                Bank.withdraw(item, Bank.getCount(item) - (Bank.getCount(item) - 10));
+                Log.warn("Pulling out bracelet");
+                var stack =  Query.bank().nameEquals(item).findFirst().map(Stackable::getStack).orElse(0) - 10;
+                Waiting.waitUntil(2000, () -> Bank.withdraw(item, stack));
+
+                Log.warn("Done pulling out");
+                if (Inventory.getCount(item) == stack){
+                    Bank.deposit(item, 10);
+                }
             }
             if (Inventory.isFull()){
                 shouldRepeat = true;
+                Log.warn("I BROKE OUT");
                 break;
             }
             if (Query.bank().nameEquals(item).isAny()) {
@@ -53,15 +64,16 @@ public class GrandExchangeRevManager {
                 RevenantScript.state = State.BANKING;
             }
         }
+        Log.warn("IM HERE");
 
-        BankSettings.setNoteEnabled(false);
+        //BankSettings.setNoteEnabled(false);
         Waiting.waitUntil(Bank::close);
-        Waiting.wait(2000);
-        openGE();
+        Waiting.waitUntil(GrandExchange::open);
         Waiting.wait(2000);
 
 
         while(true){
+            Log.debug("IM IN WHILE LOOP");
             int counter = 0;
             if (Inventory.getAll().size() == 1 && Inventory.contains("Coins")){
                 break;
@@ -88,13 +100,15 @@ public class GrandExchangeRevManager {
         GrandExchange.close();
         BankManagerRevenant.openBank();
 
+        if (shouldRepeat){
+            sellLoot(true);
+        }
+
         Bank.depositAll("Coins");
         Waiting.wait(5000);
 
-        var gp = Query.bank().nameEquals("Coins").findFirst().orElse(null);
-        assert gp != null;
         if (MuleManager.hasEnoughToMule()){
-
+            MuleManager.takeOutGp();
             try {
                 if (!MulingClient.getClientSocket().getInetAddress().isReachable(5000)){
                     MulingClient.startConnection( "127.0.0.1", 6668);
@@ -133,7 +147,7 @@ public class GrandExchangeRevManager {
                     int finalWorld = world;
                     Waiting.waitUntil(() -> MuleManager.hopToMulerWorld(finalWorld));
                 }
-                Waiting.wait(10000);
+                    Waiting.wait(10000);
                     var player = Query.players().nameEquals(mulerName).findFirst().orElse(null);
                     if (player != null){
                         player.interact("Trade with");
@@ -148,19 +162,17 @@ public class GrandExchangeRevManager {
 
 
             }catch (Exception e){
-                //Log.info(e);
+
             }
 
         }
+
         if (!shouldContinue){
             return;
         }
 
-        if (shouldRepeat){
-            sellLoot(true);
-        }else {
-            RevenantScript.state = State.BANKING;
-        }
+        RevenantScript.state = State.BANKING;
+
     }
 
 
@@ -193,7 +205,7 @@ public class GrandExchangeRevManager {
 
         GrandExchange.collectAll();
         GrandExchange.close();
-        BankManagerRevenant.withdrawGear();
+        openBank();
     }
 
     public static void buy(String itemName){

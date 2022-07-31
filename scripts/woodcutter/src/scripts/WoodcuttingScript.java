@@ -68,8 +68,6 @@ public class WoodcuttingScript implements TribotScript {
 
     public void init(){
             var currentWCLevel = Skill.WOODCUTTING.getCurrentLevel();
-        //Log.info("initializing...");
-        //Log.info("Woodcutting level: " + currentWCLevel);
             if (currentWCLevel < 15) {
                 currentWorldTile = lumbridge; // edit this to lumby
                 currentLogs = "tree";

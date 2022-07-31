@@ -1,5 +1,7 @@
 package scripts;
 
+import org.tribot.script.sdk.MyPlayer;
+import org.tribot.script.sdk.Prayer;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
@@ -31,8 +33,16 @@ public class MyRevsClient {
         return Area.fromRectangle(new WorldTile(3185, 3468, 0), new WorldTile(3140, 3513, 0)).containsMyPlayer();
     }
 
+    public static boolean myPlayerIsInCave(){
+        return Area.fromRectangle(new WorldTile(3135, 10045, 0), new WorldTile(3259, 10147, 0)).containsMyPlayer();
+    }
+
     public static boolean myPlayerIsInFerox(){
-        return Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0)).containsMyPlayer();
+        return Area.fromRectangle(new WorldTile(3161, 3641, 0), new WorldTile(3120, 3616, 0)).containsMyPlayer();
+    }
+
+    public static boolean myPlayerNeedsToRefresh(){
+        return MyPlayer.getCurrentHealthPercent() < 80 || Prayer.getPrayerPoints() < 30 || MyPlayer.getRunEnergy() < 50;
     }
 
 

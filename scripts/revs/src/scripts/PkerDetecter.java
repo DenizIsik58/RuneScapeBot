@@ -6,22 +6,28 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Player;
 import org.tribot.script.sdk.walking.WalkState;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BooleanSupplier;
+
 public class PkerDetecter implements Runnable {
 
+    private BooleanSupplier running;
+
+    public PkerDetecter(BooleanSupplier running) {
+            this.running = running;
+    }
 
     public static void quickTele() {
-        Mouse.setSpeed(2000);
+        Log.info("Quick teleporting");
+        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+        Waiting.waitUntil(6000, MyRevsClient::myPlayerIsInGE);
         if (MyRevsClient.myPlayerIsInGE()) {
             RevenantScript.state = State.BANKING;
         }
         if (!GameTab.EQUIPMENT.isOpen()) {
             GameTab.EQUIPMENT.open();
         }
-        Log.info("Quick teleporting");
-        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-        Waiting.waitUntil(MyRevsClient::myPlayerIsInGE);
-        Mouse.setSpeed(200);
-        RevenantScript.state = State.BANKING;
+
     }
 
     public static boolean isPkerDetected() {
@@ -47,16 +53,13 @@ public class PkerDetecter implements Runnable {
 
     @Override
     public void run() {
-        //Log.info("NEW THREAD HAS BEEN STARTED");
-        while(true){
-            while (RevenantScript.state == State.WALKING || RevenantScript.state == State.KILLING ||RevenantScript.state == State.LOOTING) {
 
-                //Log.info("I'm CURRENTLY RUNNING!");
+        while(running.getAsBoolean()){
+            if (RevenantScript.state == State.WALKING || RevenantScript.state == State.KILLING ||RevenantScript.state == State.LOOTING) {
+
                 if (PkerDetecter.isPkerDetected()) {
-                    //Log.info("PKER DETECTED!!");
                     quickTele();
                 }
-                Waiting.wait(50);
             }
             Waiting.wait(50);
         }
