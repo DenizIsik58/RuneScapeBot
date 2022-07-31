@@ -42,7 +42,7 @@ public class RevenantScript implements TribotScript {
         }
         if (message.equals("You don't have enough inventory space.")){
             Bank.depositInventory();
-            BankManagerRevenant.withdrawGear();
+            BankManagerRevenant.withdrawGears();
             return;
         }
 
@@ -87,9 +87,9 @@ public class RevenantScript implements TribotScript {
         CameraManager.init();
         PrayerManager.init();
         AntiBanManager.init();
-        if (Options.isAllSettingsOpen()){
+        /*if (Options.isAllSettingsOpen()){
             Options.closeAllSettings();
-        }
+        }*/
         GameTab.setSwitchPreference(GameTab.SwitchPreference.KEYS);
         state = State.STARTING;
         Mouse.setSpeed(200);

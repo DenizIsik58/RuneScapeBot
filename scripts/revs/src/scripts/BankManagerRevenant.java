@@ -60,7 +60,8 @@ public class BankManagerRevenant {
         chargeBraceletOrBowIfNeeded();
         checkIfWeHaveEmblemDrop();
         withdrawFoodAndPots();
-
+        WorldManager.hopToRandomMemberWorldWithRequirements();
+        Waiting.wait(6000);
     }
 
     public static void equipNewWealthIfNeeded(){
@@ -265,8 +266,9 @@ public class BankManagerRevenant {
     }
 
     public static void withdrawGears(){
-
+        Log.debug("Withdrawing gear");
         openBank();
+        setPlaceHolder();
         Waiting.waitUntil(100000, Bank::isOpen);
         Waiting.waitUntil(100000, Bank::depositInventory);
         Waiting.waitUntil(100000, Bank::depositEquipment);
@@ -293,10 +295,12 @@ public class BankManagerRevenant {
                     if (Query.bank().nameEquals("Salve amulet(ei)").isAny()){
                         hasSalve = true;
                         salve = 25278;
+                        Log.debug("I have a salve ei");
                     }else if(Query.bank().nameEquals("Salve amulet(i)").isAny()){
                         if (Query.bank().nameEquals("Salve amulet(i)").isAny()){
                             hasSalve = true;
                             salve = 12017;
+                            Log.debug("I have a salve i");
                         }
                     }
                 }
@@ -313,8 +317,10 @@ public class BankManagerRevenant {
         Waiting.wait(1000);
 
         if (Bank.contains(22550)){
+            Log.debug("I have a craw");
             craw = EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1));
         }else if (Bank.contains(22547)){
+            Log.debug("I have a craw u");
             Bank.withdraw(22547, 1);
             if (Bank.getCount(21820) < 1750 + 250) {
                 Log.debug("I'm out of ether. Selling loot and buying more");
@@ -342,9 +348,11 @@ public class BankManagerRevenant {
         Waiting.wait(1000);
 
         if (Bank.contains("Bracelet of ethereum")) {
+            Log.debug("I have a bracelet");
             bracelet = EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1));
         } else if (Bank.contains("Bracelet of ethereum (uncharged)")) {
-                Waiting.waitUntil(() -> Bank.withdraw("Bracelet of ethereum (uncharged)", 1));
+                Log.debug("I have a brace uncharged");
+            Waiting.waitUntil(() -> Bank.withdraw("Bracelet of ethereum (uncharged)", 1));
 
                 if (Bank.getCount(21820) < 250) {
                     Log.debug("I'm out of ether. Selling loot and buying more");
@@ -379,7 +387,6 @@ public class BankManagerRevenant {
                 Bank.depositInventory();
                 withdrawGears();
             }
-
         var glory = EquipmentReq.slot(Equipment.Slot.NECK).chargedItem("Amulet of glory", 1);
         var sal =  EquipmentReq.slot(Equipment.Slot.NECK).item(salve, Amount.of(1));
 
