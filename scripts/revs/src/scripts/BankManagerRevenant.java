@@ -46,6 +46,7 @@ public class BankManagerRevenant {
         for (var item : valueAbles){
             if (Query.bank().nameEquals(item).isAny()){
                 GrandExchangeRevManager.sellLoot(false);
+                return;
             }
         }
     }
