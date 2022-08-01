@@ -5,6 +5,8 @@ import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import scripts.api.MyExchange;
+import scripts.api.MyTeleporting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,14 +38,10 @@ public class TeleportManager {
             }
 
             if (!MyRevsClient.myPlayerIsInFerox() && !isHasVisitedBeforeTrip()){
-                Log.debug("[INFO_LISTENER] Teleporting to ferox!");
-                    var ring = Query.inventory().nameContains("Ring of dueling").findFirst().orElse(null);
-
-                    if (ring != null) {
-                        ring.click("Rub");
-                        Waiting.waitUntil(2000, () -> ChatScreen.containsOption("Ferox Enclave."));
-                        ChatScreen.selectOption("Ferox enclave.");
-                    }
+                Log.debug("[INFO_LISTENER] Trying teleporting to ferox!");
+                if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()){
+                    Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling or be above 20 wilderness");
+                }
                     setHasVisitedBeforeTrip(true);
             }
 
@@ -90,6 +88,17 @@ public class TeleportManager {
 
     public static boolean monsterTileIsDetected(WorldTile tile){
         return tile.isRendered() || tile.isVisible() || tile.isInLineOfSight();
+    }
+
+    public static void teleportOutOfWilderness(String message){
+        Log.debug("[WILDERNESS_LISTENER] " + message);
+        // teleport out
+        if (!MyExchange.walkToGrandExchange()){
+            Log.debug("[WILDERNESS_LISTENER] Couldn't teleport out of wilderness. You must be missing wealth or be above 30 wilderness");
+
+        }
+        Log.debug("[WILDERNESS_LISTENER] Teleported out to safety. We are in GE");
+        PrayerManager.disableQuickPrayer();
     }
 
     public static boolean teleportToGE(){

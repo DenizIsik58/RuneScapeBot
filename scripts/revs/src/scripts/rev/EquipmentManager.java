@@ -34,9 +34,7 @@ public class EquipmentManager {
         Waiting.wait(3000);
     }
 
-    private static int checkCharges(int... ids) {
 
-    }
 
     public static int checkBraceletCharges() {
         MyBanker.closeBank();

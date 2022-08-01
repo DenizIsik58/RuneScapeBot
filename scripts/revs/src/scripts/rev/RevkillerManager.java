@@ -19,20 +19,15 @@ public class RevkillerManager {
 
     public static void killMonster(){
 
-
         if (!GameTab.EQUIPMENT.isOpen()) {
             GameTab.EQUIPMENT.open();
         }
-
 
         var boss = Query.npcs().nameEquals("Revenant maledictus").findFirst().orElse(null);
 
         if (boss != null){
             if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
-                Log.info("Boss has been seen!");
-
-                // teleport out
-                TeleportManager.teleportToGE();
+                TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
                 return;
 
             }
@@ -50,9 +45,7 @@ public class RevkillerManager {
             MyCamera.setCameraAngle();
 
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
-                Log.info("We are low on prayer. Teleporting out..");
-                TeleportManager.teleportToGE();
-
+                TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
                 return;
             }
 
@@ -67,13 +60,11 @@ public class RevkillerManager {
                         }
                     }
                 }
-
-                Log.info("We are low on shark. Teleporting out...");
-                TeleportManager.teleportToGE();
-                Log.debug("BANKING");
+                TeleportManager.teleportOutOfWilderness("We are low on shark. Trying to teleport out...");
                 return;
             }
 
+            // TODO: Should probably have a method to open the looting bag.
             var lootingBag = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
 
             if (lootingBag != null) {
@@ -127,7 +118,6 @@ public class RevkillerManager {
 
 
                 if (!target.isVisible()){
-
                     GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
                     target.adjustCameraTo();
                     target.click();
@@ -159,7 +149,7 @@ public class RevkillerManager {
             }
 
             if (LootingManager.getTripValue() >= 500000) {
-                TeleportManager.teleportToGE();
+                TeleportManager.teleportOutOfWilderness("We have above 500k gold. Trying to teleport out...");
             }
 
             // DO NOT HOP; KILL MOBS

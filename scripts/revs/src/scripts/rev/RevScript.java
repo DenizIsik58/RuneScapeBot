@@ -6,6 +6,7 @@ import org.tribot.script.sdk.MessageListening;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
 import scripts.api.MyCamera;
+import scripts.api.MyExchange;
 import scripts.api.MyOptions;
 import scripts.api.MyScriptExtension;
 
@@ -92,14 +93,11 @@ public class RevScript extends MyScriptExtension {
     protected void onEnding() {
         if (muleClient != null) muleClient.stopConnection();
         if (Combat.isInWilderness()){
-            TeleportManager.teleportToGE();
+            TeleportManager.teleportOutOfWilderness("Ending script... Teleporting out");
         }
     }
 
     private void updateState() {
-        if (!isState(State.KILLING) || !isState(State.LOOTING)){
-            PrayerManager.disableQuickPrayer();
-        }
         if (isState(State.STARTING)) return;
         if (MyRevsClient.myPlayerIsInGE() && !isState(State.BANKING))  setState(State.BANKING);
         if (MyRevsClient.myPlayerIsInGE()) setState(State.BANKING); // Do we need this?
@@ -128,7 +126,7 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handleStarting() {
-        BankManagerRevenant.goToGeIfNotThere();
+        MyExchange.walkToGrandExchange();
         BankManagerRevenant.init();
         setState(State.WALKING);
         Log.debug(state);

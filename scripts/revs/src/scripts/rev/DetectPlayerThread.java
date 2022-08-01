@@ -159,8 +159,7 @@ public class DetectPlayerThread extends Thread {
                         if (isWaitingForDeath()) {
                             setWaitingForDeath(false);
                         }
-                        Log.trace("Attempting Teleport");
-                        TeleportManager.teleportToGE();
+                        TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
                         return;
                     } else {
                         Log.trace("Teleblocked");

@@ -1,8 +1,10 @@
 package scripts.api;
 
+import org.tribot.script.sdk.Bank;
 import org.tribot.script.sdk.GrandExchange;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.Waiting;
+import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
@@ -48,6 +50,16 @@ public class MyExchange {
     // this is good for adding in later other things like "if in house and has jewellery box use that wealth"
     public static boolean walkToGrandExchange() {
         if (isExchangeNearby()) return true;
+        if (MyTeleporting.Wealth.GrandExchange.canUseTeleport()) {
+            MyBanker.closeBank();
+            MyTeleporting.Wealth.GrandExchange.useTeleport();
+        }
+        if (Bank.isNearby()) {
+            MyBanker.openBank();
+            Query.bank().nameContains("Ring of wealth (").findFirst().ifPresent(wealth -> {
+                MyBanker.withdraw(wealth.getId(), 1, false);
+            });
+        }
         GlobalWalking.walkTo(grandExchangeArea.getRandomTile());
         return Waiting.waitUntil(5000, MyExchange::isExchangeNearby);
     }

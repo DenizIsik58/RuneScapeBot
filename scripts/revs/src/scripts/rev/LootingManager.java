@@ -2,7 +2,6 @@ package scripts.rev;
 
 
 import org.tribot.script.sdk.Inventory;
-import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
@@ -53,8 +52,8 @@ public class LootingManager {
                     tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                     totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
                     if (tripValue > 450000){
-                        Log.debug("Teleporting out. I have: " + tripValue);
-                        TeleportManager.teleportToGE();
+                        TeleportManager.teleportOutOfWilderness("Teleporting out. I have: " + tripValue + " gold!");
+                        // teleport out
                     }
                     break;
                 }
