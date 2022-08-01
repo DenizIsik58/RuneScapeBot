@@ -1,17 +1,15 @@
-package scripts;
+package scripts.rev;
 
 
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
-import org.tribot.script.sdk.types.GroundItem;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.walking.GlobalWalking;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
 public class LootingManager {
 

@@ -1,4 +1,4 @@
-package scripts;
+package scripts.rev;
 
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Npc;

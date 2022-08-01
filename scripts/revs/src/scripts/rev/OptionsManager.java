@@ -1,10 +1,13 @@
-package scripts;
+package scripts.rev;
 
 import org.tribot.script.sdk.GameState;
 import org.tribot.script.sdk.MyPlayer;
 import org.tribot.script.sdk.Options;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
+
+import static scripts.api.Client.clickWidget;
+import static scripts.api.Client.isWidgetVisible;
 
 public class OptionsManager {
 
@@ -20,8 +23,8 @@ public class OptionsManager {
             if (!Options.Tab.CONTROLS.open()){
                 Options.Tab.CONTROLS.open();
             }
-            if (MyRevsClient.isWidgetVisible(116, 5)){
-                MyRevsClient.clickWidget("Toggle skull prevention", 116, 5);
+            if (isWidgetVisible(116, 5)){
+                clickWidget("Toggle skull prevention", 116, 5);
             }
         }
 

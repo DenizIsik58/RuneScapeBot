@@ -1,4 +1,4 @@
-package scripts;
+package scripts.rev;
 
 import org.tribot.script.sdk.WorldHopper;
 import org.tribot.script.sdk.query.Query;

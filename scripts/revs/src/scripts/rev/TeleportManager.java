@@ -1,21 +1,17 @@
-package scripts;
+package scripts.rev;
 
+import dax.teleports.Teleport;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
-import org.tribot.script.sdk.types.Area;
-import org.tribot.script.sdk.types.InventoryItem;
-import org.tribot.script.sdk.types.World;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
-import org.tribot.script.sdk.walking.WalkState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
-import static org.tribot.script.sdk.Waiting.*;
+import static org.tribot.script.sdk.Waiting.waitUntil;
 
 public class TeleportManager {
 
@@ -94,6 +90,14 @@ public class TeleportManager {
 
     public static boolean monsterTileIsDetected(WorldTile tile){
         return tile.isRendered() || tile.isVisible() || tile.isInLineOfSight();
+    }
+
+    public static boolean teleportToGE(){
+        if (Teleport.RING_OF_WEALTH_GRAND_EXCHANGE.getRequirement().satisfies()) {
+            // can teleport
+            return Teleport.RING_OF_WEALTH_GRAND_EXCHANGE.trigger();
+        }
+        return false;
     }
 
     public static boolean isHasVisitedBeforeTrip() {

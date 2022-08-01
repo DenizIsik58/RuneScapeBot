@@ -1,4 +1,4 @@
-package scripts;
+package scripts.rev;
 
 
 public class DeathManger {

@@ -1,7 +1,6 @@
-package scripts;
+package scripts.rev;
 
 import org.tribot.script.sdk.GameTab;
-import org.tribot.script.sdk.Inventory;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;

@@ -1,4 +1,4 @@
-package scripts;
+package scripts.rev;
 
 import org.tribot.script.sdk.antiban.Antiban;
 import org.tribot.script.sdk.antiban.AntibanProperties;

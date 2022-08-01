@@ -1,22 +1,15 @@
-package scripts;
+package scripts.rev;
 
-import net.sourceforge.jdistlib.InvNormal;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.interfaces.Stackable;
 import org.tribot.script.sdk.query.Query;
-import org.tribot.script.sdk.tasks.Amount;
-import org.tribot.script.sdk.tasks.ItemReq;
 import org.tribot.script.sdk.types.GrandExchangeOffer;
-import org.tribot.script.sdk.types.World;
 import org.tribot.script.sdk.types.WorldTile;
-import org.tribot.script.sdk.types.definitions.ItemDefinition;
 import org.tribot.script.sdk.walking.GlobalWalking;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
-import static scripts.BankManagerRevenant.openBank;
+import static scripts.api.Banker.openBank;
 
 public class GrandExchangeRevManager {
 
@@ -96,7 +89,7 @@ public class GrandExchangeRevManager {
         }
 
         GrandExchange.close();
-        BankManagerRevenant.openBank();
+        openBank();
 
         Bank.depositAll("Coins");
         Waiting.wait(5000);

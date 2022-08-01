@@ -1,13 +1,10 @@
-package scripts;
+package scripts.rev;
 
 import org.tribot.script.sdk.*;
-import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.Npc;
 import org.tribot.script.sdk.walking.GlobalWalking;
-
-import java.lang.annotation.Target;
 
 public class RevkillerManager {
     private static int demonId = 7936;
@@ -28,7 +25,9 @@ public class RevkillerManager {
         if (boss != null){
             if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
                 Log.info("Boss has been seen!");
-                Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+
+                // teleport out
+                TeleportManager.teleportToGE();
                 return;
 
             }

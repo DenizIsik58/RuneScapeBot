@@ -1,13 +1,10 @@
-package scripts;
+package scripts.rev;
 
 
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.tribot.script.sdk.*;
-import org.tribot.script.sdk.antiban.Antiban;
-import org.tribot.script.sdk.antiban.AntibanProperties;
 import org.tribot.script.sdk.input.Mouse;
-import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.ScriptConfig;
 import org.tribot.script.sdk.script.TribotScript;
 import org.tribot.script.sdk.script.TribotScriptManifest;

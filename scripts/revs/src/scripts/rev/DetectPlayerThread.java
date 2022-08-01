@@ -1,4 +1,4 @@
-package scripts;
+package scripts.rev;
 
 
 import org.tribot.script.sdk.*;
@@ -8,7 +8,6 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
 
-import java.time.Period;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 

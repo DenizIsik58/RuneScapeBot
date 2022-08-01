@@ -1,12 +1,8 @@
-package scripts;
+package scripts.rev;
 
 import org.tribot.script.sdk.*;
-import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.query.Query;
-import org.tribot.script.sdk.types.Player;
-import org.tribot.script.sdk.walking.WalkState;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 
 public class PkerDetecter implements Runnable {

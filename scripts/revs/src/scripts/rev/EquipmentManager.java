@@ -1,8 +1,6 @@
-package scripts;
+package scripts.rev;
 
 import org.tribot.script.sdk.Equipment;
-import org.tribot.script.sdk.Inventory;
-import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
@@ -31,7 +29,6 @@ public class EquipmentManager {
         Query.equipment().nameContains("Bracelet").findFirst().map(c -> c.click("Check"));
         Query.equipment().nameContains("Craw").findFirst().map(c -> c.click("Check"));
         Waiting.wait(3000);
-
     }
 
     public static int getBowCharges() {
