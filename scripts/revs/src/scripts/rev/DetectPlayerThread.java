@@ -173,11 +173,6 @@ public class DetectPlayerThread extends Thread {
                     }
                 }
 
-            }else {
-                setDangerFlag(false);
-                setHasPkerBeenDetected(false);
-                setInDanger(false);
-                setTeleblocked(false);
             }
 
         }
