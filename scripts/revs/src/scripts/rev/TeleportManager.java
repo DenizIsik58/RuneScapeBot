@@ -75,6 +75,7 @@ public class TeleportManager {
                 Log.debug("Waiting to be in cave");
                 Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInCave);
                 Log.debug("Am i in cave? " + MyRevsClient.myPlayerIsInCave());
+                Waiting.waitNormal(2000, 200);
             }
 
             if (MyRevsClient.myPlayerIsInCave()){

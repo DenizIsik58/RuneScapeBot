@@ -6,6 +6,7 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GrandExchangeOffer;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import scripts.api.MyExchange;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class GrandExchangeRevManager {
     }
     public static void sellLoot() {
         shouldRepeat = false;
+        MyExchange.walkToGrandExchange();
         openBank();
         Bank.depositInventory();
         if (!BankSettings.isNoteEnabled()){
