@@ -132,12 +132,10 @@ public class DetectPlayerThread extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            Log.debug(paused.get());
             if (paused.get()) continue;
 
 
             if (Combat.isInWilderness()) {
-                Log.debug("Im detecting!");
                 if (!inDanger() && !inDangerFlag()) {
                     if (detectPKers() || detectRaggers() || detectSkull()) {
                         // We are in danger here.
@@ -149,7 +147,6 @@ public class DetectPlayerThread extends Thread {
                 }
                 if (inDanger() || inDangerFlag() || isTeleblocked()) {
                     Log.trace("PKER");
-                    Log.debug("pKER");
                     if (Mouse.getSpeed() == 300) {
                         int dangerMouseSpeed = getRandomNumber(800, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
@@ -158,14 +155,12 @@ public class DetectPlayerThread extends Thread {
 
                     if (!isTeleblocked()) {
                         Log.trace("Not Teleblocked");
-                        Log.debug("not bed");
                         if (isWaitingForDeath()) {
                             setWaitingForDeath(false);
                         }
                         TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
                         return;
                     } else {
-                        Log.debug("tbed");
                         Log.trace("Teleblocked");
                         setWaitingForDeath(true);
                     }
@@ -178,8 +173,12 @@ public class DetectPlayerThread extends Thread {
                     }
                 }
 
+            }else {
+                setDangerFlag(false);
+                setHasPkerBeenDetected(false);
+                setInDanger(false);
+                setTeleblocked(false);
             }
-
 
         }
 
