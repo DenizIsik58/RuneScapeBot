@@ -2,7 +2,7 @@ package scripts.api;
 
 import dax.teleports.Teleport;
 
-public class Teleporting {
+public class MyTeleporting {
 
     public static boolean canUseTeleport(Teleport teleport) {
         if (teleport.getRequirement().satisfies()) {

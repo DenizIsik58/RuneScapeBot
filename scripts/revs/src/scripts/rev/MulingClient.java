@@ -10,29 +10,44 @@ import java.net.Socket;
 
 public class MulingClient {
 
-        private static Socket clientSocket;
-        private static PrintWriter out;
-        private static BufferedReader in;
+    private Socket socket;
+    private PrintWriter out;
+    private BufferedReader in;
 
-        public static void startConnection(String ip, int port) throws IOException {
-            clientSocket = new Socket(ip, port);
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    public void startConnection(String ip, int port) {
+        try {
+            socket = new Socket(ip, port);
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             Log.info("Connected to mule!");
+        } catch (Exception exception) {
+            Log.error("Muling client failed to start", exception);
+            // Exception occured
         }
+    }
 
-        public String sendMessage(String msg) throws IOException {
+
+    public String sendMessage(String msg) {
+        try {
             out.println(msg);
             return in.readLine();
+        } catch (IOException ignored) {
+            Log.warn("Was an exception with Muling Client sending message: " + msg);
         }
+        return "";
+    }
 
-        public void stopConnection() throws IOException {
+    public void stopConnection() {
+        try {
             in.close();
             out.close();
-            clientSocket.close();
+            socket.close();
+        } catch (IOException exception) {
+            Log.error("Failed stopping Muling Client connection", exception);
         }
+    }
 
-    public static Socket getClientSocket() {
-        return clientSocket;
+    public Socket getSocket() {
+        return socket;
     }
 }

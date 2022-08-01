@@ -1,7 +1,9 @@
 package scripts.rev;
 
 
-import org.tribot.script.sdk.*;
+import org.tribot.script.sdk.Inventory;
+import org.tribot.script.sdk.Log;
+import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
@@ -52,15 +54,14 @@ public class LootingManager {
                     totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
                     if (tripValue > 450000){
                         Log.debug("Teleporting out. I have: " + tripValue);
-                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                        Waiting.waitUntil(5000,MyRevsClient::myPlayerIsInGE);
+                        TeleportManager.teleportToGE();
                     }
                     break;
                 }
         }
         }
 
-            GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
+            GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             if(RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()){
 
                if (!RevkillerManager.getTarget().isVisible()){
@@ -69,10 +70,10 @@ public class LootingManager {
                 RevkillerManager.getTarget().click();
 
             }else {
-                GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
+                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
 
-        RevenantScript.setState(State.KILLING);
+        MyRevsClient.getScript().setState(State.KILLING);
     }
 
     public static boolean hasDecreased(String itemName, int count){

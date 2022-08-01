@@ -11,7 +11,7 @@ public class MyScript implements TribotScript {
 	@Override
 	public void execute(final String args) {
 		// Example: Call our shared library class
-		SampleHelper.getHello();
+		//SampleHelper.getHello();
 		String resource = Resources.getString("scripts/my-resource.txt");
 		Log.info("Loaded " + resource);
 	}

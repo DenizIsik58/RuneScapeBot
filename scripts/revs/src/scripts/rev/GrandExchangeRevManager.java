@@ -9,7 +9,7 @@ import org.tribot.script.sdk.walking.GlobalWalking;
 
 import java.util.List;
 
-import static scripts.api.Banker.openBank;
+import static scripts.api.MyBanker.openBank;
 
 public class GrandExchangeRevManager {
 
@@ -97,11 +97,11 @@ public class GrandExchangeRevManager {
         if (MuleManager.hasEnoughToMule()){
             MuleManager.takeOutGp();
             try {
-                if (!MulingClient.getClientSocket().getInetAddress().isReachable(5000)){
-                    MulingClient.startConnection( "127.0.0.1", 6668);
+                if (!MyRevsClient.getScript().getSocketClient().getSocket().getInetAddress().isReachable(5000)){
+                    MyRevsClient.getScript().getSocketClient().startConnection( "127.0.0.1", 6668);
                 }
 
-                var msg = RevenantScript.getSocketClient().sendMessage("I want to mule! " + MyPlayer.get().get().getName());
+                var msg = MyRevsClient.getScript().getSocketClient().sendMessage("I want to mule! " + MyPlayer.get().get().getName());
                 Waiting.wait(2000);
                 var content = msg.split(" ");
                 int x = Integer.parseInt(content[0]);

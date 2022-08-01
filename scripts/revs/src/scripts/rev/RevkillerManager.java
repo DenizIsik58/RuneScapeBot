@@ -5,12 +5,17 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.Npc;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import scripts.api.MyCamera;
 
 public class RevkillerManager {
     private static int demonId = 7936;
     private static int orkId = 7937;
     private static boolean iWasFirst = false;
     private static Npc target = null;
+
+
+
+
 
     public static void killMonster(){
 
@@ -42,12 +47,12 @@ public class RevkillerManager {
 
         if (iWasFirst) {
             PrayerManager.enableQuickPrayer();
-            CameraManager.setCameraAngle();
+            MyCamera.setCameraAngle();
 
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
                 Log.info("We are low on prayer. Teleporting out..");
-                Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                PrayerManager.disableQuickPrayer();
+                TeleportManager.teleportToGE();
+
                 return;
             }
 
@@ -56,17 +61,16 @@ public class RevkillerManager {
                     if (target.isValid()){
                         target.interact("Attack");
                         Waiting.waitUntil(() -> !target.isValid());
-                        Waiting.wait(5000);
+                        Waiting.waitNormal(5000, 500);
                         if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
-                            RevenantScript.setState(State.LOOTING);
+                            MyRevsClient.getScript().setState(State.LOOTING);
                         }
                     }
                 }
 
                 Log.info("We are low on shark. Teleporting out...");
-                Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                TeleportManager.teleportToGE();
                 Log.debug("BANKING");
-                PrayerManager.disableQuickPrayer();
                 return;
             }
 
@@ -109,11 +113,11 @@ public class RevkillerManager {
 
 
             if (target == null){
-                target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile));
+                target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
             }
 
             if (target != null) {
-                var monster = Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile)).findRandom().orElse(null);
+                var monster = Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).findRandom().orElse(null);
                 if (monster != null){
                     if (monster.isInteractingWithMe() && !monster.isHealthBarVisible()){
                         monster.adjustCameraTo();
@@ -123,7 +127,8 @@ public class RevkillerManager {
 
 
                 if (!target.isVisible()){
-                    GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
+
+                    GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
                     target.adjustCameraTo();
                     target.click();
                 }
@@ -143,19 +148,18 @@ public class RevkillerManager {
                     }
                 }
 
-                if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile)).isAny()) || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
-                    target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(RevenantScript.selectedMonsterTile));
+                if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).isAny()) || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
+                    target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
                 }
 
             }
             if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
-                RevenantScript.setState(State.LOOTING);
+                MyRevsClient.getScript().setState(State.LOOTING);
                 return;
             }
 
             if (LootingManager.getTripValue() >= 500000) {
-                Query.equipment().nameContains("Ring of wealth (").findFirst().map(ring -> ring.click("Grand exchange"));
-                Log.info("Teleporting with: " + LootingManager.getTripValue());
+                TeleportManager.teleportToGE();
             }
 
             // DO NOT HOP; KILL MOBS

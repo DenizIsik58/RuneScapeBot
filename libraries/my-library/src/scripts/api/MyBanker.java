@@ -1,14 +1,12 @@
 package scripts.api;
 
-import org.tribot.script.sdk.Bank;
-import org.tribot.script.sdk.BankSettings;
-import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.Waiting;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.types.definitions.ItemDefinition;
 import org.tribot.script.sdk.util.Retry;
 import org.tribot.script.sdk.walking.GlobalWalking;
 
-public class Banker {
+public class MyBanker {
 
     public static boolean openBank() {
         if (Bank.isOpen()) return true;
@@ -55,12 +53,12 @@ public class Banker {
     }
 
     public static boolean withdraw(int id, int amount, boolean noted) {
-        return withdraw(getName(id), amount, noted);
+        return withdraw(getItemDefinition(id).getName(), amount, noted);
     }
 
     public static boolean withdraw(String name, int amount, boolean noted) {
         if (!openBank()) {
-            Log.warn("Failed to withdraw because could not open bank.");
+            Log.warn("Failed to withdraw [" + name + "] because could not open bank.");
             return false;
         }
         setNoted(noted);
@@ -77,21 +75,56 @@ public class Banker {
         return Waiting.waitUntil(2000, () -> getInventoryCount(name, noted) == startingInventoryCount + amount);
     }
 
+    public static boolean deposit(String itemName, int amount, boolean noted) {
+        return deposit(getItemDefinition(itemName), amount, noted);
+    }
+
+    public static boolean deposit(int id, int amount, boolean noted) {
+        return deposit(getItemDefinition(id), amount, noted);
+    }
+
+    public static boolean deposit(ItemDefinition definition, int amount, boolean noted) {
+        if (!openBank()) {
+            Log.warn("Failed to deposit [" + definition.getName() + "] because could not open bank.");
+            return false;
+        }
+        var inventoryCount = getInventoryCount(definition.getName(), noted);
+        int id = getCorrectId(definition, noted);
+        if (amount >= inventoryCount) Bank.depositAll(id);
+        else Bank.deposit(id, amount);
+        return Waiting.waitUntil(2000, () -> getInventoryCount(definition.getName(), noted) == Math.max(0, inventoryCount - amount));
+    }
 
 
-    private static String getName(int id) {
-        var definition = Query.itemDefinitions()
+    private static int getCorrectId(ItemDefinition definition, boolean noted) {
+        if (noted) {
+            return definition.getNotedItemId() == 0 ? definition.getUnnotedItemId() : definition.getNotedItemId();
+        } else {
+            return definition.getUnnotedItemId();
+        }
+    }
+
+    private static ItemDefinition getItemDefinition(String name) {
+        return Query.itemDefinitions()
+                .nameEquals(name)
+                .isNotPlaceholder()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No item found with name: " + name));
+    }
+
+    private static ItemDefinition getItemDefinition(int id) {
+        return Query.itemDefinitions()
                 .idEquals(id)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Could not find item with ID: " + id));
-        return definition.getName();
     }
 
     public static void setPlaceHolder(){
         if (!BankSettings.isPlaceholdersEnabled()){
-            Waiting.waitUntil(() -> Client.clickWidget("Enable", 12, 38));
+            Waiting.waitUntil(() -> MyClient.clickWidget("Enable", 12, 38));
         }
     }
+
 
 
 }

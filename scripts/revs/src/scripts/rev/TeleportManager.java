@@ -30,13 +30,13 @@ public class TeleportManager {
         Waiting.waitUntil(10000, MyRevsClient::myPlayerIsInFerox);
 
         if (!chosenMobArea.isVisible()) {
-            Log.debug("Trying to walk to cave");
+            Log.debug("[INFO_LISTENER] Started journey towards the cave...");
             if (Combat.getWildernessLevel() > 20){
                 GlobalWalking.walkTo(enclaveDoor);
             }
 
             if (!MyRevsClient.myPlayerIsInFerox() && !isHasVisitedBeforeTrip()){
-                Log.debug("Teleporting to ferox!");
+                Log.debug("[INFO_LISTENER] Teleporting to ferox!");
                     var ring = Query.inventory().nameContains("Ring of dueling").findFirst().orElse(null);
 
                     if (ring != null) {
@@ -49,7 +49,7 @@ public class TeleportManager {
 
             if (MyRevsClient.myPlayerIsInFerox()) {
                 setHasVisitedBeforeTrip(true);
-                Log.debug("I'm in ferox");
+                Log.debug("[INFO_LISTENER] I'm in ferox");
                 if (MyRevsClient.myPlayerNeedsToRefresh()){
                     Log.debug("I'm walking to pool");
                     GlobalWalking.walkTo(enclavePool);
@@ -99,6 +99,8 @@ public class TeleportManager {
         }
         return false;
     }
+
+
 
     public static boolean isHasVisitedBeforeTrip() {
         return hasVisitedBeforeTrip;

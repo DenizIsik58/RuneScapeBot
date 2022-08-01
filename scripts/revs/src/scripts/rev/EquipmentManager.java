@@ -1,9 +1,12 @@
 package scripts.rev;
 
 import org.tribot.script.sdk.Equipment;
+import org.tribot.script.sdk.Inventory;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
+import scripts.api.MyBanker;
+import scripts.api.MyExchange;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +32,63 @@ public class EquipmentManager {
         Query.equipment().nameContains("Bracelet").findFirst().map(c -> c.click("Check"));
         Query.equipment().nameContains("Craw").findFirst().map(c -> c.click("Check"));
         Waiting.wait(3000);
+    }
+
+    private static int checkCharges(int... ids) {
+
+    }
+
+    public static int checkBraceletCharges() {
+        MyBanker.closeBank();
+        MyExchange.closeExchange();
+
+        int currentBraceletCharges = braceCharges;
+
+        if (Equipment.contains(21817)) {
+            braceCharges = 0;
+            return braceCharges;
+        }
+        if (Equipment.contains(21816)){
+            Query.equipment().idEquals(21816).findFirst().map(c -> c.click("Check"));
+        }
+
+        if (Inventory.contains(21816)){
+            Query.inventory().idEquals(21816).findFirst().map(c -> c.click("Check"));
+        } else if (Inventory.contains(21817)) {
+            braceCharges = 0;
+            return braceCharges;
+        }
+
+        Waiting.waitUntil(1000, () -> braceCharges != currentBraceletCharges);
+        return braceCharges;
+    }
+
+    public static int checkBowCharges() {
+        MyBanker.closeBank();
+        MyExchange.closeExchange();
+        int currentBowCharge = bowCharges;
+
+        if (Equipment.contains(22547)) {
+            bowCharges = 0;
+            return bowCharges;
+        }
+        if (Equipment.contains(22550)){
+           Query.equipment().idEquals(22550).findFirst().map(c -> c.click("Check"));
+        }
+
+        if (Inventory.contains(22550)){
+            Query.inventory().idEquals(22550).findFirst().map(c -> c.click("Check"));
+        } else if (Inventory.contains(22547)) {
+            bowCharges = 0;
+            return bowCharges;
+            // cutting out the wait if we know its 0
+        }
+
+
+        // it shouldnt take more than a second, so if it isnt changed in one second we will assume its the same as before
+
+        Waiting.waitUntil(1000, () -> bowCharges != currentBowCharge);
+        return bowCharges;
     }
 
     public static int getBowCharges() {

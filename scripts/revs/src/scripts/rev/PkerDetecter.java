@@ -1,11 +1,8 @@
 package scripts.rev;
 
-import org.tribot.script.sdk.*;
-import org.tribot.script.sdk.query.Query;
-
 import java.util.function.BooleanSupplier;
 
-public class PkerDetecter implements Runnable {
+public class PkerDetecter {
 
     private BooleanSupplier running;
 
@@ -13,15 +10,9 @@ public class PkerDetecter implements Runnable {
             this.running = running;
     }
 
-    public static void quickTele() {
-        Log.info("Quick teleporting");
-        if (Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange")).orElse(false)) {
-            Waiting.waitUntil(6000, MyRevsClient::myPlayerIsInGE);
-        } else Log.warn("Failed teleporting to Grand Exchange");
 
-    }
 
-    public static boolean isPkerDetected() {
+   /* public static boolean isPkerDetected() {
         var interactables = Query.players().withinCombatLevels(Combat.getWildernessLevel());
         if (interactables.count() != 0) {
             if (Query.players().withinCombatLevels(Combat.getWildernessLevel()).hasSkullIcon().isAny()) {
@@ -54,6 +45,6 @@ public class PkerDetecter implements Runnable {
             }
             Waiting.wait(50);
         }
-    }
+    }*/
 }
 

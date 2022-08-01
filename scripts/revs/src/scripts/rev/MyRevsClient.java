@@ -1,16 +1,17 @@
 package scripts.rev;
 
-import org.tribot.script.sdk.*;
-import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.Bank;
+import org.tribot.script.sdk.Log;
+import org.tribot.script.sdk.MyPlayer;
+import org.tribot.script.sdk.Prayer;
 import org.tribot.script.sdk.types.Area;
-import org.tribot.script.sdk.types.Widget;
 import org.tribot.script.sdk.types.WorldTile;
-import org.tribot.script.sdk.util.Retry;
-
-import java.util.Optional;
+import scripts.api.MyScriptVariables;
+import scripts.api.utility.StringsUtility;
 
 public class MyRevsClient {
 
+    private static RevScript script = null;
 
     public static boolean myPlayerIsDead(){
         return Area.fromRectangle(new WorldTile(3217, 3226, 0), new WorldTile(3226, 3211, 0)).containsMyPlayer();
@@ -50,11 +51,16 @@ public class MyRevsClient {
 
 
 
-
-
     public static void processMessage(String message) {
+
+        if (message.contains("giving it a total of")) {
+            var chargeString = StringsUtility.extractLastMatch("\\d+", message).orElse("");
+            Log.info("CHARGES: " + chargeString);
+            if (!chargeString.isEmpty()) EquipmentManager.setBowCharges(Integer.parseInt(chargeString));
+        }
+
         if (message.equals("<col=ef1020>Your weapon has run out of revenant ether.</col>")){
-            PkerDetecter.quickTele();
+            TeleportManager.teleportToGE();
             return;
         }
         if (message.equals("<col=ef1020>The effects of the divine potion have worn off.")){
@@ -86,28 +92,13 @@ public class MyRevsClient {
     }
 
 
-    public static boolean waitUntilLoggedIn() {
-        boolean success = Retry.retry(5, () -> {
-            if (isClickToPlayVisible()) clickClickToPlay();
-            return Waiting.waitUntil(Login::isLoggedIn);
-        });
-        if (!success) {
-            Login.login();
-            waitUntilLoggedIn();
-        }
-        return Login.isLoggedIn();
+    public static RevScript getScript() {
+        if (script == null) script = MyScriptVariables.getScript();
+        return script;
     }
 
-    //<editor-fold desc="waitUntilLoggedIn support methods">
-    private static Optional<Widget> getClickToPlayButton() {
-        return Query.widgets().inIndexPath(378, 78).findFirst();
-    }
-    private static boolean isClickToPlayVisible() {
-        return getClickToPlayButton().map(Widget::isVisible).orElse(false);
-    }
-    private static void clickClickToPlay() {
-        getClickToPlayButton().ifPresent(button -> button.click("Play"));
-    }
-    //</editor-fold>
+
+
+
 
 }

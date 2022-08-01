@@ -12,17 +12,19 @@ import org.tribot.script.sdk.tasks.ItemReq;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
-import scripts.api.Banker;
-import scripts.api.Teleporting;
+import scripts.api.MyBanker;
+import scripts.api.MyTeleporting;
+import scripts.api.utility.Utility;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
-import static scripts.api.Banker.*;
-import static scripts.api.Client.clickWidget;
-import static scripts.api.Client.isWidgetVisible;
+import static scripts.api.MyBanker.*;
+import static scripts.api.MyClient.clickWidget;
+import static scripts.api.MyClient.isWidgetVisible;
 
 
 public class BankManagerRevenant {
@@ -34,8 +36,7 @@ public class BankManagerRevenant {
 
     public static void bankLoot() {
         if (!MyRevsClient.myPlayerIsInGE()) {
-            Query.equipment().nameContains("Ring of wealth (").findFirst().map(ring -> ring.click("Grand exchange"));
-            Waiting.waitUntil(MyRevsClient::myPlayerIsInGE);
+            TeleportManager.teleportToGE();
         }
 
         returnFromTrip();
@@ -54,9 +55,11 @@ public class BankManagerRevenant {
     }
 
     public static void returnFromTrip() {
-        EquipmentManager.checkCharges();
+        //EquipmentManager.checkCharges();
+        EquipmentManager.checkBowCharges();
+        EquipmentManager.checkBraceletCharges();
         openBank();
-        Waiting.waitUntil(Bank::isOpen);
+        Waiting.waitUntil(MyBanker::openBank);
         equipNewWealthIfNeeded();
         chargeBraceletOrBowIfNeeded();
         checkIfWeHaveEmblemDrop();
@@ -82,12 +85,12 @@ public class BankManagerRevenant {
     public static void chargeBraceletOrBowIfNeeded() {
         // Check if we have enough ether in the bank
         if (!MyRevsClient.myPlayerHasEnoughChargesInBow()) {
-            Log.debug(EquipmentManager.getBowCharges());
+            Log.debug("Bow Charge: " + EquipmentManager.getBowCharges());
             Log.debug("bow needs ether. Charging....");
             openBank();
             if (Bank.getCount(21820) >= 500 + 100) {
-                Bank.withdraw(21820, 500);
-                Bank.close();
+                MyBanker.withdraw(21820, 500,false);
+                MyBanker.closeBank();
                 Equipment.remove("Craw's bow");
                 Waiting.waitUntil(() -> Inventory.contains(21820));
                 Waiting.waitUntil(() -> Inventory.contains("Craw's bow"));
@@ -150,8 +153,8 @@ public class BankManagerRevenant {
 
         if (!MyRevsClient.myPlayerHasEnoughChargesInBracelet()) {
             openBank();
-            Bank.withdraw("Revenant ether", 100);
-            Bank.close();
+            MyBanker.withdraw("Revenant ether", 100, false);
+            MyBanker.closeBank();
             Equipment.remove("Bracelet of ethereum");
             Waiting.waitUntil(() -> Inventory.contains("Revenant ether"));
             Waiting.waitUntil(() -> Inventory.contains("Bracelet of ethereum"));
@@ -214,7 +217,7 @@ public class BankManagerRevenant {
                 if (isWidgetVisible(15, 3)) {
                     Waiting.waitUntil(() -> clickWidget("Deposit loot", 15, 8));
                     Waiting.waitUntil(() -> clickWidget("Dismiss", 15, 10));
-                    Bank.close();
+                    MyBanker.closeBank();
                 }
             }
         }
@@ -231,7 +234,7 @@ public class BankManagerRevenant {
 
         if (!isInventoryBankTaskSatisfied()){
             Bank.depositInventory();
-            checkIfNeedToRestockSupplies();
+            //checkIfNeedToRestockSupplies();
             getInventoryBankTask().execute();
         }
 
@@ -247,7 +250,7 @@ public class BankManagerRevenant {
             withdrawGear();
         }
 
-        if (!Teleporting.Dueling.feroxEnclave()){
+        if (!MyTeleporting.Dueling.feroxEnclave()){
             Log.debug("Couldn't teleport to ferox..");
         }
 
@@ -259,10 +262,11 @@ public class BankManagerRevenant {
             if (!Query.inventory().nameContains("Ring of wealth (").isAny() || !Query.equipment().nameContains("Ring of wealth (").isAny()) {
                 openBank();
                 BankTask.builder().addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1)).build().execute();
-                Bank.close();
+                MyBanker.closeBank();
             }
-            Equipment.Slot.RING.getItem().map(c -> c.click("Grand exchange"));
-            Waiting.waitUntil(MyRevsClient::myPlayerIsInGE);
+
+            TeleportManager.teleportToGE();
+
         }
     }
 
@@ -315,6 +319,24 @@ public class BankManagerRevenant {
     }
 
     public static boolean useEtherOn(int itemId){
+        if (!Inventory.contains("Revenant ether")) return false;
+        List<Integer> bowIds = List.of(22550, 22547);
+        List<Integer> braceletIds = List.of(21816, 21817);
+        int[] targetIds = new int[]{};
+        if (bowIds.contains(itemId)) targetIds = Utility.integerListToIntArray(bowIds);
+        if (itemId == 21816) targetIds = Utility.integerListToIntArray(braceletIds);
+        closeBank();
+        if (!Inventory.contains(targetIds)) {
+            var optionalItem = Query.equipment().idEquals(targetIds).findFirst();
+            if (optionalItem.isEmpty()) {
+                Log.warn("Tried to use ether on " + itemId + " but do not have one withdrawn");
+                return false;
+            } else {
+                var item = optionalItem.get();
+                Equipment.remove(item.getId());
+                Waiting.waitUntil(2000, () -> Inventory.contains(item.getId()));
+            }
+        }
         return Query.inventory()
                 .idEquals(itemId)
                 .findFirst()
@@ -327,7 +349,6 @@ public class BankManagerRevenant {
 
     public static boolean isEquipmentBankTaskSatisfied() {
         // check bracelet charges and bow charges are enough, if not recharge or return false
-
         return getEquipmentBankTask().isSatisfied();
     }
 
@@ -341,38 +362,51 @@ public class BankManagerRevenant {
             Log.warn("Failed to equip bracelet... could have none in bank. maybe uncharged?");
         }
         Waiting.waitUntil(() -> Equipment.contains(22550) && Equipment.contains(21816));
-        EquipmentManager.checkCharges();
+
     }
+
 
     private static boolean withdrawBow() { // 22550 = charged bow
-        if (Inventory.contains(22550) || Inventory.contains(22547)) return true;
-        if (!Equipment.contains(22550) && !Equipment.contains(22547)){
+        if (inventoryContainsBow()) return true;
+        if (!equipmentContainsBow()){
             // this wait is unneccesary since it waits for the bank to be open in the openBank, so we can just call it
             //Waiting.waitUntil(BankManagerRevenant::openBank);
-            openBank();
-            if (Bank.contains(22550)) Bank.withdraw(22550, 1);
-            else if (Bank.contains(22547)) Bank.withdraw(22547, 1);
-            else {
+            if (Bank.contains(22550)) {
+                MyBanker.withdraw(22550, 1, false);
+                EquipmentManager.checkBowCharges();
+            } else if (Bank.contains(22547)) {
+                // withdraw ether since we know we need i
+                if (!inventoryContainsEther(1750)) {
+                    withdrawEther(1750);
+                }
+                MyBanker.withdraw(22547, 1, false);
+            } else {
                 Log.warn("No bow... implement buying a bow?");
             }
-            Waiting.waitUntil(2000, () -> Inventory.contains(22550) || Inventory.contains(22547));
         }
-        return Inventory.contains(22550) || Inventory.contains(22547);
+        return isBowWithdrawn();
     }
 
-    public static boolean hasEnoughEtherInBank(){
-        return Query.bank().nameEquals("Revenant ether").findFirst().map(Stackable::getStack).orElse(0) < 1750 + 250;
+    public static boolean hasEnoughEther(int amount){
+        return Query.bank().nameEquals("Revenant ether").findFirst().map(Stackable::getStack).orElse(0) >= amount;
     }
+
 
     private static boolean withdrawEther(int amount) {
         // Go buy if we dont have enoug ether
-        if (!hasEnoughEtherInBank()){
-            GrandExchangeRevManager.sellLoot();
-            GrandExchangeRevManager.buyFromBank(21820, 4000);
+        int inventoryAmount = Inventory.getCount("Revenant ether");
+        int shortage = amount - inventoryAmount;
+
+        if (shortage == 0) return true;
+        if (shortage < 0) {
+            return MyBanker.deposit("Revenent ether", Math.abs(shortage), false);
+        } else {
+            if (!hasEnoughEther(amount)){
+                GrandExchangeRevManager.sellLoot();
+                GrandExchangeRevManager.buyFromBank(21820, 4000);
+            }
+            return MyBanker.withdraw("Revenant ether", amount, false);
         }
-        // Withdraw it
-        Bank.withdraw("Revenant ether", amount);
-        return Waiting.waitUntil(2000, () -> Inventory.contains("Revenant ether"));
 
     }
 
@@ -380,70 +414,112 @@ public class BankManagerRevenant {
         return Inventory.getCount("Revenant ether") >= amount;
     }
 
-    private static boolean equipBow() {
-        if (Equipment.contains(22550)) return true;
-        if (withdrawBow()) {
-            if (Inventory.contains(22550)){
-                Query.inventory().idEquals(22550).findFirst().ifPresent(InventoryItem::click);
-            }else {
-                // Bow is uncharged
-                if (!inventoryContainsEther(1750)) {
-                    withdrawEther(1750);
-                }
-                if (useEtherOn(22547)){
-                    Query.inventory().idEquals(22550).findFirst().ifPresent(InventoryItem::click);
-                }else {
-                    // Something went wrong. Couldn't use ether on
-                    Log.debug("Something went wrong.. Couldn't use ether on bow");
-                }
-
+    private static boolean equipAndCharge(boolean bow) {
+        boolean withdrawn = bow ? isBowWithdrawn() : isBraceletWithdrawn();
+        BooleanSupplier withdrawMethod = bow ? BankManagerRevenant::withdrawBow : BankManagerRevenant::withdrawBracelet;
+        BooleanSupplier useEtherMethod = bow ? () -> useEtherOn(22547) : () -> useEtherOn(21817);
+        int etherGoal = bow ? 1750 : 250;
+        if (!withdrawn) {
+            if (!withdrawMethod.getAsBoolean()) {
+                Log.warn("Failed to withdraw bow, may need to buy?");
+                return false;
             }
-
-            return Waiting.waitUntil(2000, () -> Equipment.contains(22550));
-            //  you can shorten the wait because it should be done within a second or so, so if it's not, there's no reason to wait the full 11 seconds or so that it waits by default
         }
-        return false;
+
+        int charges = bow ? EquipmentManager.checkBowCharges() : EquipmentManager.checkBraceletCharges();
+
+        if (charges < etherGoal) {
+            int shortage = etherGoal - charges;
+            withdrawEther(shortage);
+            if (!useEtherMethod.getAsBoolean()){
+                // Something went wrong. Couldn't use ether on
+                Log.debug("Something went wrong.. maybe out of ether... Couldn't use ether on bracelet");
+            }
+        }
+
+        int equipId = bow ? 22550 : 21817;
+        return Query.inventory().idEquals(equipId).findFirst().map(item ->
+                Equipment.equip(item) && Waiting.waitUntil(2000, () -> Equipment.contains(equipId)))
+                .orElse(false);
+    }
+    private static int checkCharges(boolean bow) {
+        return bow ? EquipmentManager.checkBowCharges() : EquipmentManager.checkBraceletCharges();
+    }
+
+    private static boolean equipBow() {
+        return equipAndCharge(true);
+    }
+
+    private static boolean withdrawCharged(boolean bow) {
+        if (inventoryContainsChargedOrUncharged(bow)) return true;
+        int chargedId = bow ? 22550 : 21816;
+        int unchargedId = bow ? 22547 : 21817;
+        if (!equipmentContainsChargedOrUncharged(bow)) {
+            MyBanker.openBank();
+
+
+        }
+
     }
 
     private static boolean withdrawBracelet() {
-        if (Inventory.contains("Bracelet of ethereum") || Inventory.contains("Bracelet of ethereum (uncharged)"))return true;
+        if (inventoryContainsBracelet()) return true;
         if (!Equipment.contains("Bracelet of ethereum") && !Equipment.contains("Bracelet of ethereum (uncharged)")){
-            Waiting.waitUntil(Banker::openBank);
+            Waiting.waitUntil(MyBanker::openBank);
 
             if (Bank.contains(21816)) {
-                Bank.withdraw(21816, 1);
+                MyBanker.withdraw(21816, 1, false);
             }
             else if (Bank.contains(21817)){
-                Bank.withdraw(21817, 1);
+                MyBanker.withdraw(21817, 1, false);
             }else {
                 // No bracelet
             }
-            Waiting.waitUntil(2000, () -> Inventory.contains("Bracelet of ethereum") || Inventory.contains("Bracelet of ethereum (uncharged)"));
-            Waiting.waitUntil(Banker::closeBank);
-            return Query.inventory().nameEquals("Bracelet of ethereum").findFirst().map(bow -> bow.click("Check")).orElse(false);
+            Waiting.waitUntil(MyBanker::closeBank);
         }
         return Inventory.contains("Bracelet of ethereum") || Inventory.contains("Bracelet of ethereum (uncharged)");
     }
 
     private static boolean equipBracelet() {
-        if (Equipment.contains(21816)) return true;
-        if (withdrawBracelet()){
-            if (Inventory.contains(21816)){
-                Query.inventory().idEquals(21816).findFirst().ifPresent(InventoryItem::click);
-            }else {
-                if (!inventoryContainsEther(250)){
-                    withdrawEther(250);
-                }
-                if (useEtherOn(21817)){
-                    Query.inventory().idEquals(21816).findFirst().ifPresent(InventoryItem::click);
-                }else {
-                    // Something went wrong. Couldn't use ether on
-                    Log.debug("Something went wrong.. Couldn't use ether on bracelet");
-                }
-            }
-         }
-        return false;
+        return equipAndCharge(false);
     }
+
+    private static boolean inventoryContainsChargedOrUncharged(boolean bow) {
+        return inventoryContainsCharged(bow) || inventoryContainsUncharged(bow);
+    }
+
+    private static boolean equipmentContainsChargedOrUncharged(boolean bow) {
+        return equipmentContainsCharged(bow) || equipmentContainsUncharged(bow);
+    }
+
+    private static boolean inventoryContainsCharged(boolean bow) {
+        return bow
+                ? Inventory.contains(22550)
+                : Inventory.contains(21816);
+    }
+
+    private static boolean inventoryContainsUncharged(boolean bow) {
+        return bow
+                ? Inventory.contains(22547)
+                : Inventory.contains(21817);
+    }
+
+    private static boolean equipmentContainsCharged(boolean bow) {
+        return bow
+                ? Equipment.contains(22550)
+                : Equipment.contains(21816);
+    }
+
+    private static boolean equipmentContainsUncharged(boolean bow) {
+        return bow
+                ? Equipment.contains(22547)
+                : Equipment.contains(21817);
+    }
+
+    private static boolean isChargedItemWithdrawn(boolean bow) {
+        return inventoryContainsCharged(bow) || equipmentContainsCharged(bow);
+    }
+
 
     public static void withdrawGear() {
         Log.debug("Withdrawing gear");
@@ -452,13 +528,23 @@ public class BankManagerRevenant {
         // get bracelet.. check charges
         // get bow
          // >.<
-        Waiting.waitUntil(2000, Banker::openBank);
-        equipBowAndBraceAndChargeIfNeeded(); // This method takes on bracelet and bows + checks their charges
+        Waiting.waitUntil(2000, MyBanker::openBank);
+
+
+        equipBow();
+        equipBracelet();
+
         chargeBraceletOrBowIfNeeded();
+        equipBowAndBraceAndChargeIfNeeded(); // This method takes on bracelet and bows + checks their charges
+
         if (!isEquipmentBankTaskSatisfied()){
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
+        }else {
+            EquipmentManager.checkBraceletCharges();
+            EquipmentManager.checkBowCharges();
         }
+
 
         withdrawFoodAndPots();
 

@@ -7,7 +7,7 @@ import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 
-public class Exchange {
+public class MyExchange {
 
     private static final Area grandExchangeArea = Area.fromPolygon(new WorldTile(3140, 3508, 0),
             new WorldTile(3146, 3514, 0),
@@ -28,12 +28,12 @@ public class Exchange {
 
     public static boolean closeExchange() {
         if (isExchangeClosed()) return true;
-        return GrandExchange.close() && Waiting.waitUntil(2000, Exchange::isExchangeClosed);
+        return GrandExchange.close() && Waiting.waitUntil(2000, MyExchange::isExchangeClosed);
     }
 
     public static boolean openExchange() {
         if (isExchangeOpen()) return true;
-        Banker.closeBank();
+        MyBanker.closeBank();
         if (isExchangeNotNearby()) {
             if (!walkToGrandExchange()) {
                 Log.warn("Could not open Grand Exchange because walking to it failed.");
@@ -41,7 +41,7 @@ public class Exchange {
             }
         }
         GrandExchange.open();
-        return Waiting.waitUntil(3000, Exchange::isExchangeOpen);
+        return Waiting.waitUntil(3000, MyExchange::isExchangeOpen);
     }
 
 
@@ -49,7 +49,7 @@ public class Exchange {
     public static boolean walkToGrandExchange() {
         if (isExchangeNearby()) return true;
         GlobalWalking.walkTo(grandExchangeArea.getRandomTile());
-        return Waiting.waitUntil(5000, Exchange::isExchangeNearby);
+        return Waiting.waitUntil(5000, MyExchange::isExchangeNearby);
     }
 
 }

@@ -30,7 +30,7 @@ public class DetectPlayerThread extends Thread {
     private final ServerMessageListener serverMessageListener = message -> {
         if (!Combat.isInWilderness()) {
             if (isTeleblocked()) setTeleblocked(false);
-            if (isHasPkerBeenDetected()) setHasPkerBeenDetected(false);
+            if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
             if (inDangerFlag()) setDangerFlag(false);
             if (inDanger()) setInDanger(false);
             if (Mouse.getSpeed() != 300) Mouse.setSpeed(300);
@@ -115,11 +115,11 @@ public class DetectPlayerThread extends Thread {
         MessageListening.removeServerMessageListener(serverMessageListener);
     }
 
-    public static void setHasPkerBeenDetected(boolean hasPkerBeenDetected) {
+    public void setHasPkerBeenDetected(boolean hasPkerBeenDetected) {
         DetectPlayerThread.hasPkerBeenDetected = hasPkerBeenDetected;
     }
 
-    public static boolean isHasPkerBeenDetected() {
+    public boolean hasPkerBeenDetected() {
         return hasPkerBeenDetected;
     }
 
@@ -160,7 +160,7 @@ public class DetectPlayerThread extends Thread {
                             setWaitingForDeath(false);
                         }
                         Log.trace("Attempting Teleport");
-                        PkerDetecter.quickTele();
+                        TeleportManager.teleportToGE();
                         return;
                     } else {
                         Log.trace("Teleblocked");
