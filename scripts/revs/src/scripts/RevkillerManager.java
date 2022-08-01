@@ -29,7 +29,6 @@ public class RevkillerManager {
             if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
                 Log.info("Boss has been seen!");
                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                RevenantScript.state = State.BANKING;
                 return;
 
             }
@@ -49,8 +48,6 @@ public class RevkillerManager {
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
                 Log.info("We are low on prayer. Teleporting out..");
                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                RevenantScript.state = State.BANKING;
-
                 PrayerManager.disableQuickPrayer();
                 return;
             }
@@ -62,7 +59,7 @@ public class RevkillerManager {
                         Waiting.waitUntil(() -> !target.isValid());
                         Waiting.wait(5000);
                         if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
-                            RevenantScript.state = State.LOOTING;
+                            RevenantScript.setState(State.LOOTING);
                         }
                     }
                 }
@@ -70,7 +67,6 @@ public class RevkillerManager {
                 Log.info("We are low on shark. Teleporting out...");
                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                 Log.debug("BANKING");
-                RevenantScript.state = State.BANKING;
                 PrayerManager.disableQuickPrayer();
                 return;
             }
@@ -154,17 +150,13 @@ public class RevkillerManager {
 
             }
             if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
-                RevenantScript.state = State.LOOTING;
+                RevenantScript.setState(State.LOOTING);
                 return;
             }
 
             if (LootingManager.getTripValue() >= 500000) {
                 Query.equipment().nameContains("Ring of wealth (").findFirst().map(ring -> ring.click("Grand exchange"));
                 Log.info("Teleporting with: " + LootingManager.getTripValue());
-                Waiting.waitUntil(10000,MyRevsClient::myPlayerIsInGE);
-                if (MyRevsClient.myPlayerIsInGE()){
-                    RevenantScript.state = State.BANKING;
-                }
             }
 
             // DO NOT HOP; KILL MOBS

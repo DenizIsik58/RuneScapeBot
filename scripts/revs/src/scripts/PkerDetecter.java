@@ -19,16 +19,9 @@ public class PkerDetecter implements Runnable {
 
     public static void quickTele() {
         Log.info("Quick teleporting");
-        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-        Waiting.waitUntil(6000, MyRevsClient::myPlayerIsInGE);
-        if (!GameTab.EQUIPMENT.isOpen()) {
-            GameTab.EQUIPMENT.open();
-        }
-        if (MyRevsClient.myPlayerIsInGE()) {
-            RevenantScript.state = State.BANKING;
-            return;
-        }
-
+        if (Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange")).orElse(false)) {
+            Waiting.waitUntil(6000, MyRevsClient::myPlayerIsInGE);
+        } else Log.warn("Failed teleporting to Grand Exchange");
 
     }
 
@@ -57,7 +50,7 @@ public class PkerDetecter implements Runnable {
     public void run() {
 
         while(running.getAsBoolean()){
-            if (RevenantScript.state == State.WALKING || RevenantScript.state == State.KILLING ||RevenantScript.state == State.LOOTING) {
+            if (RevenantScript.isState(State.WALKING) || RevenantScript.isState(State.KILLING) || RevenantScript.isState(State.LOOTING)) {
 
                 if (PkerDetecter.isPkerDetected()) {
                     quickTele();

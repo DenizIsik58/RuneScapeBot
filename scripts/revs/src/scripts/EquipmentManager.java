@@ -3,6 +3,7 @@ package scripts;
 import org.tribot.script.sdk.Equipment;
 import org.tribot.script.sdk.Inventory;
 import org.tribot.script.sdk.Log;
+import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
 
@@ -29,6 +30,7 @@ public class EquipmentManager {
     public static void checkCharges(){
         Query.equipment().nameContains("Bracelet").findFirst().map(c -> c.click("Check"));
         Query.equipment().nameContains("Craw").findFirst().map(c -> c.click("Check"));
+        Waiting.wait(3000);
 
     }
 

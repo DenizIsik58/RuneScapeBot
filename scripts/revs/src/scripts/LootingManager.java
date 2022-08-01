@@ -56,10 +56,6 @@ public class LootingManager {
                         Log.debug("Teleporting out. I have: " + tripValue);
                         Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                         Waiting.waitUntil(5000,MyRevsClient::myPlayerIsInGE);
-                        if (MyRevsClient.myPlayerIsInGE()){
-                            RevenantScript.state = State.BANKING;
-                            return;
-                        }
                     }
                     break;
                 }
@@ -78,7 +74,7 @@ public class LootingManager {
                 GlobalWalking.walkTo(RevenantScript.selectedMonsterTile);
             }
 
-        RevenantScript.state = State.KILLING;
+        RevenantScript.setState(State.KILLING);
     }
 
     public static boolean hasDecreased(String itemName, int count){

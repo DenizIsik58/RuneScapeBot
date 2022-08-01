@@ -4,6 +4,7 @@ import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.InventoryItem;
+import org.tribot.script.sdk.types.World;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
@@ -89,6 +90,10 @@ public class TeleportManager {
 
         }
         return chosenMobArea;
+    }
+
+    public static boolean monsterTileIsDetected(WorldTile tile){
+        return tile.isRendered() || tile.isVisible() || tile.isInLineOfSight();
     }
 
     public static boolean isHasVisitedBeforeTrip() {

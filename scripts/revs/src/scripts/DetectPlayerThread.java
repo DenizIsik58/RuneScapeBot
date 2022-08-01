@@ -26,6 +26,8 @@ public class DetectPlayerThread extends Thread {
     private static BooleanSupplier running;
     private static boolean hasPkerBeenDetected;
 
+    private final AtomicBoolean paused = new AtomicBoolean(false);
+
     private final ServerMessageListener serverMessageListener = message -> {
         if (!Combat.isInWilderness()) {
             if (isTeleblocked()) setTeleblocked(false);
@@ -43,6 +45,8 @@ public class DetectPlayerThread extends Thread {
 
     public DetectPlayerThread(BooleanSupplier running) {
                     DetectPlayerThread.running = running;
+                    ScriptListening.addPauseListener(() -> paused.set(true));
+                    ScriptListening.addResumeListener(() -> paused.set(false));
     }
 
     public static boolean detectPKers() {
@@ -124,6 +128,15 @@ public class DetectPlayerThread extends Thread {
     public void run() {
         hookupLisener();
         while (running.getAsBoolean()) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (paused.get()) continue;
+
+
             if (Combat.isInWilderness()) {
                 if (!inDanger() && !inDangerFlag()) {
                     if (detectPKers() || detectRaggers() || detectSkull()) {
@@ -135,7 +148,7 @@ public class DetectPlayerThread extends Thread {
                     }
                 }
                 if (inDanger() || inDangerFlag() || isTeleblocked()) {
-
+                    Log.trace("PKER");
                     if (Mouse.getSpeed() == 300) {
                         int dangerMouseSpeed = getRandomNumber(800, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
@@ -143,37 +156,29 @@ public class DetectPlayerThread extends Thread {
                     }
 
                     if (!isTeleblocked()) {
+                        Log.trace("Not Teleblocked");
                         if (isWaitingForDeath()) {
                             setWaitingForDeath(false);
                         }
+                        Log.trace("Attempting Teleport");
                         PkerDetecter.quickTele();
                         return;
                     } else {
+                        Log.trace("Teleblocked");
                         setWaitingForDeath(true);
                     }
 
                     if (isWaitingForDeath()) {
+                        Log.trace("Waiting for death");
                         if (!Prayer.PROTECT_ITEMS.isEnabled()) {
                             Prayer.PROTECT_ITEMS.enable();
-                        }
-                        if (Prayer.PROTECT_ITEMS.isEnabled() && !Combat.isInWilderness()) {
-                            Log.warn("[DANGER_LISTENER]WAITING TO BE KILLED");
-                            Waiting.waitUntil(getRandomNumber(20000, 30000), this::isAtRespawn);
-                            if (isAtRespawn()){
-                                Log.warn("[DEATH] I'm at spawn");
-                                RevenantScript.state = scripts.State.DEATH;
-                            }
                         }
                     }
                 }
 
             }
 
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
         }
 
         disconnectListener();

@@ -1,16 +1,19 @@
 package scripts;
 
-import org.tribot.script.sdk.MyPlayer;
-import org.tribot.script.sdk.Prayer;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
+import org.tribot.script.sdk.types.Widget;
 import org.tribot.script.sdk.types.WorldTile;
+import org.tribot.script.sdk.util.Retry;
+
+import java.util.Optional;
 
 public class MyRevsClient {
 
 
     public static boolean myPlayerIsDead(){
-        return Area.fromRectangle(new WorldTile(3217, 3223, 0), new WorldTile(3224, 3215, 0)).containsMyPlayer();
+        return Area.fromRectangle(new WorldTile(3217, 3226, 0), new WorldTile(3226, 3211, 0)).containsMyPlayer();
     }
 
     public static boolean myPlayerHasEnoughChargesInBow(){
@@ -30,19 +33,19 @@ public class MyRevsClient {
     }
 
     public static boolean myPlayerIsInGE(){
-        return Area.fromRectangle(new WorldTile(3185, 3468, 0), new WorldTile(3140, 3513, 0)).containsMyPlayer();
+        return Area.fromRectangle(new WorldTile(3140, 3513, 0), new WorldTile(3189, 3467, 0)).containsMyPlayer();
     }
 
     public static boolean myPlayerIsInCave(){
-        return Area.fromRectangle(new WorldTile(3135, 10045, 0), new WorldTile(3259, 10147, 0)).containsMyPlayer();
+        return Area.fromRectangle(new WorldTile(3136, 10142, 0), new WorldTile(3270, 10053, 0)).containsMyPlayer();
     }
 
     public static boolean myPlayerIsInFerox(){
-        return Area.fromRectangle(new WorldTile(3161, 3641, 0), new WorldTile(3120, 3616, 0)).containsMyPlayer();
+        return Area.fromRectangle(new WorldTile(3156, 3644, 0), new WorldTile(3119, 3602, 0)).containsMyPlayer();
     }
 
     public static boolean myPlayerNeedsToRefresh(){
-        return MyPlayer.getCurrentHealthPercent() < 80 || Prayer.getPrayerPoints() < 30 || MyPlayer.getRunEnergy() < 50;
+        return MyPlayer.getCurrentHealthPercent() < 80 || Prayer.getPrayerPoints() < 30 || MyPlayer.getRunEnergy() < 50 || MyPlayer.isPoisoned();
     }
 
 
@@ -63,5 +66,62 @@ public class MyRevsClient {
                 .isAny();
     }
 
+    public static void processMessage(String message) {
+        if (message.equals("<col=ef1020>Your weapon has run out of revenant ether.</col>")){
+            PkerDetecter.quickTele();
+            return;
+        }
+        if (message.equals("<col=ef1020>The effects of the divine potion have worn off.")){
+            BoostingManager.resetBoost();
+            return;
+        }
+        if (message.equals("You don't have enough inventory space.")){
+            Bank.depositInventory();
+            BankManagerRevenant.withdrawGear();
+        }
+
+        try {
+            var content = message.split(" ");
+            var type = content[1];
+            if (type.equals("bracelet")) {
+                if (message.contains("it will not absorb")){
+                    EquipmentManager.toggleBraceletAbsorbOn();
+                }
+                // Update bracelet charges
+                EquipmentManager.setBraceCharges(Integer.parseInt(content[3]));
+            } else if (type.equals("bow")) {
+                // update bow charges
+                EquipmentManager.setBowCharges(Integer.parseInt(content[3].replace(",", "")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public static boolean waitUntilLoggedIn() {
+        boolean success = Retry.retry(5, () -> {
+            if (isClickToPlayVisible()) clickClickToPlay();
+            return Waiting.waitUntil(Login::isLoggedIn);
+        });
+        if (!success) {
+            Login.login();
+            waitUntilLoggedIn();
+        }
+        return Login.isLoggedIn();
+    }
+
+    //<editor-fold desc="waitUntilLoggedIn support methods">
+    private static Optional<Widget> getClickToPlayButton() {
+        return Query.widgets().inIndexPath(378, 78).findFirst();
+    }
+    private static boolean isClickToPlayVisible() {
+        return getClickToPlayButton().map(Widget::isVisible).orElse(false);
+    }
+    private static void clickClickToPlay() {
+        getClickToPlayButton().ifPresent(button -> button.click("Play"));
+    }
+    //</editor-fold>
 
 }
