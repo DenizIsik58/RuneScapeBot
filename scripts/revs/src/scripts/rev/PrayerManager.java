@@ -4,15 +4,11 @@ import org.tribot.script.sdk.Prayer;
 import org.tribot.script.sdk.Skill;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
-import scripts.api.MyAntiBan;
+import scripts.api.MyPrayer;
 
 public class PrayerManager {
 
-    public static int getCurrentPrayerPercent() {
-        double myPrayerLevel = Skill.PRAYER.getActualLevel();
-        double myPrayer = Prayer.getPrayerPoints();
-        return (int)((myPrayer / myPrayerLevel) * 100);
-    }
+
 
     public static boolean isFullPrayer() {
         return Prayer.getPrayerPoints() >= Skill.PRAYER.getCurrentLevel();
@@ -30,7 +26,12 @@ public class PrayerManager {
         }
     }
 
-    public static boolean setPrayer(Prayer prayer){
+    public static boolean turnOffAllPrayer() {
+        Prayer.disableAll(Prayer.values());
+        return false;
+    }
+
+    public static boolean enablePrayer(Prayer prayer){
         if (!prayer.isEnabled()){
             return prayer.enable();
         }
@@ -47,11 +48,11 @@ public class PrayerManager {
         var drankPotion = Query.inventory().nameContains("Prayer potion")
                 .findClosestToMouse()
                 .map(potion -> {
-                    var currentPrayer = getCurrentPrayerPercent();
+                    var currentPrayer = MyPrayer.getCurrentPrayerPercent();
                     return potion.click("Drink")
-                            && Waiting.waitUntil(1000, () -> getCurrentPrayerPercent() > currentPrayer || isFullPrayer());
+                            && Waiting.waitUntil(1000, () -> MyPrayer.getCurrentPrayerPercent() > currentPrayer || isFullPrayer());
                 }).orElse(false);
-        if (drankPotion) MyAntiBan.calculateNextPrayerDrinkPercent();
+        if (drankPotion) MyPrayer.calculateNextPrayerDrinkPercent();
     }
 
     public static void init(){

@@ -62,7 +62,7 @@ public class MyRevsClient {
     }
 
     private static void resetTeleblock() {
-        MyScriptVariables.setVariable("lastTeleblockNotification", 0);
+        MyScriptVariables.setVariable("lastTeleblockNotification", 0L);
     }
 
 

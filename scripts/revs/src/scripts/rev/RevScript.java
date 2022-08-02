@@ -5,6 +5,7 @@ import dax.walker_engine.WalkingCondition;
 import org.tribot.script.sdk.Combat;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.MessageListening;
+import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
@@ -126,7 +127,9 @@ public class RevScript extends MyScriptExtension {
 
     @Override
     protected void onEnding() {
-        if (muleClient != null) muleClient.stopConnection();
+        if (muleClient != null) {
+            muleClient.stopConnection();
+        }
         if (Combat.isInWilderness()){
             TeleportManager.teleportOutOfWilderness("Ending script... Teleporting out");
         }
@@ -201,6 +204,10 @@ public class RevScript extends MyScriptExtension {
     private void handleStarting() {
         if (!MyRevsClient.myPlayerIsInFerox()){
             MyExchange.walkToGrandExchange();
+            var isInGe = Waiting.waitUntil(MyRevsClient::myPlayerIsInGE);
+            if (!isInGe){
+                return;
+            }
         }
         BankManagerRevenant.init();
         setState(State.WALKING);

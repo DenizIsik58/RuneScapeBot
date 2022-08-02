@@ -43,21 +43,18 @@ public class GrandExchangeRevManager {
                 var stack =  Query.bank().nameEquals(item).findFirst().map(Stackable::getStack).orElse(0) - 10;
                 Waiting.waitUntil(2000, () -> Bank.withdraw(item, stack));
 
-                Log.warn("Done pulling out");
                 if (Inventory.getCount(item) == stack){
                     Bank.deposit(item, 10);
                 }
             }
             if (Inventory.isFull()){
                 shouldRepeat = true;
-                Log.warn("I BROKE OUT");
                 break;
             }
             if (Query.bank().nameEquals(item).isAny()) {
                 Waiting.waitUntil(() -> Bank.withdrawAll(item));
             }
         }
-        Log.warn("IM HERE");
 
         //BankSettings.setNoteEnabled(false);
         Waiting.waitUntil(Bank::close);
@@ -66,7 +63,6 @@ public class GrandExchangeRevManager {
 
 
         while(true){
-            Log.debug("IM IN WHILE LOOP");
             int counter = 0;
             if (Inventory.getAll().size() == 1 && Inventory.contains("Coins")){
                 break;
@@ -133,8 +129,8 @@ public class GrandExchangeRevManager {
                 }
 
                 if (WorldHopper.getCurrentWorld() != world){
-                    int finalWorld = world;
-                    Waiting.waitUntil(() -> MuleManager.hopToMulerWorld(finalWorld));
+                    WorldHopper.hop(world);
+
                 }
                     Waiting.wait(10000);
                     var player = Query.players().nameEquals(mulerName).findFirst().orElse(null);

@@ -140,12 +140,12 @@ public class BankManagerRevenant {
         // 2. Withdraw items to inventory: Prayer pot, divine ranging pot, shark, stam, ring of dueling
         // 3. restock
         // 4. Pull out
-        openBank();
         setPlaceHolder();
 
         if (!isInventoryBankTaskSatisfied()) {
+            Log.debug("Inventory Bank Task not satisfied..");
             Bank.depositInventory();
-            //checkIfNeedToRestockSupplies();
+            checkIfNeedToRestockSupplies();
             getInventoryBankTask().execute();
         }
 
@@ -161,9 +161,11 @@ public class BankManagerRevenant {
         }
 
         if (!MyRevsClient.myPlayerIsInFerox()){
+            Log.debug("Trying to teleport to ferox");
             if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
                 Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
             }
+            Waiting.waitUntil(3000, MyRevsClient::myPlayerIsInFerox);
         }
 
     }
@@ -270,7 +272,7 @@ public class BankManagerRevenant {
                 Log.warn("Failed to withdraw bow, may need to buy?");
                 return false;
             }
-            etherGoal = bow ? 1500 : 100;
+            etherGoal = bow ? 500 : 250;
         }
 
         int charges = checkCharges(bow);
@@ -341,22 +343,25 @@ public class BankManagerRevenant {
             throw new RuntimeException("Failed withdrawing gear three times");
         }
         Log.debug("Withdrawing gear");
-        MyBanker.openBank();
 
         equipAndChargeItems();
 
         if (!isEquipmentBankTaskSatisfied()) {
+            Log.debug("Equipment task not satisfied");
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
-        } else {
+        }/* else {
+            Log.debug("Checking brace and bow charges");
             EquipmentManager.checkBraceletCharges();
             EquipmentManager.checkBowCharges();
-        }
+        }*/
 
         if (!getEquipmentBankTask().isSatisfied()) {
             Log.debug("Equipment not satisfied. Trying again");
             withdrawGear();
-        } else withdrawGearAttempts.set(0);
+        } else {
+            withdrawGearAttempts.set(0);
+        }
 
         withdrawFoodAndPots();
 

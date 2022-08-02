@@ -13,6 +13,7 @@ import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.MyAntiBan;
 import scripts.api.MyExchange;
+import scripts.api.MyPrayer;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.StringsUtility;
 
@@ -34,6 +35,8 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
+    private final AtomicBoolean outOfFood = new AtomicBoolean(false);
+
     public DetectPlayerThread(RevScript revScript) {
         this.script = revScript;
         ScriptListening.addPauseListener(() -> paused.set(true));
@@ -42,10 +45,16 @@ public class DetectPlayerThread extends Thread {
     }
 
     private void handleTeleblock() {
-        var lastTeleblockNotification = MyScriptVariables.getVariable("lastTeleblockNotification", 0);
+        var lastTeleblockNotification = MyScriptVariables.getVariable("lastTeleblockNotification", 0L);
 
+        if (MyRevsClient.myPlayerIsDead() || MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInFerox()){
+            MyScriptVariables.setVariable("lastTeleblockNotification", 0L);
+            lastTeleblockNotification = MyScriptVariables.getVariable("lastTeleblockNotification", 0L);
+
+        }
         // 5 mins might be too long and run into going another trip after?
         if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 1000) * 5) {
+            Log.debug("Handling teleblock");
             setTeleblocked(true);
         } else setTeleblocked(false);
 
@@ -126,17 +135,37 @@ public class DetectPlayerThread extends Thread {
     public static Player getPker() {
         var name = getPkerName();
         if (name.isEmpty()) return null;
-        return Query.players().filter(player -> StringsUtility.runescapeStringsMatch(player.getName(), name)).findFirst().orElse(null);
+        return Query.players()
+                .filter(player -> StringsUtility.runescapeStringsMatch(player.getName(), name))
+                .findFirst()
+                .orElse(null);
     }
 
     public static String getPkerName() {
         return MyScriptVariables.getVariable("pkerName", "");
     }
 
-    public static void handleEatAndPrayer() {
-        var nextEat = MyAntiBan.getNextEatPercent();
-        var sharkCount = Inventory.getCount("Shark");
-        if (MyPlayer.getCurrentHealthPercent() < nextEat) {
+    public void handleEatAndPrayer(Player pker) {
+
+        pker.getEquippedItem(Equipment.Slot.WEAPON).map(Item::getName).ifPresent(playerWeapon -> {
+            if (playerWeapon.toLowerCase().contains("staff")) {
+                // Magic weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MAGIC);
+
+            } else if (playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
+                // Handle melee weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
+            } else /*if (playerWeapon.toLowerCase().contains("crossbow"))*/ {
+                // Handle ranging weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
+            }
+        });
+
+        if (MyAntiBan.shouldEat()) {
+            var sharkCount = Inventory.getCount("Shark");
             if (sharkCount > 0) {
                 var ate = Query.inventory()
                         .nameEquals("Shark")
@@ -146,12 +175,11 @@ public class DetectPlayerThread extends Thread {
                         .orElse(false);
                 if (ate) MyAntiBan.calculateNextEatPercent();
             } else {
-                MyExchange.walkToGrandExchange();
+                outOfFood.set(true);
                 Log.warn("Out of food under eat percent");
             }
-
         }
-        if (MyAntiBan.shouldDrinkPrayerPotion()) {
+        if (MyPrayer.shouldDrinkPrayerPotion()) {
             PrayerManager.maintainPrayerPotion();
         }
     }
@@ -171,25 +199,7 @@ public class DetectPlayerThread extends Thread {
             return;
         }
 
-        handleEatAndPrayer(); //
-        pker.getEquippedItem(Equipment.Slot.WEAPON).map(Item::getName).ifPresent(playerWeapon -> {
-            if (playerWeapon.toLowerCase().contains("staff")) {
-                // Magic weapon
-                // 1. Set up prayer according to weapon
-                PrayerManager.setPrayer(Prayer.PROTECT_FROM_MAGIC);
-
-            } else if (playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
-                // Handle melee weapon
-                // 1. Set up prayer according to weapon
-                PrayerManager.setPrayer(Prayer.PROTECT_FROM_MELEE);
-            } else if (playerWeapon.toLowerCase().contains("crossbow")) {
-                // Handle ranging weapon
-                // 1. Set up prayer according to weapon
-                PrayerManager.setPrayer(Prayer.PROTECT_FROM_MISSILES);
-            }
-        });
-
-        PrayerManager.setPrayer(Prayer.PROTECT_ITEMS);
+        PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
 
         Log.debug("My target is: " + pker.getName());
         // pker will not be null from here on just use pker now instead of getPker
@@ -210,7 +220,7 @@ public class DetectPlayerThread extends Thread {
             GlobalWalking.walkTo(stairs, () -> {
 
                 // where do we handle eating?
-
+                handleEatAndPrayer(pker);
                 var clickedSteps = Query.gameObjects().idEquals(31558).findBestInteractable()
                         .map(c -> c.interact("Climb-up")
                                 && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
@@ -218,6 +228,7 @@ public class DetectPlayerThread extends Thread {
                 return clickedSteps ? WalkState.SUCCESS : WalkState.CONTINUE;
             });
         } else {
+            handleEatAndPrayer(pker);
             ensureWalkingPermission();
             MyExchange.walkToGrandExchange();
         }
@@ -250,12 +261,14 @@ public class DetectPlayerThread extends Thread {
             }
             if (paused.get()) continue;
 
-
             var danger = inDanger();
             var detectedPkers = detectPKers();
             var detectedRaggers = detectRaggers();
             var detectedSkull = detectSkull();
             var teleblocked = isTeleblocked();
+
+
+            handleTeleblock();
 
             if (Combat.isInWilderness()) {
                 if (!danger) {
@@ -287,7 +300,8 @@ public class DetectPlayerThread extends Thread {
                         if (isAntiPking()) {
                             setAntiPking(false);
                         }
-                        //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                        TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                        Waiting.waitUntil(4000, MyRevsClient::myPlayerIsInGE);
 
                     } else {
 

@@ -51,7 +51,7 @@ public class MyExchange {
     public static boolean walkToGrandExchange() {
         if (isExchangeNearby()) return true;
 
-        var lastTB = MyScriptVariables.getVariable("lastTeleblockNotification", 0);
+        var lastTB = MyScriptVariables.getVariable("lastTeleblockNotification", 0L);
         if (System.currentTimeMillis() - lastTB < (60 * 1000) * 2) {
             Log.warn("Didn't attempt to teleport because we've been teleblocked in the last two minutes.");
         } else {

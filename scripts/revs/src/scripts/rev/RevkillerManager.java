@@ -70,7 +70,7 @@ public class RevkillerManager {
             }
 
             if (Prayer.getPrayerPoints() < 15) {
-                PrayerManager.sipPrayer();
+                PrayerManager.maintainPrayerPotion();
                 if (target != null){
                     target.click();
                 }
