@@ -98,8 +98,13 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void updateState() {
-        if (isState(State.STARTING)) return;
-        if (MyRevsClient.myPlayerIsInGE() && !isState(State.BANKING))  setState(State.BANKING);
+        if (isState(State.STARTING)) {
+            return;
+        }
+        if (MyRevsClient.myPlayerIsInGE() && !isState(State.BANKING))  {
+            setState(State.BANKING);
+        }
+
         if (MyRevsClient.myPlayerIsDead()){
             playerDetectionThread.setHasPkerBeenDetected(false);
             setState(State.DEATH);

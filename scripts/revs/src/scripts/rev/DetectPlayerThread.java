@@ -33,7 +33,7 @@ public class DetectPlayerThread extends Thread {
             if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
             if (inDangerFlag()) setDangerFlag(false);
             if (inDanger()) setInDanger(false);
-            if (Mouse.getSpeed() != 300) Mouse.setSpeed(300);
+            if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
         } else {
             if (message.contains("A Tele Block spell has been cast on you")) {
                 setTeleblocked(true);
@@ -130,6 +130,7 @@ public class DetectPlayerThread extends Thread {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
+                Log.debug(e);
                 e.printStackTrace();
             }
             if (paused.get()) continue;
@@ -147,8 +148,8 @@ public class DetectPlayerThread extends Thread {
                 }
                 if (inDanger() || inDangerFlag() || isTeleblocked()) {
                     Log.trace("PKER");
-                    if (Mouse.getSpeed() == 300) {
-                        int dangerMouseSpeed = getRandomNumber(800, 2000);
+                    if (Mouse.getSpeed() == 200) {
+                        int dangerMouseSpeed = getRandomNumber(1500, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
                         Log.warn("[DANGER_LISTENER] DANGER MOUSE SPEED SET AT: " + dangerMouseSpeed);
                     }

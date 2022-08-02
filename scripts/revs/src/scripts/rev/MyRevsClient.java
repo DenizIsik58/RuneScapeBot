@@ -60,7 +60,7 @@ public class MyRevsClient {
         }
 
         if (message.equals("<col=ef1020>Your weapon has run out of revenant ether.</col>")){
-
+            TeleportManager.teleportOutOfWilderness("Teleporting out. We are out of ether.");
             return;
         }
         if (message.equals("<col=ef1020>The effects of the divine potion have worn off.")){

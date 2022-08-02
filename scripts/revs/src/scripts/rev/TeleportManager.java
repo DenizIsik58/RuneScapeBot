@@ -63,20 +63,23 @@ public class TeleportManager {
                 }
             }
 
-            if (Query.gameObjects().idEquals(31555).findBestInteractable().isPresent()){
-                Log.debug("I'm entering cave");
-                Query.gameObjects().idEquals(31555).findBestInteractable().map(c -> c.interact("Enter"));
-                if (ChatScreen.isOpen()){
-                    Waiting.waitUntil(ChatScreen::clickContinue);
-                    Waiting.waitUntil(() -> ChatScreen.containsOption("Yes, don't ask again."));
-                    Waiting.waitUntil((() -> ChatScreen.selectOption("Yes, don't ask again.")));
+            if (!MyRevsClient.myPlayerIsInCave()){
+                if (Query.gameObjects().idEquals(31555).findBestInteractable().isPresent()){
+                    Log.debug("I'm entering cave");
+                    Query.gameObjects().idEquals(31555).findBestInteractable().map(c -> c.interact("Enter"));
+                    if (ChatScreen.isOpen()){
+                        Waiting.waitUntil(ChatScreen::clickContinue);
+                        Waiting.waitUntil(() -> ChatScreen.containsOption("Yes, don't ask again."));
+                        Waiting.waitUntil((() -> ChatScreen.selectOption("Yes, don't ask again.")));
 
+                    }
+                    Log.debug("Waiting to be in cave");
+                    Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInCave);
+                    Log.debug("Am i in cave? " + MyRevsClient.myPlayerIsInCave());
+                    Waiting.waitNormal(2000, 200);
                 }
-                Log.debug("Waiting to be in cave");
-                Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInCave);
-                Log.debug("Am i in cave? " + MyRevsClient.myPlayerIsInCave());
-                Waiting.waitNormal(2000, 200);
             }
+
 
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");

@@ -52,7 +52,7 @@ public class MyExchange {
         if (isExchangeNearby()) return true;
         if (MyTeleporting.Wealth.GrandExchange.canUseTeleport()) {
             MyBanker.closeBank();
-            MyTeleporting.Wealth.GrandExchange.useTeleport();
+            return MyTeleporting.Wealth.GrandExchange.useTeleport();
         }
         if (Bank.isNearby()) {
             MyBanker.openBank();
