@@ -77,7 +77,7 @@ public class GrandExchangeRevManager {
                     break;
                 }
                 for (var item : Inventory.getAll()){
-                    if (counter == 8){
+                    if (counter == 8 || item.getName().equals("Craw's bow (u)")){
                         break;
                     }
                     GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-2).type(GrandExchangeOffer.Type.SELL).build());

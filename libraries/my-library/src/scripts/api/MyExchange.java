@@ -50,9 +50,15 @@ public class MyExchange {
     // this is good for adding in later other things like "if in house and has jewellery box use that wealth"
     public static boolean walkToGrandExchange() {
         if (isExchangeNearby()) return true;
-        if (MyTeleporting.Wealth.GrandExchange.canUseTeleport()) {
-            MyBanker.closeBank();
-            return MyTeleporting.Wealth.GrandExchange.useTeleport();
+
+        var lastTB = MyScriptVariables.getVariable("lastTeleblockNotification", 0);
+        if (System.currentTimeMillis() - lastTB < (60 * 1000) * 2) {
+            Log.warn("Didn't attempt to teleport because we've been teleblocked in the last two minutes.");
+        } else {
+            if (MyTeleporting.Wealth.GrandExchange.canUseTeleport()) {
+                MyBanker.closeBank();
+                return MyTeleporting.Wealth.GrandExchange.useTeleport();
+            }
         }
         if (Bank.isNearby()) {
             MyBanker.openBank();

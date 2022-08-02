@@ -7,6 +7,8 @@ import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import scripts.api.MyScriptVariables;
+import scripts.api.utility.MathUtility;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,10 +49,14 @@ public class LootingManager {
                     item.hover();
                     item.click("Take");
 
-                    Waiting.waitUntil(8000, () -> hasDecreased(item.getName(), countBeforePickingUp));
+                    var changed = Waiting.waitUntil(8000, () -> hasDecreased(item.getName(), countBeforePickingUp));
+                    if (!changed) break;
+
 
                     tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                     totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
+                    var totalString = MathUtility.getProfitPerHourString(totalValue);
+                    MyScriptVariables.setProfit(totalString);
                     if (tripValue > 450000){
                         TeleportManager.teleportOutOfWilderness("Teleporting out. I have: " + tripValue + " gold!");
                         // teleport out
@@ -59,7 +65,7 @@ public class LootingManager {
                 }
         }
         }
-
+        // starts back here with brea
             GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             if(RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()){
 

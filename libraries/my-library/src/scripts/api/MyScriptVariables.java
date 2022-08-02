@@ -1,22 +1,36 @@
 package scripts.api;
 
+import org.tribot.script.sdk.Log;
+
+import java.time.LocalDateTime;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MyScriptVariables {
 
 
     private static volatile MyScriptVariables instance = null;
     private final MyScriptExtension script;
-    private String status = "Starting Script";
     private String scriptName = "";
     private final AtomicBoolean quitting = new AtomicBoolean(false);
+    private final AtomicReference<String> status = new AtomicReference<>("Starting script");
+    private final AtomicReference<String> profitString = new AtomicReference<>("0 gp");
+    private final LocalDateTime startTime;
+
 
     private final Map<String, Object> variables = new HashMap<>();
 
     private MyScriptVariables(MyScriptExtension script) {
         this.script = script;
+        startTime = LocalDateTime.now();
+    }
+
+    public static LocalDateTime getStartTime() {
+        return get().startTime;
     }
 
     public static MyScriptVariables init(MyScriptExtension script) {
@@ -46,17 +60,35 @@ public class MyScriptVariables {
     @SuppressWarnings("unchecked")
     public static <VariableType> VariableType getVariable(String key, VariableType defaultValue) {
         var vars = get();
-        if (!vars.variables.containsKey(key)) vars.variables.put(key, defaultValue);
-        return (VariableType) vars.variables.get(key);
+        try {
+            if (!vars.variables.containsKey(key)) vars.variables.put(key, defaultValue);
+            return (VariableType) vars.variables.get(key);
+        } catch(ConcurrentModificationException ignore) {
+            return defaultValue;
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static <VariableType> VariableType getVariable(String key) {
-        return (VariableType) get().variables.get(key);
+        try {
+            return (VariableType) get().variables.get(key);
+        } catch (ConcurrentModificationException ignore) {
+            return null;
+        }
     }
 
+    private static final AtomicInteger setAttempts = new AtomicInteger(0);
     public static void setVariable(String key, Object value) {
-        get().variables.put(key, value);
+        try {
+            get().variables.put(key, value);
+        } catch (ConcurrentModificationException ignore) {
+            Log.error("Variable was not set because concurrent modification exception?");
+            if (setAttempts.incrementAndGet() < 3) {
+                setVariable(key, value);
+                return;
+            }
+        }
+        setAttempts.set(0);
     }
 
 
@@ -71,6 +103,20 @@ public class MyScriptVariables {
         getVariable(MOUSE_SPEED, value);
     }
 
+    public static void updateStatus(String status) {
+        get().status.set(status);
+    }
+
+    public static String getStatus() {
+        return get().status.get();
+    }
 
 
+    public static void setProfit(String profitString) {
+        get().profitString.set(profitString);
+    }
+
+    public static String getProfit(){
+        return get().profitString.get();
+    }
 }

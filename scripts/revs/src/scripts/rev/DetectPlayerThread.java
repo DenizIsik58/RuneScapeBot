@@ -1,15 +1,17 @@
 package scripts.rev;
 
 
+import javafx.beans.property.SimpleBooleanProperty;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
-import org.tribot.script.sdk.interfaces.ServerMessageListener;
+import org.tribot.script.sdk.interfaces.Item;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.Player;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
+import scripts.api.MyAntiBan;
 import scripts.api.MyExchange;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.StringsUtility;
@@ -21,35 +23,32 @@ import static org.tribot.script.sdk.Combat.getWildernessLevel;
 
 public class DetectPlayerThread extends Thread {
 
+    private final RevScript script;
     private final AtomicBoolean teleblocked = new AtomicBoolean(false);
     private final AtomicBoolean danger = new AtomicBoolean(false);
-    private final AtomicBoolean dangerFlag = new AtomicBoolean(false);
-    private final AtomicBoolean waitingForDeath = new AtomicBoolean(false);
-    private final static String[] PVM_GEAR = new String[]{"Toxic blowpipe","Magic shortbow","Magic shortbow (i)","Craw's bow", "Viggora's chainmace" };
+    //    private final AtomicBoolean dangerFlag = new AtomicBoolean(false);
+    private final AtomicBoolean isAntiPking = new AtomicBoolean(false);
+    private final static String[] PVM_GEAR = new String[]{"Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
-    private final AtomicBoolean running = new AtomicBoolean(false);
+    private final SimpleBooleanProperty running = new SimpleBooleanProperty(false);
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
-    private boolean isAntiPkEnabled = false;
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
-    private final ServerMessageListener serverMessageListener = message -> {
-        if (!Combat.isInWilderness()) {
-            if (isTeleblocked()) setTeleblocked(false);
-            if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
-            if (inDangerFlag()) setDangerFlag(false);
-            if (inDanger()) setInDanger(false);
-            if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
-        } else {
-            if (message.contains("A Tele Block spell has been cast on you")) {
-                setTeleblocked(true);
-                Log.warn("[DANGER_LISTENER] WE ARE TBED");
-            }
-        }
-    };
-
-    public DetectPlayerThread() {
+    public DetectPlayerThread(RevScript revScript) {
+        this.script = revScript;
         ScriptListening.addPauseListener(() -> paused.set(true));
         ScriptListening.addResumeListener(() -> paused.set(false));
+
+    }
+
+    private void handleTeleblock() {
+        var lastTeleblockNotification = MyScriptVariables.getVariable("lastTeleblockNotification", 0);
+
+        // 5 mins might be too long and run into going another trip after?
+        if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 1000) * 5) {
+            setTeleblocked(true);
+        } else setTeleblocked(false);
+
     }
 
 
@@ -89,19 +88,11 @@ public class DetectPlayerThread extends Thread {
     }
 
     public boolean isAntiPking() {
-        return waitingForDeath.get();
+        return isAntiPking.get();
     }
 
-    public void antiPking(boolean value) {
-        waitingForDeath.set(value);
-    }
-
-    public boolean inDangerFlag() {
-        return dangerFlag.get();
-    }
-
-    public void setDangerFlag(boolean value) {
-        dangerFlag.set(value);
+    public void setAntiPking(boolean value) {
+        isAntiPking.set(value);
     }
 
     public boolean inDanger() {
@@ -120,22 +111,17 @@ public class DetectPlayerThread extends Thread {
         teleblocked.set(value);
     }
 
-    private void hookupLisener() {
-        MessageListening.addServerMessageListener(serverMessageListener);
-    }
-
-    private void disconnectListener() {
-        MessageListening.removeServerMessageListener(serverMessageListener);
-    }
-
     public void setHasPkerBeenDetected(boolean hasPkerBeenDetected) {
-        this.hasPkerBeenDetected.set( hasPkerBeenDetected);
+        //this will cancel our walking on player detected
+        script.cancelWalking();
+        // and every time that condition cancels a walk it resets the time, so
+        // it will remain cancelled until our set amount of time after the last time it cancels
+        this.hasPkerBeenDetected.set(hasPkerBeenDetected);
     }
 
     public boolean hasPkerBeenDetected() {
         return hasPkerBeenDetected.get();
     }
-
 
     public static Player getPker() {
         var name = getPkerName();
@@ -147,76 +133,114 @@ public class DetectPlayerThread extends Thread {
         return MyScriptVariables.getVariable("pkerName", "");
     }
 
-    public static void setTargetName(String targetName) {
-        //DENIZ: we dont need this, but future reference, since the argument name is the same as the variable name
-        // you have to use this.targetName = targetName;
-        targetName = targetName;
+    public static void handleEatAndPrayer() {
+        var nextEat = MyAntiBan.getNextEatPercent();
+        var sharkCount = Inventory.getCount("Shark");
+        if (MyPlayer.getCurrentHealthPercent() < nextEat) {
+            if (sharkCount > 0) {
+                var ate = Query.inventory()
+                        .nameEquals("Shark")
+                        .findClosestToMouse()
+                        .map(c -> c.click("Eat")
+                                    && Waiting.waitUntil(1000, () -> Inventory.getCount("Shark") < sharkCount))
+                        .orElse(false);
+                if (ate) MyAntiBan.calculateNextEatPercent();
+            } else {
+                MyExchange.walkToGrandExchange();
+                Log.warn("Out of food under eat percent");
+            }
+
+        }
+        if (MyAntiBan.shouldDrinkPrayerPotion()) {
+            PrayerManager.maintainPrayerPotion();
+        }
+    }
+
+    public static void fight(Player pker) {
 
     }
 
-    public static void handleEatAndPrayer(){
-        if (MyPlayer.getCurrentHealthPercent() < 60 && Inventory.contains("Shark")){
-            Query.inventory().nameEquals("Shark").findClosestToMouse().map(c -> c.click("Eat"));
-        }
-        if (Prayer.getPrayerPoints() < 15) {
-            PrayerManager.sipPrayer();
-        }
-    }
-
-    public void antiPk(){
+    public void antiPk() {
         var pker = getPker();
+
         if (pker == null) {
+            // run away if our target is not nearby
             Log.debug("trying to hop worlds... Target is not in sight");
             WorldManager.hopToRandomMemberWorldWithRequirements();
             TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
-
-            // TODO: Try to run away? Once it is activated. We know a pker has been on us.
+            return;
         }
-        // pker will not be null from here on  just use pker now instead of getPker
-        handleEatAndPrayer();
-        var playerWeapon = pker.getEquippedItem(Equipment.Slot.WEAPON).get().getName();
-        // We are tbed or our target is still here. Fight him
-        if (playerWeapon.toLowerCase().contains("staff")){
-            // Magic weapon
-            // 1. Set up prayer according to weapon
-            PrayerManager.setPrayer(Prayer.PROTECT_FROM_MAGIC);
 
-        }else if (playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")){
-            // Handle melee weapon
-            // 1. Set up prayer according to weapon
-            PrayerManager.setPrayer(Prayer.PROTECT_FROM_MELEE);
-        }else if (playerWeapon.toLowerCase().contains("crossbow")){
-            // Handle ranging weapon
-            // 1. Set up prayer according to weapon
-            PrayerManager.setPrayer(Prayer.PROTECT_FROM_MISSILES);
-        }
-        // 2. Fight back pker if not
+        handleEatAndPrayer(); //
+        pker.getEquippedItem(Equipment.Slot.WEAPON).map(Item::getName).ifPresent(playerWeapon -> {
+            if (playerWeapon.toLowerCase().contains("staff")) {
+                // Magic weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.setPrayer(Prayer.PROTECT_FROM_MAGIC);
+
+            } else if (playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
+                // Handle melee weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.setPrayer(Prayer.PROTECT_FROM_MELEE);
+            } else if (playerWeapon.toLowerCase().contains("crossbow")) {
+                // Handle ranging weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.setPrayer(Prayer.PROTECT_FROM_MISSILES);
+            }
+        });
+
         PrayerManager.setPrayer(Prayer.PROTECT_ITEMS);
-        if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()){
+
+        Log.debug("My target is: " + pker.getName());
+        // pker will not be null from here on just use pker now instead of getPker
+        // We are tbed or our target is still here. Fight them
+
+
+        // 2. Fight back pker if not
+        if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()) {
             // Our player is not attacking him.
             pker.click("Attack");
         }
-        WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
-        if (MyRevsClient.myPlayerIsInCave()){
-            GlobalWalking.walkTo(stairs, () -> {
-                Query.gameObjects().idEquals(31558).findBestInteractable().map(c -> c.interact("Climb-up"));
-                return WalkState.CONTINUE;
-            });
-        }
 
-        if (!MyRevsClient.myPlayerIsInCave()){
+        // 3. try to run away if we are not frozen
+        // TODO: Currently only runs no matter what. We need to figure out how we are frozen.
+        WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
+        if (MyRevsClient.myPlayerIsInCave()) {
+            ensureWalkingPermission();
+            GlobalWalking.walkTo(stairs, () -> {
+
+                // where do we handle eating?
+
+                var clickedSteps = Query.gameObjects().idEquals(31558).findBestInteractable()
+                        .map(c -> c.interact("Climb-up")
+                                && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
+                    .orElse(false);
+                return clickedSteps ? WalkState.SUCCESS : WalkState.CONTINUE;
+            });
+        } else {
+            ensureWalkingPermission();
             MyExchange.walkToGrandExchange();
         }
 
-        // 3. try to run away if we are not frozen
+    }
 
-
+    private void ensureWalkingPermission() {
+        if (script.isCancellingWalking()) {
+            // i have the timer set for cancelling walking for 1 full second currently to test
+            // so going to give it time for 5 cancels which should be insanely more than enough...
+            // after successful testing we can decrease these times to like 250 ms wait and 500
+            // TODO: Decrease the time to wait before walking (here and the debounce) after testing.
+            Waiting.waitUntil(5000, () -> {
+                // this is going to spam xD testing only lol
+                Log.trace("Pker thread is waiting for permission to take over walking");
+                return !script.isCancellingWalking();
+            });
+        }
     }
 
     @Override
     public void run() {
         running.set(true);
-        hookupLisener();
         while (running.get()) {
             try {
                 Thread.sleep(50);
@@ -224,52 +248,76 @@ public class DetectPlayerThread extends Thread {
                 Log.debug(e);
                 e.printStackTrace();
             }
-            Log.debug(paused.get());
             if (paused.get()) continue;
 
 
+            var danger = inDanger();
+            var detectedPkers = detectPKers();
+            var detectedRaggers = detectRaggers();
+            var detectedSkull = detectSkull();
+            var teleblocked = isTeleblocked();
+
             if (Combat.isInWilderness()) {
-                Log.debug("I'm detecting...");
-                if (!inDanger() && !inDangerFlag()) {
-                    if (detectPKers() || detectRaggers() || detectSkull()) {
-                        // We are in danger here.
-                        Log.warn("[DANGER_LISTENER] We are in danger!! A potential pker, ragger, or already skulled player has been spotted!");
+                if (!danger) {
+
+                    if (detectedPkers || detectedRaggers || detectedSkull || teleblocked) {
+                        if (detectedPkers) Log.warn("[DANGER_LISTENER] DETECTED DANGER - PKER");
+                        if (detectedRaggers) Log.warn("[DANGER_LISTENER] DETECTED DANGER - RAGGER");
+                        if (detectedSkull) Log.warn("[DANGER_LISTENER] DETECTED DANGER - SKULLED PLAYER");
+                        if (teleblocked) Log.warn("[DANGER_LISTENER] DETECTED DANGER - TELEBLOCK");
+
                         setInDanger(true);
-                        setDangerFlag(true);
                         setHasPkerBeenDetected(true);
                     }
+                    continue;
                 }
-                if (inDanger() || inDangerFlag() || isTeleblocked()) {
-                    Log.trace("PKER");
+
+                danger = inDanger();
+
+                if (danger) {
+                    Log.warn("[DANGER_LISTENER] HANDLING DANGER");
+
                     if (Mouse.getSpeed() == 200) {
                         int dangerMouseSpeed = getRandomNumber(1500, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
-                        Log.warn("[DANGER_LISTENER] DANGER MOUSE SPEED SET AT: " + dangerMouseSpeed);
                     }
-
-
-                    if (!isTeleblocked()) {
-                        Log.trace("Not Teleblocked");
+                    teleblocked = isTeleblocked();
+                    if (!teleblocked) {
+                        Log.trace("[DANGER_LISTENER] NOT TELEBLOCKED - Teleporting");
                         if (isAntiPking()) {
-                            antiPking(false);
+                            setAntiPking(false);
                         }
                         //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
 
                     } else {
-                        Log.trace("Teleblocked");
-                        Log.debug("[WILDERNESS_LISTENER] Anti-pking has been enabled");
-                        antiPking(true);
-                    }
 
+                        if (!isAntiPking()) {
+                            Log.debug("[DANGER_LISTENER] TELEBLOCKED - Enabling AntiPK");
+                            // making it skip the antiPK the thread loop cycle it is set,
+                            // to give the main thread a cycle to be able to cancel before we try
+                            setAntiPking(true);
+                            // we (i lol) returned this.. it should be continue, to just skip the loop, not end the run method
+                            continue;
+                        }
+                    }
                     if (isAntiPking()) {
-                       antiPk();
+                        Log.debug("[DANGER_LISTENER] We are anti-pking");
+                        antiPk();
                     }
                 }
 
+            } else {
+                if (isTeleblocked()) setTeleblocked(false);
+                if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
+                if (inDanger()) setInDanger(false);
+                if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
             }
         }
-
-        disconnectListener();
+        // if running was set false and thread is ending, run these one last time
+        if (isTeleblocked()) setTeleblocked(false);
+        if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
+        if (inDanger()) setInDanger(false);
+        if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
     }
 
     // Could put this in a Utility Class to reuse
@@ -280,8 +328,6 @@ public class DetectPlayerThread extends Thread {
     private boolean isAtRespawn() {
         return MyRevsClient.myPlayerIsDead();
     }
-
-
 
 
 }

@@ -5,13 +5,16 @@ import dax.walker_engine.WalkingCondition;
 import org.tribot.script.sdk.Combat;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.MessageListening;
+import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
 import scripts.api.MyCamera;
 import scripts.api.MyExchange;
 import scripts.api.MyOptions;
 import scripts.api.MyScriptExtension;
+import scripts.api.concurrency.Debounce;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -27,6 +30,10 @@ public class RevScript extends MyScriptExtension {
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
 
+    private final Debounce walkDebounce = new Debounce(1000, TimeUnit.MILLISECONDS);
+
+
+
 
     @Override
     protected void setupScript(ScriptSetup setup) {
@@ -39,6 +46,20 @@ public class RevScript extends MyScriptExtension {
     }
 
     @Override
+    protected void setupPaint(BasicPaintTemplate.BasicPaintTemplateBuilder paint) {
+        paint
+                .row(getTextRowTemplate()
+                    .label("PKER DETECTED")
+                    .condition(() -> playerDetectionThread != null && playerDetectionThread.hasPkerBeenDetected())
+                    .build())
+                .row(getTextRowTemplate()
+                    .label("DETECTING")
+                    .condition(() -> playerDetectionThread != null && playerDetectionThread.isRunning())
+                    .build());
+
+    }
+
+    @Override
     protected void onStart(String args) {
         // we put the args from the script start here so incase you have a script with args you can use them in your script from this
 
@@ -46,6 +67,12 @@ public class RevScript extends MyScriptExtension {
 
         DaxWalker.setGlobalWalkingCondition(() -> {
             handlePkThread();
+            if (isCancellingWalking()) {
+                // if we shouldn't walk, and since we are here we are walking,
+                // this debounce will extend the timer for when walking should be cancelled
+                walkDebounce.debounce();
+                return WalkingCondition.State.EXIT_OUT_WALKER_FAIL;
+            }
             return WalkingCondition.State.CONTINUE_WALKER;
         });
 
@@ -65,10 +92,9 @@ public class RevScript extends MyScriptExtension {
         handlePkThread();
 
         if (playerDetectionThread != null && playerDetectionThread.hasPkerBeenDetected()){
-            Log.info("Pker detected.");
+//            Log.info("Pker detected.");
             return;
         }
-
 
 
         MyOptions.setRunOn();
@@ -96,7 +122,6 @@ public class RevScript extends MyScriptExtension {
                 handleLooting();
                 return;
         }
-
     }
 
     @Override
@@ -146,13 +171,22 @@ public class RevScript extends MyScriptExtension {
 
     private void startPkThread() {
         if (playerDetectionThread != null) killPkThread();
-        playerDetectionThread = new DetectPlayerThread();
+        playerDetectionThread = new DetectPlayerThread(this);
         playerDetectionThread.start();
+    }
+
+    public boolean isCancellingWalking() {
+        return walkDebounce.isDebounced();
+    }
+
+    public void cancelWalking() {
+        walkDebounce.debounce();
     }
 
     private void handlePkThread() {
         var wasInWild = inWilderness.get();
         var isInWild = Combat.isInWilderness();
+
         if (wasInWild != isInWild) {
             if (isInWild) startPkThread();
             else killPkThread();
