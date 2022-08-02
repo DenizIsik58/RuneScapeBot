@@ -116,7 +116,9 @@ public class RevScript extends MyScriptExtension {
         }
 
         if (MyRevsClient.myPlayerIsDead()){
-            playerDetectionThread.setHasPkerBeenDetected(false);
+            if (playerDetectionThread != null){
+                playerDetectionThread.setHasPkerBeenDetected(false);
+            }
             setState(State.DEATH);
         }
         if (MyRevsClient.myPlayerIsInFerox()) {
@@ -195,7 +197,9 @@ public class RevScript extends MyScriptExtension {
         Log.info("Total amount made this trip: " + LootingManager.getTripValue());
         Log.info("Total amount made since script start: " + LootingManager.getTotalValue());
         Log.info("Total times died so far: " + DeathManger.totalDeaths());
-        playerDetectionThread.setHasPkerBeenDetected(false);
+        if (playerDetectionThread != null){
+            playerDetectionThread.setHasPkerBeenDetected(false);
+        }
         TeleportManager.setHasVisitedBeforeTrip(false);
         BankManagerRevenant.bankLoot();
     }

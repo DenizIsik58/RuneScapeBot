@@ -13,10 +13,6 @@ public class RevkillerManager {
     private static boolean iWasFirst = false;
     private static Npc target = null;
 
-
-
-
-
     public static void killMonster(){
 
         if (!GameTab.EQUIPMENT.isOpen()) {

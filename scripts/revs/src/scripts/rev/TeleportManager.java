@@ -24,12 +24,12 @@ public class TeleportManager {
     private static final WorldTile north_ork = new WorldTile(3226, 10132,0 );
     public static final WorldTile demons = new WorldTile(3160, 10115,0 );
     private static boolean hasVisitedBeforeTrip = false;
+    private static List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(south_ork, north_ork, demons));
 
     public static WorldTile refill() {
         // Random selection of mobs to kill
-        List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(south_ork, north_ork, demons));
-        Collections.shuffle(monsterTiles);
-        var chosenMobArea = monsterTiles.get(0);
+
+        var chosenMobArea = getRandomMobArea();
 
         Waiting.waitUntil(10000, MyRevsClient::myPlayerIsInFerox);
 
@@ -85,11 +85,16 @@ public class TeleportManager {
 
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");
-                GlobalWalking.walkTo(chosenMobArea);
+                    GlobalWalking.walkTo(chosenMobArea);
             }
 
         }
         return chosenMobArea;
+    }
+
+    private static WorldTile getRandomMobArea() {
+        Collections.shuffle(monsterTiles);
+        return monsterTiles.get(0);
     }
 
     public static boolean monsterTileIsDetected(WorldTile tile){

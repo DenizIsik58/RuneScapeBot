@@ -12,6 +12,7 @@ import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.MyExchange;
 import scripts.api.MyScriptVariables;
+import scripts.api.utility.StringsUtility;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -139,7 +140,7 @@ public class DetectPlayerThread extends Thread {
     public static Player getPker() {
         var name = getPkerName();
         if (name.isEmpty()) return null;
-        return Query.players().nameEquals(name).findFirst().orElse(null);
+        return Query.players().filter(player -> StringsUtility.runescapeStringsMatch(player.getName(), name)).findFirst().orElse(null);
     }
 
     public static String getPkerName() {
@@ -164,13 +165,12 @@ public class DetectPlayerThread extends Thread {
 
     public void antiPk(){
         var pker = getPker();
-        if (pker == null || !isTeleblocked()) {
+        if (pker == null) {
             Log.debug("trying to hop worlds... Target is not in sight");
             WorldManager.hopToRandomMemberWorldWithRequirements();
             TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
 
             // TODO: Try to run away? Once it is activated. We know a pker has been on us.
-            return;
         }
         // pker will not be null from here on  just use pker now instead of getPker
         handleEatAndPrayer();
@@ -257,6 +257,7 @@ public class DetectPlayerThread extends Thread {
 
                     } else {
                         Log.trace("Teleblocked");
+                        Log.debug("[WILDERNESS_LISTENER] Anti-pking has been enabled");
                         antiPking(true);
                     }
 

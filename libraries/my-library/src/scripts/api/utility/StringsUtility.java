@@ -60,5 +60,27 @@ public class StringsUtility {
         return matches;
     }
 
+    /**
+     * Reliably compare strings with strings from Runescape
+     */
+    public static boolean runescapeStringsMatch(String one, String two) {
+        if (one.equals(two)) return true;
+        return fixSpaces(one).equals(fixSpaces(two));
+    }
+
+    /**
+     * Change all space characters to matching chars
+     * Sometimes runescape spaces are different bytecodes and will cause seemingly matching strings not to match.
+     * Use with runescapeStringsMatch("string", "string);
+     */
+    public static String fixSpaces(String string) {
+        StringBuilder returnString = new StringBuilder();
+        string.chars().forEach(chars -> {
+            if (Character.isSpaceChar(chars)) returnString.append(" ");
+            else returnString.append(Character.toString(chars));
+        });
+        return returnString.toString();
+    }
+
 
 }
