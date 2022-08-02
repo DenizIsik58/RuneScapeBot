@@ -26,9 +26,11 @@ public class TeleportManager {
     private static boolean hasVisitedBeforeTrip = false;
 
     public static WorldTile refill() {
+        // Random selection of mobs to kill
         List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(south_ork, north_ork, demons));
         Collections.shuffle(monsterTiles);
         var chosenMobArea = monsterTiles.get(0);
+
         Waiting.waitUntil(10000, MyRevsClient::myPlayerIsInFerox);
 
         if (!chosenMobArea.isVisible()) {

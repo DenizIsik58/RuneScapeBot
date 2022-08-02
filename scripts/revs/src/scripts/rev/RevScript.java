@@ -1,5 +1,7 @@
 package scripts.rev;
 
+import dax.api_lib.DaxWalker;
+import dax.walker_engine.WalkingCondition;
 import org.tribot.script.sdk.Combat;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.MessageListening;
@@ -23,7 +25,7 @@ public class RevScript extends MyScriptExtension {
     public AtomicReference<State> state = new AtomicReference<>(State.STARTING);
     private WorldTile selectedMonsterTile = new WorldTile(3160, 10115,0 ); // West demons by default
     private final AtomicBoolean running = new AtomicBoolean(true);
-
+    private final AtomicBoolean inWilderness = new AtomicBoolean(false);
 
 
     @Override
@@ -42,11 +44,14 @@ public class RevScript extends MyScriptExtension {
 
         MessageListening.addServerMessageListener(MyRevsClient::processMessage);
 
+        DaxWalker.setGlobalWalkingCondition(() -> {
+            handlePkThread();
+            return WalkingCondition.State.CONTINUE_WALKER;
+        });
+
         muleClient = new MulingClient();
         muleClient.startConnection("127.0.0.1", 6668);
 
-        playerDetectionThread = new DetectPlayerThread(running::get);
-        playerDetectionThread.start();
         PrayerManager.init();
 
     }
@@ -56,35 +61,40 @@ public class RevScript extends MyScriptExtension {
     protected void onMainLoop() {
 
         updateState();
-        if (playerDetectionThread.hasPkerBeenDetected()){
+
+        handlePkThread();
+
+        if (playerDetectionThread != null && playerDetectionThread.hasPkerBeenDetected()){
             Log.info("Pker detected.");
             return;
         }
+
+
 
         MyOptions.setRunOn();
 
         switch(getState()) {
             case STARTING:
                 handleStarting();
-                break;
+                return;
             case BANKING:
                 handleBanking();
-                break;
+                return;
             case WALKING:
                 handleWalking();
-                break;
+                return;
             case SELLLOOT:
                 handleSellLoot();
-                break;
+                return;
             case KILLING:
                 handleKilling();
-                break;
+                return;
             case DEATH:
                 handleDeath();
-                break;
+                return;
             case LOOTING:
                 handleLooting();
-                break;
+                return;
         }
 
     }
@@ -125,12 +135,37 @@ public class RevScript extends MyScriptExtension {
         }
     }
 
+    private void killPkThread() {
+        if (playerDetectionThread != null) {
+            if (playerDetectionThread.isRunning()) playerDetectionThread.stopDetection();
+            playerDetectionThread = null;
+        }
+    }
+
+    private void startPkThread() {
+        if (playerDetectionThread != null) killPkThread();
+        playerDetectionThread = new DetectPlayerThread();
+        playerDetectionThread.start();
+    }
+
+    private void handlePkThread() {
+        var wasInWild = inWilderness.get();
+        var isInWild = Combat.isInWilderness();
+        if (wasInWild != isInWild) {
+            if (isInWild) startPkThread();
+            else killPkThread();
+            inWilderness.set(isInWild);
+        }
+    }
+
     private void handleSellLoot() {
         Log.warn("NOT YET IMPLEMENTED");
     }
 
     private void handleStarting() {
-        MyExchange.walkToGrandExchange();
+        if (!MyRevsClient.myPlayerIsInFerox()){
+            MyExchange.walkToGrandExchange();
+        }
         BankManagerRevenant.init();
         setState(State.WALKING);
         Log.debug(state);

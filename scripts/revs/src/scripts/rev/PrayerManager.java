@@ -18,6 +18,13 @@ public class PrayerManager {
         }
     }
 
+    public static boolean setPrayer(Prayer prayer){
+        if (!prayer.isEnabled()){
+            return prayer.enable();
+        }
+        return false;
+    }
+
     public static void setQuickPrayer(){
         if (!Prayer.isQuickPrayersSelected(Prayer.PROTECT_ITEMS, Prayer.EAGLE_EYE)){
             Prayer.selectQuickPrayers(Prayer.PROTECT_ITEMS, Prayer.EAGLE_EYE);

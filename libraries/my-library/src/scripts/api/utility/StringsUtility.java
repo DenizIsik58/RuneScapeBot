@@ -2,7 +2,6 @@ package scripts.api.utility;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,19 +16,42 @@ public class StringsUtility {
         return getMatcher(regex, input).find();
     }
 
-    public static Optional<String> extractFirstMatch(String regex, String input) {
+    public static String extractFirstMatchGroup(String regex, String input) {
+        var matchGroups = extractMatchGroups(regex, input);
+        if (matchGroups.isEmpty()) return "";
+        return matchGroups.get(0);
+    }
+
+    public static String extractLastMatchGroup(String regex, String input) {
+        var matchGroups = extractMatchGroups(regex, input);
+        if (matchGroups.isEmpty()) return "";
+        return matchGroups.get(matchGroups.size() - 1);
+    }
+
+    public static List<String> extractMatchGroups(String regex, String input) {
         var matcher = getMatcher(regex, input);
-        if (matcher.find()) return Optional.of(matcher.group(0));
-        return Optional.empty();
+        List<String> matches = new ArrayList<>();
+        while(matcher.find()) {
+            for (int i = 1; i <= matcher.groupCount(); i++) {
+                matches.add(matcher.group(i));
+            }
+        }
+        return matches;
     }
 
-    public static Optional<String> extractLastMatch(String regex, String input) {
-        var matches = extractAllMatches(regex, input);
-        if (matches.isEmpty()) return Optional.empty();
-        return Optional.ofNullable(matches.get(matches.size() - 1));
+    public static String extractFirstCompleteMatch(String regex, String input) {
+        var matches = extractAllCompleteMatches(regex, input);
+        if (matches.isEmpty()) return "";
+        return matches.get(0);
     }
 
-    public static List<String> extractAllMatches(String regex, String input) {
+    public static String extractLastCompleteMatch(String regex, String input) {
+        var matches = extractAllCompleteMatches(regex, input);
+        if (matches.isEmpty()) return "";
+        return matches.get(matches.size() - 1);
+    }
+
+    public static List<String> extractAllCompleteMatches(String regex, String input) {
         List<String> matches = new ArrayList<>();
         var matcher = getMatcher(regex, input);
         while (matcher.find()) {
@@ -37,5 +59,6 @@ public class StringsUtility {
         }
         return matches;
     }
+
 
 }

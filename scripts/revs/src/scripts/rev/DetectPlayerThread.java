@@ -6,10 +6,14 @@ import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.interfaces.ServerMessageListener;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
+import org.tribot.script.sdk.types.Player;
 import org.tribot.script.sdk.types.WorldTile;
+import org.tribot.script.sdk.walking.GlobalWalking;
+import org.tribot.script.sdk.walking.WalkState;
+import scripts.api.MyExchange;
+import scripts.api.MyScriptVariables;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BooleanSupplier;
 
 import static org.tribot.script.sdk.Combat.getWildernessLevel;
 
@@ -22,9 +26,9 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean waitingForDeath = new AtomicBoolean(false);
     private final static String[] PVM_GEAR = new String[]{"Toxic blowpipe","Magic shortbow","Magic shortbow (i)","Craw's bow", "Viggora's chainmace" };
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
-    private static BooleanSupplier running;
-    private static boolean hasPkerBeenDetected;
-
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
+    private boolean isAntiPkEnabled = false;
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
     private final ServerMessageListener serverMessageListener = message -> {
@@ -42,10 +46,18 @@ public class DetectPlayerThread extends Thread {
         }
     };
 
-    public DetectPlayerThread(BooleanSupplier running) {
-                    DetectPlayerThread.running = running;
-                    ScriptListening.addPauseListener(() -> paused.set(true));
-                    ScriptListening.addResumeListener(() -> paused.set(false));
+    public DetectPlayerThread() {
+        ScriptListening.addPauseListener(() -> paused.set(true));
+        ScriptListening.addResumeListener(() -> paused.set(false));
+    }
+
+
+    public void stopDetection() {
+        running.set(false);
+    }
+
+    public boolean isRunning() {
+        return running.get();
     }
 
     public static boolean detectPKers() {
@@ -75,11 +87,11 @@ public class DetectPlayerThread extends Thread {
                 .isAny();
     }
 
-    public boolean isWaitingForDeath() {
+    public boolean isAntiPking() {
         return waitingForDeath.get();
     }
 
-    public void setWaitingForDeath(boolean value) {
+    public void antiPking(boolean value) {
         waitingForDeath.set(value);
     }
 
@@ -116,31 +128,112 @@ public class DetectPlayerThread extends Thread {
     }
 
     public void setHasPkerBeenDetected(boolean hasPkerBeenDetected) {
-        DetectPlayerThread.hasPkerBeenDetected = hasPkerBeenDetected;
+        this.hasPkerBeenDetected.set( hasPkerBeenDetected);
     }
 
     public boolean hasPkerBeenDetected() {
-        return hasPkerBeenDetected;
+        return hasPkerBeenDetected.get();
+    }
+
+
+    public static Player getPker() {
+        var name = getPkerName();
+        if (name.isEmpty()) return null;
+        return Query.players().nameEquals(name).findFirst().orElse(null);
+    }
+
+    public static String getPkerName() {
+        return MyScriptVariables.getVariable("pkerName", "");
+    }
+
+    public static void setTargetName(String targetName) {
+        //DENIZ: we dont need this, but future reference, since the argument name is the same as the variable name
+        // you have to use this.targetName = targetName;
+        targetName = targetName;
+
+    }
+
+    public static void handleEatAndPrayer(){
+        if (MyPlayer.getCurrentHealthPercent() < 60 && Inventory.contains("Shark")){
+            Query.inventory().nameEquals("Shark").findClosestToMouse().map(c -> c.click("Eat"));
+        }
+        if (Prayer.getPrayerPoints() < 15) {
+            PrayerManager.sipPrayer();
+        }
+    }
+
+    public void antiPk(){
+        var pker = getPker();
+        if (pker == null || !isTeleblocked()) {
+            Log.debug("trying to hop worlds... Target is not in sight");
+            WorldManager.hopToRandomMemberWorldWithRequirements();
+            TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
+
+            // TODO: Try to run away? Once it is activated. We know a pker has been on us.
+            return;
+        }
+        // pker will not be null from here on  just use pker now instead of getPker
+        handleEatAndPrayer();
+        var playerWeapon = pker.getEquippedItem(Equipment.Slot.WEAPON).get().getName();
+        // We are tbed or our target is still here. Fight him
+        if (playerWeapon.toLowerCase().contains("staff")){
+            // Magic weapon
+            // 1. Set up prayer according to weapon
+            PrayerManager.setPrayer(Prayer.PROTECT_FROM_MAGIC);
+
+        }else if (playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")){
+            // Handle melee weapon
+            // 1. Set up prayer according to weapon
+            PrayerManager.setPrayer(Prayer.PROTECT_FROM_MELEE);
+        }else if (playerWeapon.toLowerCase().contains("crossbow")){
+            // Handle ranging weapon
+            // 1. Set up prayer according to weapon
+            PrayerManager.setPrayer(Prayer.PROTECT_FROM_MISSILES);
+        }
+        // 2. Fight back pker if not
+        PrayerManager.setPrayer(Prayer.PROTECT_ITEMS);
+        if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()){
+            // Our player is not attacking him.
+            pker.click("Attack");
+        }
+        WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
+        if (MyRevsClient.myPlayerIsInCave()){
+            GlobalWalking.walkTo(stairs, () -> {
+                Query.gameObjects().idEquals(31558).findBestInteractable().map(c -> c.interact("Climb-up"));
+                return WalkState.CONTINUE;
+            });
+        }
+
+        if (!MyRevsClient.myPlayerIsInCave()){
+            MyExchange.walkToGrandExchange();
+        }
+
+        // 3. try to run away if we are not frozen
+
+
     }
 
     @Override
     public void run() {
+        running.set(true);
         hookupLisener();
-        while (running.getAsBoolean()) {
+        while (running.get()) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
                 Log.debug(e);
                 e.printStackTrace();
             }
+            Log.debug(paused.get());
             if (paused.get()) continue;
 
 
             if (Combat.isInWilderness()) {
+                Log.debug("I'm detecting...");
                 if (!inDanger() && !inDangerFlag()) {
                     if (detectPKers() || detectRaggers() || detectSkull()) {
                         // We are in danger here.
-                        Log.warn("[DANGER_LISTENER] We are in danger!! A pker, ragger or skulled person has been spotted!");
+                        Log.warn("[DANGER_LISTENER] We are in danger!! A potential pker, ragger, or already skulled player has been spotted!");
                         setInDanger(true);
                         setDangerFlag(true);
                         setHasPkerBeenDetected(true);
@@ -154,28 +247,25 @@ public class DetectPlayerThread extends Thread {
                         Log.warn("[DANGER_LISTENER] DANGER MOUSE SPEED SET AT: " + dangerMouseSpeed);
                     }
 
+
                     if (!isTeleblocked()) {
                         Log.trace("Not Teleblocked");
-                        if (isWaitingForDeath()) {
-                            setWaitingForDeath(false);
+                        if (isAntiPking()) {
+                            antiPking(false);
                         }
-                        TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
-                        return;
+                        //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+
                     } else {
                         Log.trace("Teleblocked");
-                        setWaitingForDeath(true);
+                        antiPking(true);
                     }
 
-                    if (isWaitingForDeath()) {
-                        Log.trace("Waiting for death");
-                        if (!Prayer.PROTECT_ITEMS.isEnabled()) {
-                            Prayer.PROTECT_ITEMS.enable();
-                        }
+                    if (isAntiPking()) {
+                       antiPk();
                     }
                 }
 
             }
-
         }
 
         disconnectListener();

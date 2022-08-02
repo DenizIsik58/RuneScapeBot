@@ -11,6 +11,9 @@ import scripts.api.utility.StringsUtility;
 
 public class MyRevsClient {
 
+    private static final String TELEBLOCK_REGEX ="A Tele Block spell has been cast on you by (.*?)\\.";
+
+
     private static RevScript script = null;
 
     public static boolean myPlayerIsDead(){
@@ -53,8 +56,18 @@ public class MyRevsClient {
 
     public static void processMessage(String message) {
 
+        if (StringsUtility.hasMatches(TELEBLOCK_REGEX, message)) {
+            var playerName = StringsUtility.extractFirstMatchGroup(TELEBLOCK_REGEX, message);
+            if (playerName.isEmpty()) Log.warn("Teleblock Regex detected, but got an empty name? I confuse?");
+            else {
+
+                Log.warn("Teleblocked by some cunt named: " + playerName + "!!!");
+                MyScriptVariables.setVariable("pkerName", playerName);
+            }
+        }
+
         if (message.contains("giving it a total of")) {
-            var chargeString = StringsUtility.extractLastMatch("\\d+", message).orElse("");
+            var chargeString = StringsUtility.extractLastCompleteMatch("\\d+", message);
             Log.info("CHARGES: " + chargeString);
             if (!chargeString.isEmpty()) EquipmentManager.setBowCharges(Integer.parseInt(chargeString));
         }

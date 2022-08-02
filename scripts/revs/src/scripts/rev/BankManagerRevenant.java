@@ -160,8 +160,10 @@ public class BankManagerRevenant {
             withdrawGear();
         }
 
-        if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
-            Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
+        if (!MyRevsClient.myPlayerIsInFerox()){
+            if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
+                Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
+            }
         }
 
     }
