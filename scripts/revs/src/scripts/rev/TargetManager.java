@@ -14,7 +14,7 @@ public class TargetManager {
     }
 
     public static boolean isTargetDead(Npc target){
-        return target == null;
+        return !target.isValid() || target.getHealthBarPercent() == 0;
     }
 
 }
