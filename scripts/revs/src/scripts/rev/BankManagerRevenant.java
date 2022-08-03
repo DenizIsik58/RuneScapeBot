@@ -192,8 +192,9 @@ public class BankManagerRevenant {
                 MyTeleporting.Dueling.FeroxEnclave.useTeleport();
             }
 
+        }else {
+            RevScript.state.set(State.WALKING);
         }
-
     }
 
     private static EquipmentReq getAmulet() {
