@@ -36,7 +36,7 @@ public class MyOptions {
             org.tribot.script.sdk.Options.setRunEnabled(true);
         }
 
-        if (MyPlayer.getRunEnergy() < 20){
+        if (MyPlayer.getRunEnergy() < 50){
             Query.inventory().nameContains("Stamina potion").findFirst().map(InventoryItem::click);
         }
     }

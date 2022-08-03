@@ -5,8 +5,10 @@ import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.MyBanker;
 import scripts.api.MyExchange;
+import scripts.api.MyOptions;
 import scripts.api.MyTeleporting;
 
 import java.util.ArrayList;
@@ -59,7 +61,11 @@ public class TeleportManager {
                     Waiting.wait(3000);
                 }else {
                     Log.debug("I'm walking to entrance");
-                    GlobalWalking.walkTo(caveEntrance);
+                    GlobalWalking.walkTo(caveEntrance, () ->{
+                        MyOptions.setRunOn();
+                        return WalkState.CONTINUE;
+                    });
+                }
 
                 }
                 if (!BankManagerRevenant.isEquipmentBankTaskSatisfied()){
@@ -88,10 +94,12 @@ public class TeleportManager {
 
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");
-                    GlobalWalking.walkTo(chosenMobArea);
+                    GlobalWalking.walkTo(chosenMobArea, () -> {
+                        MyOptions.setRunOn();
+                        return WalkState.CONTINUE;
+                    });
             }
 
-        }
         return chosenMobArea;
     }
 
