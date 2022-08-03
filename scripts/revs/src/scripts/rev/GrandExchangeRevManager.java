@@ -66,6 +66,7 @@ public class GrandExchangeRevManager {
             }
 
             while (counter != 8) {
+                Log.debug("I'm in upper loop");
                 if (!MyExchange.isExchangeOpen()){
                     break;
                 }
@@ -74,6 +75,7 @@ public class GrandExchangeRevManager {
                     break;
                 }
                 for (var item : Inventory.getAll()) {
+                    Log.debug("I'm in inner loop");
                     if (counter == 8 || item.getName().equals("Craw's bow (u)")) {
                         break;
                     }
@@ -93,6 +95,7 @@ public class GrandExchangeRevManager {
         if (shouldRepeat){
             sellLoot();
         }
+        shouldRepeat = false;
 
         mule();
     }
