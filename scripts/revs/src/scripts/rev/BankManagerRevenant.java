@@ -161,6 +161,7 @@ public class BankManagerRevenant {
 
         openBank();
         MyBanker.withdraw("Looting bag", 1, false);
+        Waiting.waitUntil(5000, () -> Inventory.contains("Looting bag"));
         emptyLootingBag();
         closeBank();
 
