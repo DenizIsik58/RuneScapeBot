@@ -54,7 +54,7 @@ public class BankManagerRevenant {
     public static void returnFromTrip() {
         //EquipmentManager.checkCharges();
 
-        var inBank = Waiting.waitUntil(MyBanker::openBank);
+        var inBank = MyBanker.openBank();
         if (!inBank){
             Log.debug("Couldn't enter the bank. Trying again..");
             returnFromTrip();
@@ -127,22 +127,26 @@ public class BankManagerRevenant {
     }
 
     public static void emptyLootingBag() {
-        openBank();
-        if (Inventory.contains("Looting bag")){
-            Query.inventory().nameEquals("Looting bag").findFirst().ifPresent(bag -> {
-                if (bag.hover("View")){
-                    if (isWidgetVisible(15, 3)){
-                        Waiting.waitUntil(() -> clickWidget("Deposit loot", 15, 8));
-                        Waiting.waitUntil(() -> clickWidget("Dismiss", 15, 10));
-                        MyBanker.closeBank();
-                    }
-                }
-            });
-
-        }else {
-            Log.debug("We do not have a looting bag.");
+        if (!Inventory.contains("Looting bag")){
+            Log.debug("Withdrawing looting bag");
+            MyBanker.withdraw("Looting bag", 1, false);
+            Waiting.waitUntil(() -> Inventory.contains("Looting bag"));
+            Waiting.waitNormal(1000,100);
         }
-
+        var lb = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
+        if (lb != null) {
+            if (lb.click("View")) {
+                Waiting.waitNormal(1000,100);
+                if (isWidgetVisible(15, 8)) {
+                    Waiting.waitUntil(() -> clickWidget("Deposit loot", 15, 8));
+                    Waiting.waitNormal(1500,200);
+                    Waiting.waitUntil(() -> clickWidget("Dismiss", 15, 10));
+                    MyBanker.closeBank();
+                    return;
+                }
+            }
+        }
+        Log.debug("I don't have a looting bag");
     }
 
 
@@ -166,8 +170,6 @@ public class BankManagerRevenant {
         // Take out our stuff
 
         openBank();
-        MyBanker.withdraw("Looting bag", 1, false);
-        Waiting.waitUntil(5000, () -> Inventory.contains("Looting bag"));
         emptyLootingBag();
         closeBank();
 

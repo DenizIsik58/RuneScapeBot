@@ -78,6 +78,8 @@ public class RevScript extends MyScriptExtension {
         muleClient = new MulingClient();
         muleClient.startConnection("127.0.0.1", 6668);
 
+        MyOptions.init();
+        MyCamera.init();
         PrayerManager.init();
 
     }
