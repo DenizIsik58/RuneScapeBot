@@ -129,12 +129,15 @@ public class BankManagerRevenant {
     public static void emptyLootingBag() {
         var lb = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
         if (lb != null) {
-            if (lb.click("View")) {
-                if (isWidgetVisible(15, 3)) {
-                    Waiting.waitUntil(() -> clickWidget("Deposit loot", 15, 8));
-                    Waiting.waitUntil(() -> clickWidget("Dismiss", 15, 10));
-                    MyBanker.closeBank();
-                }
+            var clicked = Waiting.waitUntil(() -> lb.click("View"));
+            if (!clicked) {
+               Log.debug("Couldn't click on looting bag. Trying again..");
+               emptyLootingBag();
+            }
+            if (isWidgetVisible(15, 3)) {
+                Waiting.waitUntil(() -> clickWidget("Deposit loot", 15, 8));
+                Waiting.waitUntil(() -> clickWidget("Dismiss", 15, 10));
+                MyBanker.closeBank();
             }
         }
     }
