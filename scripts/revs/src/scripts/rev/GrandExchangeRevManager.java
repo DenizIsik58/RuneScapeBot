@@ -34,6 +34,7 @@ public class GrandExchangeRevManager {
             BankSettings.setNoteEnabled(true);
         }
         Waiting.waitUntil(() -> Bank.withdrawAll("Coins"));
+        Waiting.waitUntil(() -> Inventory.contains("Coins"));
 
         for (var item : LootingManager.getLootToPickUp()) {
             if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
@@ -69,11 +70,20 @@ public class GrandExchangeRevManager {
 
         while (true) {
             int counter = 0;
+
+            if (!MyExchange.isExchangeOpen()){
+                break;
+            }
+
             if (Inventory.getAll().size() == 1 && Inventory.contains("Coins")) {
                 break;
             }
 
             while (counter != 8) {
+                if (!MyExchange.isExchangeOpen()){
+                    break;
+                }
+
                 if (!Query.grandExchangeOffers().isAny()){
                     break;
                 }
@@ -224,7 +234,8 @@ public class GrandExchangeRevManager {
     }
 
     public static void buyFromBank(int itemId, int amount) {
-        Bank.withdrawAll("Coins");
+        Waiting.waitUntil(() -> Bank.withdrawAll("Coins"));
+        Waiting.waitUntil(() -> Inventory.contains("Coins"));
         Bank.close();
         openGE();
         GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemId(itemId).quantity(amount).priceAdjustment(4).type(GrandExchangeOffer.Type.BUY).build());

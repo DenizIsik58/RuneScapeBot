@@ -347,7 +347,8 @@ public class BankManagerRevenant {
             throw new RuntimeException("Failed withdrawing gear three times");
         }
         Log.debug("Withdrawing gear");
-        openBank();
+        Waiting.waitUntil(MyBanker::openBank);
+        Waiting.waitNormal(2000, 300);
         equipAndChargeItems();
 
         if (!isEquipmentBankTaskSatisfied()) {
@@ -415,7 +416,7 @@ public class BankManagerRevenant {
 
         for (var item : EquipmentManager.getBasicGear()) {
 
-            if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
+            if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)") || item.equals("Bandos cloak")) {
                 continue;
             }
             if (!Query.bank().nameEquals(item).isAny()) {
