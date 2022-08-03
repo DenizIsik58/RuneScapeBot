@@ -1,9 +1,6 @@
 package scripts.api;
 
-import org.tribot.script.sdk.Bank;
-import org.tribot.script.sdk.GrandExchange;
-import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.Waiting;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
@@ -60,7 +57,7 @@ public class MyExchange {
                 MyTeleporting.Wealth.GrandExchange.useTeleport();
             }
         }
-        if (Bank.isNearby()) {
+        if (Bank.isNearby() && Query.inventory().nameContains("Ring of wealth (").isAny() || Query.equipment().nameContains("Ring of wealth (").isAny()) {
             MyBanker.openBank();
             Query.bank().nameContains("Ring of wealth (").findFirst().ifPresent(wealth -> {
                 MyBanker.withdraw(wealth.getId(), 1, false);

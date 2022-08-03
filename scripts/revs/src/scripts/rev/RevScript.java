@@ -208,6 +208,7 @@ public class RevScript extends MyScriptExtension {
             if (!isInGe){
                 return;
             }
+            Log.debug("I'm in GE");
         }
         BankManagerRevenant.init();
     }

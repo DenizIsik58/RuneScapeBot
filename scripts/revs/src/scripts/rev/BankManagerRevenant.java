@@ -130,12 +130,13 @@ public class BankManagerRevenant {
         openBank();
         if (Inventory.contains("Looting bag")){
             Query.inventory().nameEquals("Looting bag").findFirst().ifPresent(bag -> {
-                Waiting.waitUntil(() -> bag.click("View"));
-                Waiting.waitUntil(3000, () -> isWidgetVisible(15, 3));
-
-                Waiting.waitUntil(() -> clickWidget("Deposit loot", 15, 8));
-                Waiting.waitUntil(() -> clickWidget("Dismiss", 15, 10));
-                MyBanker.closeBank();
+                if (bag.hover("View")){
+                    if (isWidgetVisible(15, 3)){
+                        Waiting.waitUntil(() -> clickWidget("Deposit loot", 15, 8));
+                        Waiting.waitUntil(() -> clickWidget("Dismiss", 15, 10));
+                        MyBanker.closeBank();
+                    }
+                }
             });
 
         }else {
@@ -471,6 +472,7 @@ public class BankManagerRevenant {
                 GlobalWalking.walkTo(new WorldTile(3164, 3484, 0));
             }
             GrandExchangeRevManager.sellLoot();
+
             GrandExchangeRevManager.restockFromBank(itemsToBuy);
             Bank.depositInventory();
             Waiting.waitUntil(Inventory::isEmpty);

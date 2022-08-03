@@ -11,6 +11,7 @@ import scripts.api.MyScriptVariables;
 
 import java.util.List;
 
+import static scripts.api.MyBanker.closeBank;
 import static scripts.api.MyBanker.openBank;
 
 public class GrandExchangeRevManager {
@@ -32,7 +33,7 @@ public class GrandExchangeRevManager {
             Log.debug("Couldn't empty. Trying again..");
             sellLoot();
         }
-
+        var itemsToSell = 0;
         for (var item : LootingManager.getLootToPickUp()){
             if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
                 continue;
@@ -44,24 +45,33 @@ public class GrandExchangeRevManager {
             }
 
             if (item.equals("Bracelet of ethereum (uncharged)")) {
+                if (!Bank.contains(item)){
+                    break;
+                }
                 if (Bank.getCount(item) <= 10 && Bank.contains(item)) {
                     continue;
                 }
                 Log.warn("Pulling out bracelet");
                 MyBanker.withdraw(item, Bank.getCount(item) - 10, true);
                 Waiting.waitUntil(() -> Inventory.contains(item));
+                itemsToSell++;
                 continue;
             }
 
             if (Query.bank().nameEquals(item).isAny()){
+                itemsToSell++;
                 MyBanker.withdraw(item, 10000000, true);
             }
+        }
+        if (itemsToSell == 0){
+            Log.debug("No items to sell");
+            return;
         }
         MyBanker.closeBank();
         MyExchange.openExchange();
         while (true) {
             if (Inventory.getAll().size() == 0){
-                Log.debug("No items to sell");
+                Log.debug("No items left to sell");
                 return;
             }
             Log.debug("I'm in upper loop");
@@ -101,6 +111,7 @@ public class GrandExchangeRevManager {
 
             Waiting.wait(2000);
             GrandExchange.collectAll();
+            closeBank();
         }
         if (shouldRepeat){
             sellLoot();
@@ -196,7 +207,7 @@ public class GrandExchangeRevManager {
 
 
     public static void restockFromBank(List<String> itemsTobuy) {
-
+        openBank();
         Bank.withdrawAll("Coins");
         Waiting.wait(3500);
         Bank.close();
