@@ -301,6 +301,8 @@ public class DetectPlayerThread extends Thread {
                             setAntiPking(false);
                         }
                         TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                        MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+                        setHasPkerBeenDetected(false);
                         return;
                     } else {
 

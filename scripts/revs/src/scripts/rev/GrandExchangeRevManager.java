@@ -252,7 +252,9 @@ public class GrandExchangeRevManager {
         GrandExchange.collectAll();
         GrandExchange.close();
         openBank();
-        Bank.depositAll(itemId);
+        Waiting.waitUntil(() -> Bank.depositAll(itemId));
+        Waiting.waitNormal(2000, 200);
+
         Bank.depositAll("Coins");
     }
 }

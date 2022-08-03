@@ -28,6 +28,7 @@ public class RevkillerManager {
         if (boss != null){
             if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
                 TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
+                MyRevsClient.getScript().setState(State.BANKING);
                 return;
 
             }
@@ -50,6 +51,7 @@ public class RevkillerManager {
 
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
                 TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
+                MyRevsClient.getScript().setState(State.BANKING);
                 return;
             }
 
@@ -156,6 +158,7 @@ public class RevkillerManager {
 
             if (LootingManager.getTripValue() >= 500000) {
                 TeleportManager.teleportOutOfWilderness("We have above 500k gold. Trying to teleport out...");
+                MyRevsClient.getScript().setState(State.BANKING);
             }
 
             // DO NOT HOP; KILL MOBS

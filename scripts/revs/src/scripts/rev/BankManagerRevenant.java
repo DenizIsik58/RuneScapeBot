@@ -54,14 +54,8 @@ public class BankManagerRevenant {
     public static void returnFromTrip() {
         //EquipmentManager.checkCharges();
 
-        var inBank = MyBanker.openBank();
-        if (!inBank){
-            Log.debug("Couldn't enter the bank. Trying again..");
-            returnFromTrip();
-        }
-
-        equipNewWealthIfNeeded();
         equipAndChargeItems();
+        equipNewWealthIfNeeded();
         checkIfWeHaveEmblemDrop();
         withdrawFoodAndPots();
         WorldManager.hopToRandomMemberWorldWithRequirements();
@@ -186,14 +180,14 @@ public class BankManagerRevenant {
             var inFerox = Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
             if (inFerox){
                 Log.debug("I'm in ferox now");
-                RevScript.state.set(State.WALKING);
+                MyRevsClient.getScript().setState(State.WALKING);
             }else {
                 Log.debug("Trying to teleport to ferox again..");
                 MyTeleporting.Dueling.FeroxEnclave.useTeleport();
             }
 
         }else {
-            RevScript.state.set(State.WALKING);
+            MyRevsClient.getScript().setState(State.WALKING);
         }
     }
 
@@ -277,7 +271,7 @@ public class BankManagerRevenant {
 
         if (shortage == 0) return true;
         if (shortage < 0) {
-            return MyBanker.deposit("Revenent ether", Math.abs(shortage), false);
+            return MyBanker.deposit(21820, Math.abs(shortage), false);
         } else {
             if (!hasEnoughEther(amount)) {
                 GrandExchangeRevManager.sellLoot();

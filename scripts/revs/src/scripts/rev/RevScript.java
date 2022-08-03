@@ -24,7 +24,7 @@ public class RevScript extends MyScriptExtension {
 
     private DetectPlayerThread playerDetectionThread = null;
     private MulingClient muleClient;
-    public static AtomicReference<State> state = new AtomicReference<>(State.STARTING);
+    public AtomicReference<State> state = new AtomicReference<>(State.STARTING);
     private WorldTile selectedMonsterTile = new WorldTile(3160, 10115,0 ); // West demons by default
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
@@ -208,11 +208,12 @@ public class RevScript extends MyScriptExtension {
             MyExchange.walkToGrandExchange();
             var isInGe = Waiting.waitUntil(MyRevsClient::myPlayerIsInGE);
             if (!isInGe){
+                Log.debug("Couldn't get to grand exchange");
                 return;
             }
             Log.debug("I'm in GE");
+            BankManagerRevenant.init();
         }
-        BankManagerRevenant.init();
     }
 
     private void handleWalking() {
@@ -267,7 +268,7 @@ public class RevScript extends MyScriptExtension {
     }
 
     public void setState(State state) {
-        RevScript.state.set(state);
+        this.state.set(state);
     }
 
     public boolean isState(State state) {

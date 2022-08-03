@@ -55,9 +55,10 @@ public class MyExchange {
             if (MyTeleporting.Wealth.GrandExchange.canUseTeleport()) {
                 MyBanker.closeBank();
                 MyTeleporting.Wealth.GrandExchange.useTeleport();
+                return Waiting.waitUntil(5000, MyExchange::isExchangeNearby);
             }
         }
-        if (Bank.isNearby() && Query.inventory().nameContains("Ring of wealth (").isAny() || Query.equipment().nameContains("Ring of wealth (").isAny()) {
+        if (Bank.isNearby() && !Query.inventory().nameContains("Ring of wealth (").isAny() || !Query.equipment().nameContains("Ring of wealth (").isAny()) {
             MyBanker.openBank();
             Query.bank().nameContains("Ring of wealth (").findFirst().ifPresent(wealth -> {
                 MyBanker.withdraw(wealth.getId(), 1, false);

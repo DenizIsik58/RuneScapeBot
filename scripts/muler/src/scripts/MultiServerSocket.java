@@ -1,12 +1,9 @@
 package scripts;
 
 import lombok.SneakyThrows;
-import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.MyPlayer;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.WorldHopper;
-import org.tribot.script.sdk.types.World;
-import org.tribot.script.sdk.types.WorldTile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
