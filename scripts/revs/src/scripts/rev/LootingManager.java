@@ -59,6 +59,7 @@ public class LootingManager {
                     MyScriptVariables.setProfit(totalString);
                     if (tripValue > 450000){
                         TeleportManager.teleportOutOfWilderness("Teleporting out. I have: " + tripValue + " gold!");
+                        return;
                         // teleport out
                     }
                     break;

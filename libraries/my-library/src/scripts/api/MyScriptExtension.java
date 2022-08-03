@@ -3,6 +3,7 @@ package scripts.api;
 import org.jetbrains.annotations.NotNull;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.ScriptListening;
+import org.tribot.script.sdk.Skill;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.painting.Painting;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
@@ -56,6 +57,7 @@ public abstract class MyScriptExtension implements TribotScript {
                 .row(PaintRows.scriptName(getTextRowTemplate()))
                 .row(PaintRows.runtime(getTextRowTemplate()))
                 .row(getTextRowTemplate().label("Profit").value(MyScriptVariables::getProfit).build())
+                .row(getTextRowTemplate().label("Ranged level").value(String.valueOf(Skill.RANGED.getCurrentLevel())).build())
                 .row(getTextRowTemplate().label("Status").value(MyScriptVariables::getStatus).build())
                 .build();
 

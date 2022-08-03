@@ -136,7 +136,7 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void updateState() {
-        if (isState(State.STARTING)) {
+        if (isState(State.STARTING) || isState(State.SELLLOOT)) {
             return;
         }
         if (MyRevsClient.myPlayerIsInGE() && !isState(State.BANKING))  {
@@ -198,6 +198,7 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handleSellLoot() {
+        //GrandExchangeRevManager.sellLoot();
         Log.warn("NOT YET IMPLEMENTED");
     }
 

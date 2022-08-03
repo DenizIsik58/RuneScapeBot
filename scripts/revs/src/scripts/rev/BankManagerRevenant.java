@@ -142,12 +142,14 @@ public class BankManagerRevenant {
         // 4. Pull out
         setPlaceHolder();
 
-        if (!isInventoryBankTaskSatisfied()) {
+
+        if (!isInventoryBankTaskSatisfied()){
             Log.debug("Inventory Bank Task not satisfied..");
             Bank.depositInventory();
             checkIfNeedToRestockSupplies();
             getInventoryBankTask().execute();
         }
+
 
         // Take out our stuff
 
@@ -266,13 +268,14 @@ public class BankManagerRevenant {
     }
 
     private static boolean equipAndCharge(boolean bow) {
-        int etherGoal = bow ? 500 : 250;
+        int etherGoal = bow ? 1500 : 250;
         if (!isChargedItemWithdrawn(bow)) {
             if (!withdrawCharged(bow)) {
                 Log.warn("Failed to withdraw bow, may need to buy?");
                 return false;
+            }else {
+                etherGoal = bow ? 1500 : 250;
             }
-            etherGoal = bow ? 500 : 250;
         }
 
         int charges = checkCharges(bow);
@@ -343,7 +346,7 @@ public class BankManagerRevenant {
             throw new RuntimeException("Failed withdrawing gear three times");
         }
         Log.debug("Withdrawing gear");
-
+        openBank();
         equipAndChargeItems();
 
         if (!isEquipmentBankTaskSatisfied()) {

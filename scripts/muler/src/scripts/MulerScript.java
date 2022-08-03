@@ -1,7 +1,6 @@
 package scripts;
 
 import lombok.SneakyThrows;
-
 import org.jetbrains.annotations.NotNull;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.script.ScriptConfig;
@@ -9,7 +8,6 @@ import org.tribot.script.sdk.script.TribotScript;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 
 import java.io.IOException;
-import java.net.Socket;
 
 @TribotScriptManifest(name = "RevMuler", author = "Deniz", category = "Tools", description = "My muler")
 
@@ -28,12 +26,33 @@ public class MulerScript implements TribotScript {
                     Chatbox.acceptTradeRequest(name);
                     Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
 
-                    // First trade
-                    Waiting.waitUntil(TradeScreen.OtherPlayer::hasAccepted);
-                    TradeScreen.accept();
+                    Waiting.waitUntil(() -> {
+                        TradeScreen.getStage().map(screen -> {
+                            if (screen == TradeScreen.Stage.FIRST_WINDOW){
+                                if (TradeScreen.OtherPlayer.hasAccepted()){
+                                    TradeScreen.accept();
+                                    return true;
+                                }
+                            }
+                            return false;
+                        });
+                        return false;
+                    });
 
-                    // Second trade
-                    Waiting.waitUntil(TradeScreen.OtherPlayer::hasAccepted);
+
+                    Waiting.waitUntil(() -> {
+                        TradeScreen.getStage().map(screen -> {
+                            if (screen == TradeScreen.Stage.SECOND_WINDOW){
+                                if (TradeScreen.OtherPlayer.hasAccepted()){
+                                    TradeScreen.accept();
+                                    return true;
+                                }
+                            }
+                            return false;
+                        });
+                        return false;
+                    });
+
                     MultiServerSocket.getNames().remove(player);
                 }
             }

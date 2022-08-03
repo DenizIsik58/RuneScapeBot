@@ -1,11 +1,9 @@
 package scripts.rev;
 
-import org.tribot.script.sdk.Bank;
-import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.WorldHopper;
 import org.tribot.script.sdk.interfaces.Stackable;
 import org.tribot.script.sdk.query.Query;
+import scripts.api.MyBanker;
 
 public class MuleManager {
 
@@ -14,19 +12,10 @@ public class MuleManager {
         return WorldHopper.hop(world);
     }
 
-    public static int takeOutGp(){
-        var gp = Query.bank().nameEquals("Coins").findFirst().orElse(null);
-        int amount = 0;
-        if (gp != null){
-            amount = gp.getStack() - 2000000;
-            Bank.withdraw("Coins", amount);
-            Waiting.waitUntil(() -> Bank.contains("Coins"));
-        }else {
+    public static void takeOutGp(){
 
-        }
-
-        Bank.close();
-        return amount;
+        Query.bank().nameEquals("Coins").findFirst().ifPresent(gp -> MyBanker.withdraw(995, gp.getStack() - 2000000, false));
+        MyBanker.closeBank();
     }
     public static boolean hasEnoughToMule(){
         var stack = Query.bank().nameEquals("Coins").findFirst().map(Stackable::getStack).orElse(0);
