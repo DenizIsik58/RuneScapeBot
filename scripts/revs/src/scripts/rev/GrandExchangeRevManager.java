@@ -1,7 +1,6 @@
 package scripts.rev;
 
 import org.tribot.script.sdk.*;
-import org.tribot.script.sdk.interfaces.Stackable;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GrandExchangeOffer;
 import org.tribot.script.sdk.types.WorldTile;
@@ -30,23 +29,23 @@ public class GrandExchangeRevManager {
         Bank.depositInventory();
         MyBanker.withdraw("Coins", 2147000000, false);
         for (var item : LootingManager.getLootToPickUp()){
+            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
+                continue;
+            }
+
             if (Inventory.isFull()) {
                 shouldRepeat = true;
                 break;
             }
 
             if (item.equals("Bracelet of ethereum (uncharged)")) {
-                if (Bank.getCount(item) <= 10) {
+                if (Bank.getCount(item) <= 10 && Bank.contains(item)) {
                     continue;
                 }
                 Log.warn("Pulling out bracelet");
-                var stack = Query.bank().nameEquals(item).findFirst().map(Stackable::getStack).orElse(0) - 10;
-                MyBanker.withdraw(item, stack, true);
-
-                if (Inventory.getCount(item) == stack) {
-                    Bank.deposit(item, 10);
-                    continue;
-                }
+                MyBanker.withdraw(item, Bank.getCount(item) - 10, true);
+                Waiting.waitUntil(() -> Inventory.contains(item));
+                continue;
             }
 
             if (Query.bank().nameEquals(item).isAny()){
@@ -71,9 +70,6 @@ public class GrandExchangeRevManager {
                     break;
                 }
 
-                if (!Query.grandExchangeOffers().isAny()){
-                    break;
-                }
                 if (Inventory.getAll().size() == 1 && Query.inventory().nameEquals("Coins").isAny()) {
                     break;
                 }
@@ -84,7 +80,7 @@ public class GrandExchangeRevManager {
                     if (item.getName().equals("Coins") || item.getName().contains("Ring of wealth (")){
                         continue;
                     }
-
+                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-2).type(GrandExchangeOffer.Type.SELL).build());
                     counter++;
                 }
 
@@ -93,6 +89,9 @@ public class GrandExchangeRevManager {
 
             Waiting.wait(2000);
             GrandExchange.collectAll();
+        }
+        if (shouldRepeat){
+            sellLoot();
         }
 
         mule();
