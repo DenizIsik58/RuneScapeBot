@@ -106,9 +106,14 @@ public class TeleportManager {
             Log.debug("[WILDERNESS_LISTENER] Couldn't teleport out of wilderness. You must be missing wealth or be above 30 wilderness");
 
         }
-        Waiting.waitUntil(MyRevsClient::myPlayerIsInGE);
-        Log.debug("[WILDERNESS_LISTENER] Teleported out to safety. We are in GE");
-        PrayerManager.disableQuickPrayer();
+        var isInGe = Waiting.waitUntil(MyRevsClient::myPlayerIsInGE);
+        if (isInGe){
+            Log.debug("[WILDERNESS_LISTENER] Teleported out to safety. We are in GE");
+            PrayerManager.disableQuickPrayer();
+        }else {
+            MyExchange.walkToGrandExchange();
+        }
+
     }
 
     public static boolean teleportToGE(){

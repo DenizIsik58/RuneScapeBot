@@ -180,7 +180,11 @@ public class BankManagerRevenant {
             }
             var inFerox = Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
             if (inFerox){
+                Log.debug("I'm in ferox now");
                 RevScript.state.set(State.WALKING);
+            }else {
+                Log.debug("Trying to teleport to ferox again..");
+                MyTeleporting.Dueling.FeroxEnclave.useTeleport();
             }
 
         }

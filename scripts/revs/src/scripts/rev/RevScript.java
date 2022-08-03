@@ -157,7 +157,6 @@ public class RevScript extends MyScriptExtension {
                 BankManagerRevenant.checkIfNeedToRestockSupplies();
                 BankManagerRevenant.getEquipmentBankTask().execute();
                 BankManagerRevenant.getInventoryBankTask().execute();
-
             }
 
             setState(State.WALKING);
