@@ -212,8 +212,8 @@ public class RevScript extends MyScriptExtension {
                 return;
             }
             Log.debug("I'm in GE");
-            BankManagerRevenant.init();
         }
+        BankManagerRevenant.init();
     }
 
     private void handleWalking() {
