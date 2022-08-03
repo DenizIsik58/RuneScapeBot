@@ -6,12 +6,16 @@ import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.Npc;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyCamera;
+import scripts.api.MyScriptVariables;
+import scripts.api.utility.MathUtility;
 
 public class RevkillerManager {
     private static int demonId = 7936;
     private static int orkId = 7937;
     private static boolean iWasFirst = false;
     private static Npc target = null;
+    private static int killCount = 0;
+    private static int startRangeLevel = Skill.RANGED.getCurrentLevel();
 
     public static void killMonster(){
 
@@ -36,9 +40,13 @@ public class RevkillerManager {
             iWasFirst = true;
         }
 
+
         if (iWasFirst) {
             PrayerManager.enableQuickPrayer();
             MyCamera.setCameraAngle();
+            if (hasLevelGained()){
+                MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getCurrentLevel()));
+            }
 
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
                 TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
@@ -135,6 +143,8 @@ public class RevkillerManager {
                 }
 
                 if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).isAny()) || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
+                    incrementKillCounts();
+                    MyScriptVariables.setKillCountString(String.valueOf(getKillCount()));
                     target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
                 }
 
@@ -150,11 +160,27 @@ public class RevkillerManager {
 
             // DO NOT HOP; KILL MOBS
         }else {
-            if ((Query.players().isEquipped(22550, 12926).isAny() || Query.players().isBeingInteractedWith().isAny() || Query.players().isHealthBarVisible().isAny()) && !iWasFirst) {
+            if ((Query.players().isEquipped("Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace").isAny() || Query.players().isBeingInteractedWith().isAny() || Query.players().isHealthBarVisible().isAny()) && !iWasFirst) {
                 // Hop worlds
                 WorldManager.hopToRandomMemberWorldWithRequirements();
             }
         }
+    }
+
+    public static boolean hasLevelGained(){
+        return startRangeLevel != Skill.RANGED.getCurrentLevel();
+    }
+
+    public static void incrementKillCounts() {
+        killCount++;
+    }
+
+    public static int getKillCount() {
+        return killCount;
+    }
+
+    public static void setStartRangeLevel(int startRangeLevel) {
+        RevkillerManager.startRangeLevel = startRangeLevel;
     }
 
     public static Npc getTarget() {

@@ -54,7 +54,12 @@ public class BankManagerRevenant {
     public static void returnFromTrip() {
         //EquipmentManager.checkCharges();
 
-        openBank();
+        var inBank = Waiting.waitUntil(MyBanker::openBank);
+        if (!inBank){
+            Log.debug("Couldn't enter the bank. Trying again..");
+            returnFromTrip();
+        }
+
         equipNewWealthIfNeeded();
         equipAndChargeItems();
         checkIfWeHaveEmblemDrop();
@@ -140,6 +145,7 @@ public class BankManagerRevenant {
         // 2. Withdraw items to inventory: Prayer pot, divine ranging pot, shark, stam, ring of dueling
         // 3. restock
         // 4. Pull out
+        Log.debug("Withdrawing supplies");
         setPlaceHolder();
 
 
@@ -168,7 +174,11 @@ public class BankManagerRevenant {
             if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
                 Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
             }
-            Waiting.waitUntil(3000, MyRevsClient::myPlayerIsInFerox);
+            var inFerox = Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
+            if (inFerox){
+                RevScript.state.set(State.WALKING);
+            }
+
         }
 
     }
@@ -347,7 +357,11 @@ public class BankManagerRevenant {
             throw new RuntimeException("Failed withdrawing gear three times");
         }
         Log.debug("Withdrawing gear");
-        Waiting.waitUntil(MyBanker::openBank);
+        var inBank = Waiting.waitUntil(MyBanker::openBank);
+        if (!inBank){
+            Log.debug("Couldn't enter the bank. Trying again..");
+            withdrawGear();
+        }
         Waiting.waitNormal(2000, 300);
         equipAndChargeItems();
 

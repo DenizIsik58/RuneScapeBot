@@ -100,6 +100,10 @@ public class MathUtility {
         return (int) (((float) valueOne / (float) valueOf) * 100f);
     }
 
+    public static String getRangeLevelRate(int startLevel, int newLevel){
+        var difference = newLevel - startLevel;
+        return "[" + startLevel + "( " + difference + " gained)]";
+    }
 
     public static float round(float input, float step) {
         return (Math.round(input / step) * step);

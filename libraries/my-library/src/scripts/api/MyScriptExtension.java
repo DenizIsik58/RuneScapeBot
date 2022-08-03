@@ -37,7 +37,7 @@ public abstract class MyScriptExtension implements TribotScript {
                 .textColor(textColor)
                 .background(backgroundColor)
                 .borderColor(textColor)
-                .borderStroke(new BasicStroke());
+                .borderStroke(new BasicStroke(2));
     }
 
     @Override
@@ -55,7 +55,8 @@ public abstract class MyScriptExtension implements TribotScript {
                 .row(PaintRows.scriptName(getTextRowTemplate()))
                 .row(PaintRows.runtime(getTextRowTemplate()))
                 .row(getTextRowTemplate().label("Profit").value(MyScriptVariables::getProfit).build())
-                .row(getTextRowTemplate().label("Ranged level").value(String.valueOf(Skill.RANGED.getCurrentLevel())).build())
+                .row(getTextRowTemplate().label("Ranged level").value(MyScriptVariables::getRangedLevelString).build())
+                .row(getTextRowTemplate().label("Kill Count").value(MyScriptVariables::getKillCountString).build())
                 .row(getTextRowTemplate().label("Deaths").value(MyScriptVariables::getDeathString).build())
                 .row(getTextRowTemplate().label("Membership days left").value(String.valueOf(MyPlayer.getMembershipDaysRemaining())).build())
                 .row(getTextRowTemplate().label("Times muled").value(MyScriptVariables::getTimesMuled).build())

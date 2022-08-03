@@ -18,28 +18,23 @@ public class GrandExchangeRevManager {
 
     private static boolean shouldRepeat = false;
 
-    public static void openGE() {
-        if (!GrandExchange.isOpen()) {
-            GrandExchange.open();
-        }
-    }
 
-    public static void sellLoot() {
-        Log.debug("Selling loot");
-        shouldRepeat = false;
+    public static void sellLoot(){
+        Log.debug("Trying to sell loot");
+
         MyExchange.walkToGrandExchange();
         openBank();
-        Bank.depositInventory();
         if (!BankSettings.isNoteEnabled()) {
             BankSettings.setNoteEnabled(true);
         }
-        Waiting.waitUntil(() -> Bank.withdrawAll("Coins"));
-        Waiting.waitUntil(() -> Inventory.contains("Coins"));
-
-        for (var item : LootingManager.getLootToPickUp()) {
-            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
-                continue;
+        Bank.depositInventory();
+        MyBanker.withdraw("Coins", 2147000000, false);
+        for (var item : LootingManager.getLootToPickUp()){
+            if (Inventory.isFull()) {
+                shouldRepeat = true;
+                break;
             }
+
             if (item.equals("Bracelet of ethereum (uncharged)")) {
                 if (Bank.getCount(item) <= 10) {
                     continue;
@@ -50,24 +45,16 @@ public class GrandExchangeRevManager {
 
                 if (Inventory.getCount(item) == stack) {
                     Bank.deposit(item, 10);
+                    continue;
                 }
             }
-            if (Inventory.isFull()) {
-                shouldRepeat = true;
-                break;
-            }
-            if (Query.bank().nameEquals(item).isAny()) {
-                Waiting.waitUntil(() -> Bank.withdrawAll(item));
-                Waiting.waitUntil(() -> Inventory.contains(item));
+
+            if (Query.bank().nameEquals(item).isAny()){
+                MyBanker.withdraw(item, 10000000, true);
             }
         }
-
-        //BankSettings.setNoteEnabled(false);
-        Waiting.waitUntil(MyBanker::closeBank);
-        Waiting.waitUntil(MyExchange::openExchange);
-        Waiting.wait(2000);
-
-
+        MyBanker.closeBank();
+        MyExchange.openExchange();
         while (true) {
             int counter = 0;
 
@@ -98,15 +85,38 @@ public class GrandExchangeRevManager {
                         continue;
                     }
 
-                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-2).type(GrandExchangeOffer.Type.SELL).build());
                     counter++;
                 }
 
                 Waiting.wait(500);
             }
+
             Waiting.wait(2000);
             GrandExchange.collectAll();
         }
+
+        mule();
+    }
+
+    public static void selLoot() {
+        Log.debug("Selling loot");
+        shouldRepeat = false;
+        MyExchange.walkToGrandExchange();
+        openBank();
+        Bank.depositInventory();
+        if (!BankSettings.isNoteEnabled()) {
+            BankSettings.setNoteEnabled(true);
+        }
+        Waiting.waitUntil(() -> Bank.withdrawAll("Coins"));
+        Waiting.waitUntil(() -> Inventory.contains("Coins"));
+
+        //BankSettings.setNoteEnabled(false);
+        Waiting.waitUntil(MyBanker::closeBank);
+        Waiting.waitUntil(MyExchange::openExchange);
+        Waiting.wait(2000);
+
+
+
 
         GrandExchange.close();
         openBank();
@@ -114,6 +124,10 @@ public class GrandExchangeRevManager {
         Bank.depositAll("Coins");
         Waiting.wait(5000);
 
+
+    }
+
+    public static void mule(){
         if (MuleManager.hasEnoughToMule()) {
             MuleManager.takeOutGp();
             try {
@@ -178,18 +192,18 @@ public class GrandExchangeRevManager {
 
 
 
-                        // Second trade
+                    // Second trade
                     TradeScreen.getStage().map(tradeScreen -> {
-                            if (tradeScreen == TradeScreen.Stage.SECOND_WINDOW) {
-                                Waiting.wait(4000);
-                                TradeScreen.accept();
-                                return true;
-                            }
-                            return false;
-                        });
+                        if (tradeScreen == TradeScreen.Stage.SECOND_WINDOW) {
+                            Waiting.wait(4000);
+                            TradeScreen.accept();
+                            return true;
+                        }
+                        return false;
+                    });
                     MuleManager.incrementAmountTimesMuled();
                     MyScriptVariables.setTimesMuled(String.valueOf(MuleManager.getAmountTimesMuled()));
-                    }
+                }
             } catch (Exception e) {
                 Log.debug("Tried connecting to mule but couldn't");
             }
@@ -203,7 +217,7 @@ public class GrandExchangeRevManager {
         Waiting.wait(3500);
         Bank.close();
         Waiting.wait(3500);
-        openGE();
+        MyExchange.openExchange();
 
         for (var item : itemsTobuy) {
             if (item.contains("Prayer pot") || item.contains("Shark") || item.contains("Divine ranging potion")) {
@@ -237,7 +251,7 @@ public class GrandExchangeRevManager {
         Waiting.waitUntil(() -> Bank.withdrawAll("Coins"));
         Waiting.waitUntil(() -> Inventory.contains("Coins"));
         Bank.close();
-        openGE();
+        MyExchange.openExchange();
         GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemId(itemId).quantity(amount).priceAdjustment(4).type(GrandExchangeOffer.Type.BUY).build());
         Waiting.wait(3000);
         GrandExchange.collectAll();

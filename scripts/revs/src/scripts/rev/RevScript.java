@@ -6,6 +6,7 @@ import org.tribot.script.sdk.Combat;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.MessageListening;
 import org.tribot.script.sdk.Waiting;
+import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
@@ -23,7 +24,7 @@ public class RevScript extends MyScriptExtension {
 
     private DetectPlayerThread playerDetectionThread = null;
     private MulingClient muleClient;
-    public AtomicReference<State> state = new AtomicReference<>(State.STARTING);
+    public static AtomicReference<State> state = new AtomicReference<>(State.STARTING);
     private WorldTile selectedMonsterTile = new WorldTile(3160, 10115,0 ); // West demons by default
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
@@ -93,7 +94,7 @@ public class RevScript extends MyScriptExtension {
 //            Log.info("Pker detected.");
             return;
         }
-
+        Mouse.setSpeed(200);
 
         MyOptions.setRunOn();
 
@@ -158,6 +159,7 @@ public class RevScript extends MyScriptExtension {
                 BankManagerRevenant.getInventoryBankTask().execute();
 
             }
+
             setState(State.WALKING);
         }
     }
@@ -209,8 +211,6 @@ public class RevScript extends MyScriptExtension {
             }
         }
         BankManagerRevenant.init();
-        setState(State.WALKING);
-        Log.debug(state);
     }
 
     private void handleWalking() {
@@ -220,7 +220,6 @@ public class RevScript extends MyScriptExtension {
             MyOptions.init();
             MyCamera.init();
             PrayerManager.init();
-            LootingManager.resetTripValue();
             RevkillerManager.setiWasFirst(false);
             BoostingManager.resetBoost();
             setState(State.KILLING);
@@ -236,6 +235,7 @@ public class RevScript extends MyScriptExtension {
         Log.info("Total amount made this trip: " + LootingManager.getTripValue());
         Log.info("Total amount made since script start: " + LootingManager.getTotalValue());
         Log.info("Total times died so far: " + DeathManger.totalDeaths());
+        LootingManager.resetTripValue();
         if (playerDetectionThread != null){
             playerDetectionThread.setHasPkerBeenDetected(false);
         }
@@ -265,7 +265,7 @@ public class RevScript extends MyScriptExtension {
     }
 
     public void setState(State state) {
-        this.state.set(state);
+        RevScript.state.set(state);
     }
 
     public boolean isState(State state) {

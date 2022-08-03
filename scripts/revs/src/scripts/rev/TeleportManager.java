@@ -31,8 +31,6 @@ public class TeleportManager {
 
         var chosenMobArea = getRandomMobArea();
 
-        Waiting.waitUntil(10000, MyRevsClient::myPlayerIsInFerox);
-
         if (!chosenMobArea.isVisible()) {
             Log.debug("[INFO_LISTENER] Started journey towards the cave...");
             if (Combat.getWildernessLevel() > 20){

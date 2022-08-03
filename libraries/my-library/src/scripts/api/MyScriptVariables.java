@@ -1,6 +1,7 @@
 package scripts.api;
 
 import org.tribot.script.sdk.Log;
+import org.tribot.script.sdk.Skill;
 
 import java.time.LocalDateTime;
 import java.util.ConcurrentModificationException;
@@ -21,6 +22,9 @@ public class MyScriptVariables {
     private final AtomicReference<String> profitString = new AtomicReference<>("0 gp");
     private final AtomicReference<String> deathString = new AtomicReference<>("0");
     private final AtomicReference<String> timesMuledString = new AtomicReference<String>("0");
+    private final AtomicReference<String> killCountString = new AtomicReference<String>("0");
+    private final AtomicReference<String> rangedLevelString = new AtomicReference<String>(String.valueOf(Skill.RANGED.getCurrentLevel()));
+
     private final LocalDateTime startTime;
 
 
@@ -113,6 +117,13 @@ public class MyScriptVariables {
         return get().status.get();
     }
 
+    public static String getRangedLevelString() {
+        return get().rangedLevelString.get();
+    }
+
+    public static void setRangedLevelString(String newValue){
+        get().rangedLevelString.set(newValue);
+    }
 
     public static void setProfit(String profitString) {
         get().profitString.set(profitString);
@@ -136,5 +147,13 @@ public class MyScriptVariables {
 
     public static void setTimesMuled(String newValue){
         get().timesMuledString.set(newValue);
+    }
+
+    public static AtomicReference<String> getKillCountString() {
+        return get().killCountString;
+    }
+
+    public static void setKillCountString(String value){
+        get().killCountString.set(value);
     }
 }
