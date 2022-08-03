@@ -5,6 +5,7 @@ import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import scripts.api.MyBanker;
 import scripts.api.MyExchange;
 import scripts.api.MyTeleporting;
 
@@ -60,6 +61,10 @@ public class TeleportManager {
                     Log.debug("I'm walking to entrance");
                     GlobalWalking.walkTo(caveEntrance);
 
+                }
+                if (!BankManagerRevenant.isEquipmentBankTaskSatisfied()){
+                    MyBanker.openBank();
+                    BankManagerRevenant.getEquipmentBankTask().execute();
                 }
             }
 

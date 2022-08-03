@@ -127,19 +127,21 @@ public class BankManagerRevenant {
     }
 
     public static void emptyLootingBag() {
-        var lb = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
-        if (lb != null) {
-            var clicked = Waiting.waitUntil(() -> lb.click("View"));
-            if (!clicked) {
-               Log.debug("Couldn't click on looting bag. Trying again..");
-               emptyLootingBag();
-            }
-            if (isWidgetVisible(15, 3)) {
+        openBank();
+        if (Inventory.contains("Looting bag")){
+            Query.inventory().nameEquals("Looting bag").findFirst().ifPresent(bag -> {
+                Waiting.waitUntil(() -> bag.click("View"));
+                Waiting.waitUntil(3000, () -> isWidgetVisible(15, 3));
+
                 Waiting.waitUntil(() -> clickWidget("Deposit loot", 15, 8));
                 Waiting.waitUntil(() -> clickWidget("Dismiss", 15, 10));
                 MyBanker.closeBank();
-            }
+            });
+
+        }else {
+            Log.debug("We do not have a looting bag.");
         }
+
     }
 
 
@@ -287,17 +289,24 @@ public class BankManagerRevenant {
     }
 
     private static boolean equipAndCharge(boolean bow) {
-        int etherGoal = bow ? 1500 : 250;
+        int etherGoal = bow ? 500 : 250;
         if (!isChargedItemWithdrawn(bow)) {
             if (!withdrawCharged(bow)) {
                 Log.warn("Failed to withdraw bow, may need to buy?");
                 return false;
             }
+            if (bow && equipmentContainsCharged(true) || inventoryContainsCharged(true)){
+                Log.debug("I have a charged bow equip or in invy");
+                etherGoal = bow ? 500 : 250;
+            }else {
                 etherGoal = bow ? 1500 : 250;
+            }
 
         }
 
         int charges = checkCharges(bow);
+
+        Log.debug("My charges: " + charges);
         if (charges < etherGoal) {
             int shortage = etherGoal - charges;
             withdrawEther(shortage);
@@ -464,6 +473,7 @@ public class BankManagerRevenant {
             GrandExchangeRevManager.sellLoot();
             GrandExchangeRevManager.restockFromBank(itemsToBuy);
             Bank.depositInventory();
+            Waiting.waitUntil(Inventory::isEmpty);
 
         }
 

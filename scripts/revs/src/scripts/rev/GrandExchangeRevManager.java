@@ -27,7 +27,12 @@ public class GrandExchangeRevManager {
             BankSettings.setNoteEnabled(true);
         }
         Bank.depositInventory();
-        MyBanker.withdraw("Coins", 2147000000, false);
+        var isEmpty = Waiting.waitUntil(Inventory::isEmpty);
+        if (!isEmpty){
+            Log.debug("Couldn't empty. Trying again..");
+            sellLoot();
+        }
+
         for (var item : LootingManager.getLootToPickUp()){
             if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
                 continue;
@@ -55,6 +60,11 @@ public class GrandExchangeRevManager {
         MyBanker.closeBank();
         MyExchange.openExchange();
         while (true) {
+            if (Inventory.getAll().size() == 0){
+                Log.debug("No items to sell");
+                return;
+            }
+            Log.debug("I'm in upper loop");
             int counter = 0;
 
             if (!MyExchange.isExchangeOpen()){
@@ -66,7 +76,7 @@ public class GrandExchangeRevManager {
             }
 
             while (counter != 8) {
-                Log.debug("I'm in upper loop");
+                Log.debug("I'm in inner loop");
                 if (!MyExchange.isExchangeOpen()){
                     break;
                 }
@@ -75,7 +85,7 @@ public class GrandExchangeRevManager {
                     break;
                 }
                 for (var item : Inventory.getAll()) {
-                    Log.debug("I'm in inner loop");
+
                     if (counter == 8 || item.getName().equals("Craw's bow (u)")) {
                         break;
                     }
@@ -100,34 +110,6 @@ public class GrandExchangeRevManager {
         mule();
     }
 
-    public static void selLoot() {
-        Log.debug("Selling loot");
-        shouldRepeat = false;
-        MyExchange.walkToGrandExchange();
-        openBank();
-        Bank.depositInventory();
-        if (!BankSettings.isNoteEnabled()) {
-            BankSettings.setNoteEnabled(true);
-        }
-        Waiting.waitUntil(() -> Bank.withdrawAll("Coins"));
-        Waiting.waitUntil(() -> Inventory.contains("Coins"));
-
-        //BankSettings.setNoteEnabled(false);
-        Waiting.waitUntil(MyBanker::closeBank);
-        Waiting.waitUntil(MyExchange::openExchange);
-        Waiting.wait(2000);
-
-
-
-
-        GrandExchange.close();
-        openBank();
-
-        Bank.depositAll("Coins");
-        Waiting.wait(5000);
-
-
-    }
 
     public static void mule(){
         if (MuleManager.hasEnoughToMule()) {

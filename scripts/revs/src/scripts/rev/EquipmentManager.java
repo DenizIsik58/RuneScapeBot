@@ -48,10 +48,12 @@ public class EquipmentManager {
         }
         if (Equipment.contains(21816)){
             Query.equipment().idEquals(21816).findFirst().map(c -> c.click("Check"));
+            Waiting.wait(2000);
         }
 
         if (Inventory.contains(21816)){
             Query.inventory().idEquals(21816).findFirst().map(c -> c.click("Check"));
+            Waiting.wait(2000);
         } else if (Inventory.contains(21817)) {
             braceCharges = 0;
             return braceCharges;
@@ -72,10 +74,12 @@ public class EquipmentManager {
         }
         if (Equipment.contains(22550)){
            Query.equipment().idEquals(22550).findFirst().map(c -> c.click("Check"));
+           Waiting.wait(2000);
         }
 
         if (Inventory.contains(22550)){
             Query.inventory().idEquals(22550).findFirst().map(c -> c.click("Check"));
+            Waiting.wait(2000);
         } else if (Inventory.contains(22547)) {
             bowCharges = 0;
             return bowCharges;
