@@ -8,6 +8,7 @@ import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
 import scripts.api.MyExchange;
+import scripts.api.MyScriptVariables;
 
 import java.util.List;
 
@@ -73,6 +74,9 @@ public class GrandExchangeRevManager {
             }
 
             while (counter != 8) {
+                if (!Query.grandExchangeOffers().isAny()){
+                    break;
+                }
                 if (Inventory.getAll().size() == 1 && Query.inventory().nameEquals("Coins").isAny()) {
                     break;
                 }
@@ -80,7 +84,7 @@ public class GrandExchangeRevManager {
                     if (counter == 8 || item.getName().equals("Craw's bow (u)")) {
                         break;
                     }
-                    if (item.getName().equals("Coins")){
+                    if (item.getName().equals("Coins") || item.getName().contains("Ring of wealth (")){
                         continue;
                     }
 
@@ -173,6 +177,8 @@ public class GrandExchangeRevManager {
                             }
                             return false;
                         });
+                    MuleManager.incrementAmountTimesMuled();
+                    MyScriptVariables.setTimesMuled(String.valueOf(MuleManager.getAmountTimesMuled()));
                     }
             } catch (Exception e) {
                 Log.debug("Tried connecting to mule but couldn't");

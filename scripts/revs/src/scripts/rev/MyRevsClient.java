@@ -33,7 +33,7 @@ public class MyRevsClient {
     }
 
     public static boolean myPlayerIsInGE(){
-        return isInLocation(true, Area.fromRectangle(new WorldTile(3140, 3513, 0), new WorldTile(3189, 3467, 0)));
+        return isInLocation(true, Area.fromRectangle(new WorldTile(3131, 3518, 0), new WorldTile(3201, 3457, 0)));
     }
 
     public static boolean myPlayerIsDead(){

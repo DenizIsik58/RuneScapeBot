@@ -7,10 +7,12 @@ import scripts.api.MyBanker;
 
 public class MuleManager {
 
+    private static int amountTimesMuled = 0;
 
     public static boolean hopToMulerWorld(int world){
         return WorldHopper.hop(world);
     }
+
 
     public static void takeOutGp(){
 
@@ -20,5 +22,13 @@ public class MuleManager {
     public static boolean hasEnoughToMule(){
         var stack = Query.bank().nameEquals("Coins").findFirst().map(Stackable::getStack).orElse(0);
         return stack >= 7000000;
+    }
+
+    public static int getAmountTimesMuled() {
+        return amountTimesMuled;
+    }
+
+    public static void incrementAmountTimesMuled() {
+        MuleManager.amountTimesMuled++;
     }
 }

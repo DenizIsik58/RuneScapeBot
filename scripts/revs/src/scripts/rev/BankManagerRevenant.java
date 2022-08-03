@@ -154,6 +154,7 @@ public class BankManagerRevenant {
         // Take out our stuff
 
         openBank();
+        MyBanker.withdraw("Looting bag", 1, false);
         emptyLootingBag();
         closeBank();
 
@@ -273,9 +274,9 @@ public class BankManagerRevenant {
             if (!withdrawCharged(bow)) {
                 Log.warn("Failed to withdraw bow, may need to buy?");
                 return false;
-            }else {
-                etherGoal = bow ? 1500 : 250;
             }
+                etherGoal = bow ? 1500 : 250;
+
         }
 
         int charges = checkCharges(bow);

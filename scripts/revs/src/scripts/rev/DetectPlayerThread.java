@@ -301,8 +301,7 @@ public class DetectPlayerThread extends Thread {
                             setAntiPking(false);
                         }
                         TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
-                        Waiting.waitUntil(4000, MyRevsClient::myPlayerIsInGE);
-
+                        return;
                     } else {
 
                         if (!isAntiPking()) {

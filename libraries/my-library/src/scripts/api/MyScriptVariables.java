@@ -19,6 +19,8 @@ public class MyScriptVariables {
     private final AtomicBoolean quitting = new AtomicBoolean(false);
     private final AtomicReference<String> status = new AtomicReference<>("Starting script");
     private final AtomicReference<String> profitString = new AtomicReference<>("0 gp");
+    private final AtomicReference<String> deathString = new AtomicReference<>("0");
+    private final AtomicReference<String> timesMuledString = new AtomicReference<String>("0");
     private final LocalDateTime startTime;
 
 
@@ -118,5 +120,21 @@ public class MyScriptVariables {
 
     public static String getProfit(){
         return get().profitString.get();
+    }
+
+    public static void setDeath(String amount){
+        get().deathString.set(amount);
+    }
+
+    public static String getDeathString() {
+        return get().deathString.get();
+    }
+
+    public static String getTimesMuled() {
+        return get().timesMuledString.get();
+    }
+
+    public static void setTimesMuled(String newValue){
+        get().timesMuledString.set(newValue);
     }
 }

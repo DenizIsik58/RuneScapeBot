@@ -1,10 +1,7 @@
 package scripts.api;
 
 import org.jetbrains.annotations.NotNull;
-import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.ScriptListening;
-import org.tribot.script.sdk.Skill;
-import org.tribot.script.sdk.Waiting;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.painting.Painting;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.painting.template.basic.PaintLocation;
@@ -12,6 +9,7 @@ import org.tribot.script.sdk.painting.template.basic.PaintRows;
 import org.tribot.script.sdk.painting.template.basic.PaintTextRow;
 import org.tribot.script.sdk.script.ScriptConfig;
 import org.tribot.script.sdk.script.TribotScript;
+
 
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -58,6 +56,9 @@ public abstract class MyScriptExtension implements TribotScript {
                 .row(PaintRows.runtime(getTextRowTemplate()))
                 .row(getTextRowTemplate().label("Profit").value(MyScriptVariables::getProfit).build())
                 .row(getTextRowTemplate().label("Ranged level").value(String.valueOf(Skill.RANGED.getCurrentLevel())).build())
+                .row(getTextRowTemplate().label("Deaths").value(MyScriptVariables::getDeathString).build())
+                .row(getTextRowTemplate().label("Membership days left").value(String.valueOf(MyPlayer.getMembershipDaysRemaining())).build())
+                .row(getTextRowTemplate().label("Times muled").value(MyScriptVariables::getTimesMuled).build())
                 .row(getTextRowTemplate().label("Status").value(MyScriptVariables::getStatus).build())
                 .build();
 

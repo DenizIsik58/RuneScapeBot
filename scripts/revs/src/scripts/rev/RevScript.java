@@ -9,10 +9,7 @@ import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
-import scripts.api.MyCamera;
-import scripts.api.MyExchange;
-import scripts.api.MyOptions;
-import scripts.api.MyScriptExtension;
+import scripts.api.*;
 import scripts.api.concurrency.Debounce;
 
 import java.util.concurrent.TimeUnit;
@@ -87,7 +84,7 @@ public class RevScript extends MyScriptExtension {
 
     @Override
     protected void onMainLoop() {
-
+        MyScriptVariables.updateStatus(state.toString());
         updateState();
 
         handlePkThread();
@@ -198,6 +195,7 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handleSellLoot() {
+
         //GrandExchangeRevManager.sellLoot();
         Log.warn("NOT YET IMPLEMENTED");
     }
@@ -226,7 +224,6 @@ public class RevScript extends MyScriptExtension {
             RevkillerManager.setiWasFirst(false);
             BoostingManager.resetBoost();
             setState(State.KILLING);
-            Log.debug(state);
         }
     }
 
@@ -252,12 +249,12 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handleDeath() {
-        Log.debug(state);
         TeleportManager.setHasVisitedBeforeTrip(false);
         DeathManger.incrementTotalDeaths();
         Log.info("Oh dear! FUCK! :( - You have just died with: " + LootingManager.getTripValue() + " Gold!! BASTARD");
         // in the future we should implement logging the pker names... for hate and for lookout lol
         Log.info("Total times died so far: " + DeathManger.totalDeaths());
+        MyScriptVariables.setDeath(String.valueOf(DeathManger.totalDeaths()));
         LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue());
         LootingManager.resetTripValue();
         DeathManger.reGearFromDeath();
