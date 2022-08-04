@@ -125,9 +125,10 @@ public class TeleportManager {
             PrayerManager.disableQuickPrayer();
         }else {
             Log.debug("Couldn't teleport out of wilderness. Trying again...");
-            teleportOutOfWilderness(message);
             MyExchange.walkToGrandExchange();
+            teleportOutOfWilderness(message);
         }
+        MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
 
     }
 

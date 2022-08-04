@@ -189,7 +189,7 @@ public class RevScript extends MyScriptExtension {
 
     private void handlePkThread() {
         var wasInWild = inWilderness.get();
-        var isInWild = Combat.isInWilderness();
+        var isInWild = Combat.isInWilderness() || MyRevsClient.myPlayerIsInFerox();
 
         if (wasInWild != isInWild) {
             if (isInWild) startPkThread();

@@ -52,6 +52,7 @@ public class MyExchange {
         if (System.currentTimeMillis() - lastTB < (60 * 1000) * 2) {
             Log.warn("Didn't attempt to teleport because we've been teleblocked in the last two minutes.");
         } else {
+            Log.debug("Teleportin to Grand exchange as I have a ring");
             if (MyTeleporting.Wealth.GrandExchange.canUseTeleport()) {
                 MyBanker.closeBank();
                 MyTeleporting.Wealth.GrandExchange.useTeleport();
