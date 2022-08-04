@@ -69,24 +69,23 @@ public class GrandExchangeRevManager {
         MyBanker.closeBank();
         MyExchange.openExchange();
         while (true) {
-            if (Inventory.getAll().size() == 0){
-                Log.debug("No items left to sell");
-                return;
-            }
+
             Log.debug("I'm in upper loop");
             int counter = 0;
 
             if (!MyExchange.isExchangeOpen()){
-                break;
+                MyExchange.openExchange();
             }
 
             if (Inventory.getAll().size() == 1 && Inventory.contains("Coins")) {
+                Log.debug("Done selling loot");
                 break;
             }
 
             while (counter != 8) {
                 Log.debug("I'm in inner loop");
                 if (!MyExchange.isExchangeOpen() || Inventory.getAll().size() == 0){
+                    Log.debug("0 items left");
                     break;
                 }
 

@@ -97,6 +97,12 @@ public class RevScript extends MyScriptExtension {
             Log.info("Pker detected.");
             return;
         }
+
+        if (RevkillerManager.isIsPkerDetected()){
+            Log.debug("Pker has been detected!");
+            setState(State.BANKING);
+            return;
+        }
         Mouse.setSpeed(200);
 
         MyOptions.setRunOn();
