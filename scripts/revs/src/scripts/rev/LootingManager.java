@@ -41,8 +41,7 @@ public class LootingManager {
 
         while(hasLootBeenDetected()){
             for (var loot : lootToPickUp){
-                var item = Query.groundItems().nameEquals(loot).findFirst().orElse(null);
-                if (item != null){
+                Query.groundItems().nameEquals(loot).findFirst().ifPresent(item -> {
                     if (setStateBankIfNotInWilderness()){
                         return;
                     }
@@ -58,11 +57,10 @@ public class LootingManager {
                     Log.debug("Picking up item: " + item.getName());
                     var countBeforePickingUp = Query.groundItems().nameEquals(item.getName()).count();
 
-                    var clicked = Waiting.waitUntil(4000, () -> item.click("Take"));
-                    if (!clicked) break;
+                    item.click("Take");
 
                     var changed = Waiting.waitUntil(4000, () -> hasDecreased(item.getName(), countBeforePickingUp));
-                    if (!changed) break;
+                    if (!changed) return;
 
                     tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                     totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
@@ -70,11 +68,10 @@ public class LootingManager {
                     MyScriptVariables.setProfit(totalString);
                     if (tripValue > 450000){
                         TeleportManager.teleportOutOfWilderness("Teleporting out. I have: " + tripValue + " gold!");
-                        return;
+
                         // teleport out
                     }
-                    break;
-                }
+                });
         }
         }
         // starts back here with brea
