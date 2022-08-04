@@ -10,6 +10,7 @@ import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
+import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.*;
 import scripts.api.concurrency.Debounce;
 
@@ -89,14 +90,6 @@ public class RevScript extends MyScriptExtension {
     @Override
     protected void onMainLoop() {
         MyScriptVariables.updateStatus(state.toString());
-        updateState();
-
-        handlePkThread();
-
-        if (playerDetectionThread != null && playerDetectionThread.hasPkerBeenDetected()){
-            Log.info("Pker detected.");
-            return;
-        }
 
         if (RevkillerManager.isIsPkerDetected()){
             if (!Combat.isInWilderness()){
@@ -106,6 +99,17 @@ public class RevScript extends MyScriptExtension {
             setState(State.BANKING);
             return;
         }
+
+        updateState();
+
+        handlePkThread();
+
+        if (playerDetectionThread != null && playerDetectionThread.hasPkerBeenDetected()){
+            Log.info("Pker detected.");
+            return;
+        }
+
+
         Mouse.setSpeed(200);
 
         MyOptions.setRunOn();
@@ -151,6 +155,7 @@ public class RevScript extends MyScriptExtension {
         }
         if (MyRevsClient.myPlayerIsInGE() && !isState(State.BANKING))  {
             setState(State.BANKING);
+            return;
         }
 
         if (MyRevsClient.myPlayerIsDead()){
@@ -159,11 +164,16 @@ public class RevScript extends MyScriptExtension {
             }
             TeleportManager.setHasVisitedBeforeTrip(false);
             setState(State.DEATH);
+            return;
         }
         if (MyRevsClient.myPlayerIsInFerox()) {
             // if not bank task is satisfied
             // teleport to ge
             // else
+            if (MyRevsClient.myPlayerIsInFerox()){
+                GlobalWalking.walkTo(new WorldTile(3133, 3628, 0)); // bank spot at ferox
+            }
+
             if (!BankManagerRevenant.isEquipmentBankTaskSatisfied() && !BankManagerRevenant.isInventoryBankTaskSatisfied()){
                 openBank();
                 BankManagerRevenant.checkIfNeedToBuyGear();
@@ -173,6 +183,7 @@ public class RevScript extends MyScriptExtension {
             }
 
             setState(State.WALKING);
+            return;
         }
     }
 
