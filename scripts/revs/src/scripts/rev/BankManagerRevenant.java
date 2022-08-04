@@ -330,7 +330,14 @@ public class BankManagerRevenant {
                 GrandExchangeRevManager.sellLoot();
                 GrandExchangeRevManager.buyFromBank(21820, 4000);
             }
-            return MyBanker.withdraw("Revenant ether", amount, false);
+            if (Inventory.isFull()){
+                if (!MyBanker.openBank()){
+                    MyBanker.openBank();
+                }
+                Bank.depositInventory();
+                Waiting.waitUntil(Inventory::isEmpty);
+            }
+            return MyBanker.withdraw(21820, amount, false);
         }
 
     }
