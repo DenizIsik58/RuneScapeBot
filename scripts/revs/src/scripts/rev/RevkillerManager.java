@@ -61,12 +61,6 @@ public class RevkillerManager {
                 return;
             }
 
-            Query.equipment().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> {
-                if (!ring.hover("Grand exchange")){
-                    ring.hover("Grand exchange");
-                }
-            });
-
             if (Query.inventory().nameEquals("Shark").count() < 4) {
                 if (target != null){
                     if (target.isValid()){
@@ -95,6 +89,7 @@ public class RevkillerManager {
                 PrayerManager.maintainPrayerPotion();
                 if (target != null){
                     target.click();
+                    hoverWealth();
                 }
                 Waiting.wait(1500);
             }
@@ -103,6 +98,7 @@ public class RevkillerManager {
                 BoostingManager.boost();
                 if (target != null){
                     target.click();
+                    hoverWealth();
                 }
                 Waiting.wait(2000);
             }
@@ -115,6 +111,7 @@ public class RevkillerManager {
                 Query.inventory().nameEquals("Shark").findClosestToMouse().map(InventoryItem::click);
                 if (target != null){
                     target.click();
+                    hoverWealth();
                 }
                 Waiting.wait(1500);
             }
@@ -131,6 +128,7 @@ public class RevkillerManager {
                     if (monster.isInteractingWithMe() && !monster.isHealthBarVisible()){
                         monster.adjustCameraTo();
                         monster.click();
+                        hoverWealth();
                     }
                 }
 
@@ -138,10 +136,12 @@ public class RevkillerManager {
                     GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
                     target.adjustCameraTo();
                     target.click();
+                    hoverWealth();
                 }
 
                 if (!target.isHealthBarVisible()){
                     target.click();
+                    hoverWealth();
                     Waiting.waitUntil(500, () -> target.isHealthBarVisible());
                 }
 
@@ -152,6 +152,7 @@ public class RevkillerManager {
                             target.adjustCameraTo();
                         }
                         target.click();
+                        hoverWealth();
                     }
                 }
 
@@ -180,6 +181,14 @@ public class RevkillerManager {
                 WorldManager.hopToRandomMemberWorldWithRequirements();
             }
         }
+    }
+
+    public static void hoverWealth(){
+        Query.equipment().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> {
+            if (!ring.hover("Grand exchange")){
+                ring.hover("Grand exchange");
+            }
+        });
     }
 
     public static boolean hasLevelGained(){
