@@ -35,8 +35,7 @@ public class LootingManager {
     public static void loot(){
         Log.debug("Started looting process");
 
-        if (!Combat.isInWilderness()){
-            MyRevsClient.getScript().setState(State.BANKING);
+        if (setStateBankIfNotInWilderness()){
             return;
         }
 
@@ -44,8 +43,7 @@ public class LootingManager {
             for (var loot : lootToPickUp){
                 var item = Query.groundItems().nameEquals(loot).findFirst().orElse(null);
                 if (item != null){
-                    if (!Combat.isInWilderness()){
-                        MyRevsClient.getScript().setState(State.BANKING);
+                    if (setStateBankIfNotInWilderness()){
                         return;
                     }
                     if (Inventory.isFull() && Inventory.contains("Shark")){
@@ -56,14 +54,14 @@ public class LootingManager {
                         item.adjustCameraTo();
                     }
 
+                    //STOPS HERE
                     Log.debug("Picking up item: " + item.getName());
                     var countBeforePickingUp = Query.groundItems().nameEquals(item.getName()).count();
                     item.hover();
                     item.click("Take");
 
-                    var changed = Waiting.waitUntil(8000, () -> hasDecreased(item.getName(), countBeforePickingUp));
+                    var changed = Waiting.waitUntil(4000, () -> hasDecreased(item.getName(), countBeforePickingUp));
                     if (!changed) break;
-
 
                     tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                     totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
@@ -79,7 +77,7 @@ public class LootingManager {
         }
         }
         // starts back here with brea
-        Log.debug("I'm done looting");
+            Log.debug("I'm done looting");
             GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             if(RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()){
 
@@ -92,6 +90,10 @@ public class LootingManager {
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
 
+            if (setStateBankIfNotInWilderness()){
+                return;
+            }
+
             MyRevsClient.getScript().setState(State.KILLING);
             Log.debug("Ended looting process. Switching back to killing");
     }
@@ -100,10 +102,17 @@ public class LootingManager {
         return Query.groundItems().nameEquals(itemName).count() == count -1;
     }
 
+    public static boolean setStateBankIfNotInWilderness(){
+        if (!Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()){
+            MyRevsClient.getScript().setState(State.BANKING);
+            return true;
+        }
+        return false;
+    }
+
     public static boolean hasLootBeenDetected() {
         for (var item : lootToPickUp) {
             if (Query.groundItems().nameEquals(item).isAny()) {
-
                 return true;
             }
         }

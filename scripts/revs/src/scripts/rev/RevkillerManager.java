@@ -9,6 +9,8 @@ import scripts.api.MyCamera;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
+import static scripts.rev.LootingManager.setStateBankIfNotInWilderness;
+
 public class RevkillerManager {
     private static int demonId = 7936;
     private static int orkId = 7937;
@@ -42,8 +44,7 @@ public class RevkillerManager {
             iWasFirst = true;
         }
 
-        if (!Combat.isInWilderness()){
-            MyRevsClient.getScript().setState(State.BANKING);
+        if (setStateBankIfNotInWilderness()){
             return;
         }
 

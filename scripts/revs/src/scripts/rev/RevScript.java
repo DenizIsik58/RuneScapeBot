@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static dax.shared.helpers.BankHelper.openBank;
+import static scripts.rev.LootingManager.setStateBankIfNotInWilderness;
 
 @TribotScriptManifest(name = "Revs", author = "Deniz", category = "Moneymaking")
 public class RevScript extends MyScriptExtension {
@@ -233,6 +234,9 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handleKilling() {
+        if (setStateBankIfNotInWilderness()){
+            return;
+        }
         RevkillerManager.killMonster();
     }
 
@@ -250,6 +254,9 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handleLooting() {
+        if (setStateBankIfNotInWilderness()){
+            return;
+        }
         LootingManager.loot();
 
     }
