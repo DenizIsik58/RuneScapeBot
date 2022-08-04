@@ -43,6 +43,9 @@ public class RevkillerManager {
 
 
         if (iWasFirst) {
+            if (!MyRevsClient.getScript().getSelectedMonsterTile().isVisible()){
+                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+            }
             PrayerManager.enableQuickPrayer();
             MyCamera.setCameraAngle();
             if (hasLevelGained()){

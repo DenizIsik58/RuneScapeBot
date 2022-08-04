@@ -87,9 +87,10 @@ public class GrandExchangeRevManager {
 
             while (counter != 8) {
                 Log.debug("I'm in inner loop");
-                if (!MyExchange.isExchangeOpen()){
+                if (!MyExchange.isExchangeOpen() || Inventory.getAll().size() == 0){
                     break;
                 }
+
 
                 if (Inventory.getAll().size() == 1 && Query.inventory().nameEquals("Coins").isAny()) {
                     break;
