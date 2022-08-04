@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static scripts.api.MyBanker.*;
-import static scripts.api.MyClient.clickWidget;
-import static scripts.api.MyClient.isWidgetVisible;
+import static scripts.api.MyClient.*;
 
 
 public class BankManagerRevenant {
@@ -147,26 +146,39 @@ public class BankManagerRevenant {
     public static void takeOffBraceCharges(){
         if (MyRevsClient.myPlayerHasTooManyChargesInBrace()) {
             Log.debug("Bracelet has too much ether. Unloading...");
-            if (openBank()) {
-                closeBank();
-            }
-            var brace = Query.equipment().nameEquals("Bracelet of ethereum").findFirst().orElse(null);
-            if (brace != null) {
-                Waiting.waitUntil(1000, () -> Equipment.remove(brace.getId()) != 0);
-                Waiting.waitUntil(() -> Inventory.contains("Bracelet of ethereum"));
-                var invyBrace = Query.inventory().nameEquals("Bracelet of ethereum").findFirst().orElse(null);
-                if (invyBrace != null) {
-                    Waiting.waitUntil(() -> invyBrace.click("Uncharge"));
-                    Waiting.waitUntil(ChatScreen::isOpen);
-                    if (isWidgetVisible(584, 0)) {
+
+            if (Equipment.contains("Bracelet of ethereum")) {
+                Query.equipment().nameEquals("Bracelet of ethereum").findFirst().ifPresent(brace -> {
+
+                    Waiting.waitUntil(1000, () -> Equipment.remove(brace.getId()) != 0);
+                    Waiting.waitUntil(() -> Inventory.contains("Bracelet of ethereum"));
+                    var invyBrace = Query.inventory().nameEquals("Bracelet of ethereum").findFirst().orElse(null);
+                    if (invyBrace != null) {
+                        Waiting.waitUntil(() -> invyBrace.click("Uncharge"));
+                        Waiting.waitUntil(ChatScreen::isOpen);
+                        Waiting.waitNormal(1250, 125);
                         clickWidget("Yes", 584, 1);
                         Waiting.waitUntil(() -> Inventory.contains(21820));
                     }
+                });
+            }else if (Inventory.contains("Bracelet of ethereum")){
+                Query.inventory().nameEquals("Bracelet of ethereum").findFirst().ifPresent(brace -> {
 
-                }
-                openBank();
+                        Waiting.waitUntil(() -> brace.click("Uncharge"));
+                        Waiting.waitUntil(ChatScreen::isOpen);
+                        Waiting.waitNormal(1250, 125);
+                        clickWidget("Yes", 584, 1);
+                        Waiting.waitUntil(() -> Inventory.contains(21820));
+                });
+            }
+
+
+
+
+                MyBanker.openBank();
                 var amount = Query.inventory().idEquals(21820).findFirst().map(InventoryItem::getStack).orElse(0);
                 MyBanker.deposit(21820, amount - 250,false);
+                Waiting.waitNormal(1500, 100);
                 MyBanker.closeBank();
                 Waiting.wait(1000);
                 Query.inventory()
@@ -179,10 +191,10 @@ public class BankManagerRevenant {
                                 .orElse(false));
 
                 Waiting.wait(1000);
-                Query.inventory().nameEquals("Bracelet of ethereum").findFirst().map(InventoryItem::click);
+                Query.inventory().nameEquals("Bracelet of ethereum").findFirst().map(b -> b.click("Wear"));
             }
         }
-    }
+
 
 
     public static void withdrawFoodAndPots() {
@@ -353,6 +365,8 @@ public class BankManagerRevenant {
                 // Something went wrong. Couldn't use ether on
                 Log.debug("Something went wrong.. maybe out of ether... Couldn't use ether on bracelet");
             }
+        }else if(charges > etherGoal && !bow){
+            takeOffBraceCharges();
         }
 
         int equipId = bow ? 22550 : 21817;
@@ -426,7 +440,6 @@ public class BankManagerRevenant {
         Waiting.waitNormal(2000, 300);
         Log.debug("Checking weapon charges");
         equipAndChargeItems();
-        takeOffBraceCharges();
 
         if (!isEquipmentBankTaskSatisfied()) {
             Log.debug("Equipment task not satisfied");
