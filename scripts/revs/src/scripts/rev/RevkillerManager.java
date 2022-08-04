@@ -34,12 +34,6 @@ public class RevkillerManager {
             }
         }
 
-        Query.equipment().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> {
-            if (!ring.hover("Grand exchange")){
-                ring.hover("Grand exchange");
-            }
-        });
-
         if (Combat.isAutoRetaliateOn()){
             Combat.setAutoRetaliate(false);
         }
@@ -67,6 +61,12 @@ public class RevkillerManager {
                 return;
             }
 
+            Query.equipment().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> {
+                if (!ring.hover("Grand exchange")){
+                    ring.hover("Grand exchange");
+                }
+            });
+            
             if (Query.inventory().nameEquals("Shark").count() < 4) {
                 if (target != null){
                     if (target.isValid()){
