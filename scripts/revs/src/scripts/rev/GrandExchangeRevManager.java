@@ -105,10 +105,10 @@ public class GrandExchangeRevManager {
 
                     GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-2).type(GrandExchangeOffer.Type.SELL).build());
                     counter++;
-                    Waiting.wait(500);
+                    Waiting.wait(2000);
                 }
 
-                Waiting.wait(500);
+                Waiting.wait(3000);
             }
 
             Waiting.wait(2000);

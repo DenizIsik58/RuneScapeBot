@@ -66,7 +66,7 @@ public class RevkillerManager {
                     ring.hover("Grand exchange");
                 }
             });
-            
+
             if (Query.inventory().nameEquals("Shark").count() < 4) {
                 if (target != null){
                     if (target.isValid()){
