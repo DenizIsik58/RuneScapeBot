@@ -63,6 +63,11 @@ public class TeleportManager {
                     MyBanker.openBank();
                     BankManagerRevenant.getEquipmentBankTask().execute();
                 }
+
+                if (Inventory.getAll().size() <= 20){
+                    MyBanker.openBank();
+                    BankManagerRevenant.getInventoryBankTask().execute();
+                }
             }
 
             if (!MyRevsClient.myPlayerIsInCave()){

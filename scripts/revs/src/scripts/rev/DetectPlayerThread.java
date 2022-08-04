@@ -11,10 +11,7 @@ import org.tribot.script.sdk.types.Player;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
-import scripts.api.MyAntiBan;
-import scripts.api.MyExchange;
-import scripts.api.MyPrayer;
-import scripts.api.MyScriptVariables;
+import scripts.api.*;
 import scripts.api.utility.StringsUtility;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -297,6 +294,7 @@ public class DetectPlayerThread extends Thread {
                             setAntiPking(false);
                         }
                         TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                        MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                         setHasPkerBeenDetected(false);
                         return;
                     } else {

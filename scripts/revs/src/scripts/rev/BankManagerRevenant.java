@@ -8,6 +8,7 @@ import org.tribot.script.sdk.tasks.Amount;
 import org.tribot.script.sdk.tasks.BankTask;
 import org.tribot.script.sdk.tasks.EquipmentReq;
 import org.tribot.script.sdk.tasks.ItemReq;
+import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
@@ -141,6 +142,46 @@ public class BankManagerRevenant {
             }
         }
         Log.debug("I don't have a looting bag");
+    }
+
+    public static void takeOffBraceCharges(){
+        if (MyRevsClient.myPlayerHasTooManyChargesInBrace()) {
+            Log.debug("Bracelet has too much ether. Unloading...");
+            if (openBank()) {
+                closeBank();
+            }
+            var brace = Query.equipment().nameEquals("Bracelet of ethereum").findFirst().orElse(null);
+            if (brace != null) {
+                Waiting.waitUntil(1000, () -> Equipment.remove(brace.getId()) != 0);
+                Waiting.waitUntil(() -> Inventory.contains("Bracelet of ethereum"));
+                var invyBrace = Query.inventory().nameEquals("Bracelet of ethereum").findFirst().orElse(null);
+                if (invyBrace != null) {
+                    Waiting.waitUntil(() -> invyBrace.click("Uncharge"));
+                    Waiting.waitUntil(ChatScreen::isOpen);
+                    if (isWidgetVisible(584, 0)) {
+                        clickWidget("Yes", 584, 1);
+                        Waiting.waitUntil(() -> Inventory.contains(21820));
+                    }
+
+                }
+                openBank();
+                var amount = Query.inventory().idEquals(21820).findFirst().map(InventoryItem::getStack).orElse(0);
+                MyBanker.deposit(21820, amount - 250,false);
+                MyBanker.closeBank();
+                Waiting.wait(1000);
+                Query.inventory()
+                        .nameEquals("Bracelet of ethereum (uncharged)")
+                        .findFirst()
+                        .map(b -> Query.inventory()
+                                .idEquals(21820)
+                                .findFirst()
+                                .map(ether -> ether.useOn(b))
+                                .orElse(false));
+
+                Waiting.wait(1000);
+                Query.inventory().nameEquals("Bracelet of ethereum").findFirst().map(InventoryItem::click);
+            }
+        }
     }
 
 
@@ -385,6 +426,7 @@ public class BankManagerRevenant {
         Waiting.waitNormal(2000, 300);
         Log.debug("Checking weapon charges");
         equipAndChargeItems();
+        takeOffBraceCharges();
 
         if (!isEquipmentBankTaskSatisfied()) {
             Log.debug("Equipment task not satisfied");
