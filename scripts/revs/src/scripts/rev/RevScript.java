@@ -94,7 +94,7 @@ public class RevScript extends MyScriptExtension {
         handlePkThread();
 
         if (playerDetectionThread != null && playerDetectionThread.hasPkerBeenDetected()){
-//            Log.info("Pker detected.");
+            Log.info("Pker detected.");
             return;
         }
         Mouse.setSpeed(200);

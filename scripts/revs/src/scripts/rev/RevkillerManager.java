@@ -18,6 +18,7 @@ public class RevkillerManager {
     private static Npc target = null;
     private static int killCount = 0;
     private static int startRangeLevel = Skill.RANGED.getCurrentLevel();
+    private static boolean isPkerDetected = false;
 
     public static void killMonster(){
 
@@ -188,6 +189,13 @@ public class RevkillerManager {
         }
     }
 
+    public static void setIsPkerDetected(boolean isPkerDetected) {
+        RevkillerManager.isPkerDetected = isPkerDetected;
+    }
+
+    public static boolean isIsPkerDetected() {
+        return isPkerDetected;
+    }
 
     public static boolean hasLevelGained(){
         return startRangeLevel != Skill.RANGED.getCurrentLevel();
