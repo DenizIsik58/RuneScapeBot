@@ -57,8 +57,9 @@ public class LootingManager {
                     //STOPS HERE
                     Log.debug("Picking up item: " + item.getName());
                     var countBeforePickingUp = Query.groundItems().nameEquals(item.getName()).count();
-                    item.hover();
-                    item.click("Take");
+
+                    var clicked = Waiting.waitUntil(4000, () -> item.click("Take"));
+                    if (!clicked) break;
 
                     var changed = Waiting.waitUntil(4000, () -> hasDecreased(item.getName(), countBeforePickingUp));
                     if (!changed) break;
