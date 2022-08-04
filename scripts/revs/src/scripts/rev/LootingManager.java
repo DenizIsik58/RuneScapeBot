@@ -94,8 +94,10 @@ public class LootingManager {
             if (setStateBankIfNotInWilderness()){
                 return;
             }
+            if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()){
+                MyRevsClient.getScript().setState(State.KILLING);
+            }
 
-            MyRevsClient.getScript().setState(State.KILLING);
             Log.debug("Ended looting process. Switching back to killing");
     }
 
