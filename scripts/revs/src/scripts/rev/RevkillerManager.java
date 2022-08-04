@@ -41,6 +41,9 @@ public class RevkillerManager {
             iWasFirst = true;
         }
 
+        if (!Combat.isInWilderness()){
+            return;
+        }
 
         if (iWasFirst) {
             if (!MyRevsClient.getScript().getSelectedMonsterTile().isVisible()){

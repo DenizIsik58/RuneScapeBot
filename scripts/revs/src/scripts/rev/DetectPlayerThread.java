@@ -184,10 +184,6 @@ public class DetectPlayerThread extends Thread {
         }
     }
 
-    public static void fight(Player pker) {
-
-    }
-
     public void antiPk() {
         var pker = getPker();
 
@@ -322,6 +318,7 @@ public class DetectPlayerThread extends Thread {
                 }
 
             } else {
+                Log.debug("Out of wilderness. Resetting danger states");
                 if (isTeleblocked()) setTeleblocked(false);
                 if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
                 if (inDanger()) setInDanger(false);

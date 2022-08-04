@@ -11,7 +11,6 @@ import scripts.api.MyScriptVariables;
 
 import java.util.List;
 
-import static scripts.api.MyBanker.closeBank;
 import static scripts.api.MyBanker.openBank;
 
 public class GrandExchangeRevManager {
@@ -113,7 +112,9 @@ public class GrandExchangeRevManager {
 
             Waiting.wait(2000);
             GrandExchange.collectAll();
-            closeBank();
+            MyExchange.closeExchange();
+            openBank();
+            MyBanker.depositAll();
         }
         if (shouldRepeat){
             sellLoot();

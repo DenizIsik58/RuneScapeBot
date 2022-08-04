@@ -95,6 +95,16 @@ public class MyBanker {
         return Waiting.waitUntil(2000, () -> getInventoryCount(definition.getName(), noted) == Math.max(0, inventoryCount - amount));
     }
 
+    public static boolean depositAll(){
+
+        if (!Inventory.isEmpty()){
+            Bank.depositInventory();
+            Waiting.waitUntil(3000, Inventory::isEmpty);
+        }
+
+        return true;
+    }
+
 
     private static int getCorrectId(ItemDefinition definition, boolean noted) {
         if (noted) {
