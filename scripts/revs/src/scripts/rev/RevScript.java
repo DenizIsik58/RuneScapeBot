@@ -221,11 +221,13 @@ public class RevScript extends MyScriptExtension {
         var tile = TeleportManager.refill();
         selectedMonsterTile = tile;
         if (TeleportManager.monsterTileIsDetected(tile)) {
+            Log.debug("I have detected the monster place");
             MyOptions.init();
             MyCamera.init();
             PrayerManager.init();
             RevkillerManager.setiWasFirst(false);
             BoostingManager.resetBoost();
+            Log.debug("Switching to killing state");
             setState(State.KILLING);
         }
     }
