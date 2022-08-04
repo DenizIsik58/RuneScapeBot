@@ -55,6 +55,13 @@ public class RevkillerManager {
                 MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));
             }
 
+            if (!Equipment.contains("Ring of wealth (")){
+                Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
+                    ring.click("Wear");
+                    Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
+                });
+            }
+
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
                 TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
                 MyRevsClient.getScript().setState(State.BANKING);
