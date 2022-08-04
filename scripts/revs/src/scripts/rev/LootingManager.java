@@ -1,6 +1,7 @@
 package scripts.rev;
 
 
+import org.tribot.script.sdk.Combat;
 import org.tribot.script.sdk.Inventory;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.Waiting;
@@ -34,10 +35,19 @@ public class LootingManager {
     public static void loot(){
         Log.debug("Started looting process");
 
+        if (!Combat.isInWilderness()){
+            MyRevsClient.getScript().setState(State.BANKING);
+            return;
+        }
+
         while(hasLootBeenDetected()){
             for (var loot : lootToPickUp){
                 var item = Query.groundItems().nameEquals(loot).findFirst().orElse(null);
                 if (item != null){
+                    if (!Combat.isInWilderness()){
+                        MyRevsClient.getScript().setState(State.BANKING);
+                        return;
+                    }
                     if (Inventory.isFull() && Inventory.contains("Shark")){
                         Query.inventory().nameEquals("Shark").findClosestToMouse().map(InventoryItem::click);
                     }

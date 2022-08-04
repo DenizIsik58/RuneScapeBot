@@ -23,6 +23,7 @@ public class RevkillerManager {
             GameTab.EQUIPMENT.open();
         }
 
+
         var boss = Query.npcs().nameEquals("Revenant maledictus").findFirst().orElse(null);
 
         if (boss != null){
@@ -42,6 +43,7 @@ public class RevkillerManager {
         }
 
         if (!Combat.isInWilderness()){
+            MyRevsClient.getScript().setState(State.BANKING);
             return;
         }
 
