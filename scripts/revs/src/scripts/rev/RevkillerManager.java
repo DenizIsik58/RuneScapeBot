@@ -98,7 +98,6 @@ public class RevkillerManager {
                 PrayerManager.maintainPrayerPotion();
                 if (target != null){
                     target.click();
-                    hoverWealth();
                 }
                 Waiting.wait(1500);
             }
@@ -107,7 +106,6 @@ public class RevkillerManager {
                 BoostingManager.boost();
                 if (target != null){
                     target.click();
-                    hoverWealth();
                 }
                 Waiting.wait(2000);
             }
