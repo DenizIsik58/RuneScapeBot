@@ -149,7 +149,7 @@ public class BankManagerRevenant {
         // 2. Withdraw items to inventory: Prayer pot, divine ranging pot, shark, stam, ring of dueling
         // 3. restock
         // 4. Pull out
-        Log.debug("Withdrawing supplies");
+        Log.debug("Withdrawing supplies process started");
         setPlaceHolder();
 
 
@@ -371,13 +371,19 @@ public class BankManagerRevenant {
             Log.error("Failed withdrawing gear three times");
             throw new RuntimeException("Failed withdrawing gear three times");
         }
-        Log.debug("Withdrawing gear");
+
+        Log.debug("Started withdrawing gear process");
+        if (MyRevsClient.myPlayerIsInFerox()){
+            GlobalWalking.walkTo(new WorldTile(3133, 3628, 0)); // bank spot at ferox
+        }
         var inBank = Waiting.waitUntil(MyBanker::openBank);
         if (!inBank){
             Log.debug("Couldn't enter the bank. Trying again..");
             withdrawGear();
         }
+        Log.debug("Entered bank");
         Waiting.waitNormal(2000, 300);
+        Log.debug("Checking weapon charges");
         equipAndChargeItems();
 
         if (!isEquipmentBankTaskSatisfied()) {
