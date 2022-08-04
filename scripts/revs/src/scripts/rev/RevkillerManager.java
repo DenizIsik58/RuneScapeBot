@@ -55,8 +55,10 @@ public class RevkillerManager {
                 MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));
             }
 
-            if (!Equipment.contains("Ring of wealth (")){
+            if (!Query.equipment().nameContains("Ring of wealth (").isAny()){
+                Log.debug("Cannot find wealth in equipment. Checking inventory");
                 Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
+                    Log.debug("found it! Wearing it now!");
                     ring.click("Wear");
                     Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
                 });
@@ -118,7 +120,6 @@ public class RevkillerManager {
                 Query.inventory().nameEquals("Shark").findClosestToMouse().map(InventoryItem::click);
                 if (target != null){
                     target.click();
-                    hoverWealth();
                 }
                 Waiting.wait(1500);
             }
@@ -135,7 +136,6 @@ public class RevkillerManager {
                     if (monster.isInteractingWithMe() && !monster.isHealthBarVisible()){
                         monster.adjustCameraTo();
                         monster.click();
-                        hoverWealth();
                     }
                 }
 
@@ -143,12 +143,10 @@ public class RevkillerManager {
                     GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
                     target.adjustCameraTo();
                     target.click();
-                    hoverWealth();
                 }
 
                 if (!target.isHealthBarVisible()){
                     target.click();
-                    hoverWealth();
                     Waiting.waitUntil(500, () -> target.isHealthBarVisible());
                 }
 
@@ -159,7 +157,6 @@ public class RevkillerManager {
                             target.adjustCameraTo();
                         }
                         target.click();
-                        hoverWealth();
                     }
                 }
 
@@ -190,13 +187,6 @@ public class RevkillerManager {
         }
     }
 
-    public static void hoverWealth(){
-        Query.equipment().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> {
-            if (!ring.hover("Grand exchange")){
-                ring.hover("Grand exchange");
-            }
-        });
-    }
 
     public static boolean hasLevelGained(){
         return startRangeLevel != Skill.RANGED.getCurrentLevel();
