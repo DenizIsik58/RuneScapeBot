@@ -23,7 +23,7 @@ public class MyScriptVariables {
     private final AtomicReference<String> deathString = new AtomicReference<>("0");
     private final AtomicReference<String> timesMuledString = new AtomicReference<String>("0");
     private final AtomicReference<String> killCountString = new AtomicReference<String>("0");
-    private final AtomicReference<String> rangedLevelString = new AtomicReference<String>(String.valueOf(Skill.RANGED.getCurrentLevel()));
+    private final AtomicReference<String> rangedLevelString = new AtomicReference<String>(String.valueOf(Skill.RANGED.getActualLevel()) + " (0 gained)");
 
     private final LocalDateTime startTime;
 

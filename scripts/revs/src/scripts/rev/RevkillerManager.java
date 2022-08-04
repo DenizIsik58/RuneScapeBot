@@ -49,7 +49,7 @@ public class RevkillerManager {
             PrayerManager.enableQuickPrayer();
             MyCamera.setCameraAngle();
             if (hasLevelGained()){
-                MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getCurrentLevel()));
+                MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));
             }
 
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
