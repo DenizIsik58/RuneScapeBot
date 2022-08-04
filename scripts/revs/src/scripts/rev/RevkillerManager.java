@@ -34,6 +34,12 @@ public class RevkillerManager {
             }
         }
 
+        Query.equipment().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> {
+            if (!ring.hover("Grand exchange")){
+                ring.hover("Grand exchange");
+            }
+        });
+
         if (Combat.isAutoRetaliateOn()){
             Combat.setAutoRetaliate(false);
         }
@@ -65,7 +71,7 @@ public class RevkillerManager {
                 if (target != null){
                     if (target.isValid()){
                         target.interact("Attack");
-                        Waiting.waitUntil(() -> !target.isValid());
+                        Waiting.waitUntil(15000, () -> !target.isValid());
                         Waiting.waitNormal(5000, 500);
                         if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
                             MyRevsClient.getScript().setState(State.LOOTING);
@@ -128,7 +134,6 @@ public class RevkillerManager {
                     }
                 }
 
-
                 if (!target.isVisible()){
                     GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
                     target.adjustCameraTo();
@@ -151,6 +156,7 @@ public class RevkillerManager {
                 }
 
                 if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).isAny()) || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
+                    Log.debug("[WILDERNESS_LISTENER] target mob died. Finding a new one!");
                     incrementKillCounts();
                     MyScriptVariables.setKillCountString(String.valueOf(getKillCount()));
                     target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));

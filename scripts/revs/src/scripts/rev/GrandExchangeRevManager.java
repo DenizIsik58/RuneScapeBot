@@ -102,6 +102,7 @@ public class GrandExchangeRevManager {
                     if (item.getName().equals("Coins") || item.getName().contains("Ring of wealth (")){
                         continue;
                     }
+
                     GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-2).type(GrandExchangeOffer.Type.SELL).build());
                     counter++;
                     Waiting.wait(500);

@@ -2,6 +2,7 @@ package scripts.rev;
 
 
 import org.tribot.script.sdk.Inventory;
+import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
@@ -31,6 +32,7 @@ public class LootingManager {
     private static int totalValue = 0;
 
     public static void loot(){
+        Log.debug("Started looting process");
 
         while(hasLootBeenDetected()){
             for (var loot : lootToPickUp){
@@ -44,7 +46,7 @@ public class LootingManager {
                         item.adjustCameraTo();
                     }
 
-                    //Log.info(item);
+                    Log.debug("Picking up item: " + item.getName());
                     var countBeforePickingUp = Query.groundItems().nameEquals(item.getName()).count();
                     item.hover();
                     item.click("Take");
@@ -67,6 +69,7 @@ public class LootingManager {
         }
         }
         // starts back here with brea
+        Log.debug("I'm done looting");
             GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             if(RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()){
 
@@ -79,7 +82,8 @@ public class LootingManager {
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
 
-        MyRevsClient.getScript().setState(State.KILLING);
+            MyRevsClient.getScript().setState(State.KILLING);
+            Log.debug("Ended looting process. Switching back to killing");
     }
 
     public static boolean hasDecreased(String itemName, int count){

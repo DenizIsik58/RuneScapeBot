@@ -319,7 +319,7 @@ public class BankManagerRevenant {
 
     private static boolean withdrawEther(int amount) {
         // Go buy if we dont have enoug ether
-        int inventoryAmount = Inventory.getCount("Revenant ether");
+        int inventoryAmount = Inventory.getCount(21820);
         int shortage = amount - inventoryAmount;
 
         if (shortage == 0) return true;
@@ -434,7 +434,7 @@ public class BankManagerRevenant {
         var inBank = Waiting.waitUntil(MyBanker::openBank);
         if (!inBank){
             Log.debug("Couldn't enter the bank. Trying again..");
-            withdrawGear();
+            MyBanker.openBank();
         }
         Log.debug("Entered bank");
         Waiting.waitNormal(2000, 300);
@@ -442,7 +442,7 @@ public class BankManagerRevenant {
         equipAndChargeItems();
 
         if (!isEquipmentBankTaskSatisfied()) {
-            Log.debug("Equipment task not satisfied");
+            Log.debug("Equipment task not satisfied. Checking if we need to buy gear..");
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
         }/* else {
@@ -453,7 +453,7 @@ public class BankManagerRevenant {
 
         if (!getEquipmentBankTask().isSatisfied()) {
             Log.debug("Equipment not satisfied. Trying again");
-            withdrawGear();
+            getEquipmentBankTask().execute();
         } else {
             withdrawGearAttempts.set(0);
         }
@@ -535,6 +535,8 @@ public class BankManagerRevenant {
             Bank.depositInventory();
             Waiting.waitUntil(Inventory::isEmpty);
 
+        }else {
+            Log.debug("No items to buy");
         }
 
     }
