@@ -147,6 +147,7 @@ public class RevScript extends MyScriptExtension {
             if (playerDetectionThread != null){
                 playerDetectionThread.setHasPkerBeenDetected(false);
             }
+            TeleportManager.setHasVisitedBeforeTrip(false);
             setState(State.DEATH);
         }
         if (MyRevsClient.myPlayerIsInFerox()) {

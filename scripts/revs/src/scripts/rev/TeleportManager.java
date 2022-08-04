@@ -124,6 +124,8 @@ public class TeleportManager {
             Log.debug("[WILDERNESS_LISTENER] Teleported out to safety. We are in GE");
             PrayerManager.disableQuickPrayer();
         }else {
+            Log.debug("Couldn't teleport out of wilderness. Trying again...");
+            teleportOutOfWilderness(message);
             MyExchange.walkToGrandExchange();
         }
 
