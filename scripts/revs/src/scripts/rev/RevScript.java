@@ -99,6 +99,9 @@ public class RevScript extends MyScriptExtension {
         }
 
         if (RevkillerManager.isIsPkerDetected()){
+            if (!Combat.isInWilderness()){
+                RevkillerManager.setIsPkerDetected(false);
+            }
             Log.debug("Pker has been detected!");
             setState(State.BANKING);
             return;
