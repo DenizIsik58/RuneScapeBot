@@ -76,7 +76,7 @@ public class LootingManager {
             if (!changed) {
                 // FEELS LIKE THIS ONE PUTS IT BACK. ALWAYS FALSE?
                 Log.debug("Not changed");
-                itemIndex -= 1;
+                loot();
             } else {
                 tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                 totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
@@ -144,7 +144,7 @@ public class LootingManager {
     public static boolean hasDecreased(int count) {
         Log.debug("Size of all loot: " + getAllLoot().size());
         Log.debug("Size of count: " + count);
-        return getAllLoot().size() == count - 1;
+        return getAllLoot().size() == count - 1 || getAllLoot().size() == 0;
     }
 
     public static boolean hasLootBeenDetected() {
