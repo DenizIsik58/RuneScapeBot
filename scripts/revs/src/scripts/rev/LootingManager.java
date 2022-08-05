@@ -29,7 +29,6 @@ public class LootingManager {
     private static int tripValue = 0;
     private static int totalValue = 0;
 
-
     public static void loot() {
         Log.debug("Started looting process");
 
@@ -51,16 +50,20 @@ public class LootingManager {
 
             //STOPS HERE
             Log.debug("Picking up item: " + item.getName());
-            var countBeforePickingUp = possibleLoot.size() - (itemIndex + 1);
+            var countBeforePickingUp = getAllLoot().size();
+            Log.debug("Count before picking up: " + countBeforePickingUp);
+
 
             // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
-
-
             item.interact("Take", LootingManager::hasPkerBeenDetected);
 
             if (itemIndex == 0) {
+                // HOVERS HERE AND DOESN'T FINISH THE LOOP
                 Log.debug("First item to pick up. Hovering over teleport in case pker is waiting.");
-                Equipment.Slot.RING.getItem().ifPresent(ring -> ring.hoverMenu("Grand Exchange"));
+                Equipment.Slot.RING.getItem().ifPresent(ring -> {
+                    ring.hoverMenu("Grand Exchange");
+
+                });
             }
 
             if (hasPkerBeenDetected()) {
@@ -69,9 +72,12 @@ public class LootingManager {
             }
 
             var changed = Waiting.waitUntil(4000, () -> hasDecreased(countBeforePickingUp));
+
             if (!changed) {
+                // FEELS LIKE THIS ONE PUTS IT BACK. ALWAYS FALSE?
+                Log.debug("Not changed");
                 itemIndex -= 1;
-            }else {
+            } else {
                 tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                 totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
                 var totalString = MathUtility.getProfitPerHourString(totalValue);
@@ -133,6 +139,8 @@ public class LootingManager {
     }
 
     public static boolean hasDecreased(int count) {
+        Log.debug("Size of all loot: " + getAllLoot().size());
+        Log.debug("Size of count: " + count);
         return getAllLoot().size() == count - 1;
     }
 
