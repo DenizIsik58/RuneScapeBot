@@ -69,7 +69,9 @@ public class GrandExchangeRevManager {
         MyBanker.closeBank();
         MyExchange.openExchange();
         while (true) {
-
+            if (Inventory.getAll().size() == 0){
+                Log.debug("Nothing to sell");
+            }
             Log.debug("I'm in upper loop");
             int counter = 0;
 

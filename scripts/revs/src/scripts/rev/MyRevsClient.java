@@ -50,7 +50,7 @@ public class MyRevsClient {
 
     public static boolean myPlayerNeedsToRefresh(){
         // Should probably do 100
-        return MyPlayer.getCurrentHealthPercent() < 100 || Prayer.getPrayerPoints() < 43 || MyPlayer.getRunEnergy() < 100 || MyPlayer.isPoisoned();
+        return MyPlayer.getCurrentHealthPercent() < 100 || Prayer.getPrayerPoints() < 43 || MyPlayer.getRunEnergy() <= 80 || MyPlayer.isPoisoned();
     }
 
     private static boolean isInLocation(boolean resetTeleBlockIfTrue, Area area) {

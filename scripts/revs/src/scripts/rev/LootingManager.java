@@ -1,105 +1,150 @@
 package scripts.rev;
 
 
-import org.tribot.script.sdk.Combat;
-import org.tribot.script.sdk.Inventory;
-import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.Waiting;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.types.GroundItem;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class LootingManager {
 
-    private static final List<String> lootToPickUp =
-            new ArrayList<>(Arrays.asList("Bracelet of ethereum (uncharged)", "Battlestaff", "Rune full helm",
-                    "Rune platebody", "Rune platelegs", "Rune kiteshield", "Rune warhammer", "Dragon dagger",
-                    "Dragon longsword", "Dragon platelegs", "Dragon plateskirt",
-                    "Dragon med helm", "Coal", "Adamantite bar", "Runite ore", "Black dragonhide",
-                    "Yew logs", "Runite bar", "Mahogany plank", "Magic logs", "Uncut dragonstone", "Yew seed",
-                    "Magic seed", "Amulet of avarice", "Craw's bow (u)", "Thammaron's sceptre (u)",
-                    "Viggora's chainmace (u)", "Ancient emblem", "Ancient totem", "Ancient crystal",
-                    "Ancient statuette", "Ancient medallion", "Ancient effigy", "Ancient relic",
-                    "Looting bag", "Dragonstone bolt tips", "Death rune", "Blood rune",
-                    "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth"));
+    private static final String[] lootToPickUp = new String[]{
+            "Looting bag", "Bracelet of ethereum (uncharged)", "Battlestaff", "Rune full helm",
+            "Rune platebody", "Rune platelegs", "Rune kiteshield", "Rune warhammer", "Dragon dagger",
+            "Dragon longsword", "Dragon platelegs", "Dragon plateskirt", "Dragon med helm", "Coal",
+            "Adamantite bar", "Runite ore", "Black dragonhide", "Yew logs", "Runite bar", "Mahogany plank",
+            "Magic logs", "Uncut dragonstone", "Yew seed", "Magic seed", "Amulet of avarice", "Craw's bow (u)",
+            "Thammaron's sceptre (u)", "Viggora's chainmace (u)", "Ancient emblem", "Ancient totem", "Ancient crystal",
+            "Ancient statuette", "Ancient medallion", "Ancient effigy", "Ancient relic", "Dragonstone bolt tips",
+            "Death rune", "Blood rune", "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth"
+    };
     private static int tripValue = 0;
     private static int totalValue = 0;
 
-    public static void loot(){
+
+    public static void loot() {
         Log.debug("Started looting process");
 
-        while(hasLootBeenDetected()){
-            for (var loot : lootToPickUp){
-                Query.groundItems().nameEquals(loot).findFirst().ifPresent(item -> {
+        Optional<GroundItem> lootOptional;
 
-                    if (Inventory.isFull() && Inventory.contains("Shark")){
-                        Query.inventory().nameEquals("Shark").findClosestToMouse().map(InventoryItem::click);
-                    }
+        List<GroundItem> possibleLoot = getAllLoot();
 
-                    if (!item.isVisible()){
-                        item.adjustCameraTo();
-                    }
+        for (int itemIndex = 0; itemIndex < possibleLoot.size(); itemIndex++) {
+            if (hasPkerBeenDetected()) return;
 
-                    //STOPS HERE
-                    Log.debug("Picking up item: " + item.getName());
-                    var countBeforePickingUp = Query.groundItems().nameEquals(item.getName()).count();
+            var item = possibleLoot.get(itemIndex);
+            // Open the looting bag once you pick it up
 
-                    item.click("Take");
+            openLootingBag();
 
-                    var changed = Waiting.waitUntil(4000, () -> hasDecreased(item.getName(), countBeforePickingUp));
-                    if (!changed) return;
+            if (!item.isVisible()) {
+                item.adjustCameraTo();
+            }
 
-                    tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
-                    totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
-                    var totalString = MathUtility.getProfitPerHourString(totalValue);
-                    MyScriptVariables.setProfit(totalString);
-                    if (tripValue > 450000){
-                        TeleportManager.teleportOutOfWilderness("Teleporting out. I have: " + tripValue + " gold!");
+            //STOPS HERE
+            Log.debug("Picking up item: " + item.getName());
+            var countBeforePickingUp = possibleLoot.size() - (itemIndex + 1);
 
-                        // teleport out
-                    }
-                });
-        }
-        }
-        // starts back here with brea
-            Log.debug("I'm done looting");
-            GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
-            if(RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()){
+            // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
 
-               if (!RevkillerManager.getTarget().isVisible()){
-                   RevkillerManager.getTarget().adjustCameraTo();
-               }
-                RevkillerManager.getTarget().click();
 
+            item.interact("Take", LootingManager::hasPkerBeenDetected);
+
+            if (itemIndex == 0) {
+                Log.debug("First item to pick up. Hovering over teleport in case pker is waiting.");
+                Equipment.Slot.RING.getItem().ifPresent(ring -> ring.hoverMenu("Grand Exchange"));
+            }
+
+            if (hasPkerBeenDetected()) {
+                Log.debug("Pker has been detected. Cancelled further looting");
+                return;
+            }
+
+            var changed = Waiting.waitUntil(4000, () -> hasDecreased(countBeforePickingUp));
+            if (!changed) {
+                itemIndex -= 1;
             }else {
-                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
-            }
+                tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
+                totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
+                var totalString = MathUtility.getProfitPerHourString(totalValue);
+                MyScriptVariables.setProfit(totalString);
+                if (tripValue > 450000) {
+                    TeleportManager.teleportOutOfWilderness("Teleporting out. I have: " + tripValue + " gold!");
 
-            if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()){
-                MyRevsClient.getScript().setState(State.KILLING);
+                    // teleport out
+                }
             }
+        }
 
-            Log.debug("Ended looting process. Switching back to killing");
+
+        // starts back here with brea
+        Log.debug("I'm done looting");
+        GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+        if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
+
+            if (!RevkillerManager.getTarget().isVisible()) {
+                RevkillerManager.getTarget().adjustCameraTo();
+            }
+            RevkillerManager.getTarget().click();
+
+        } else {
+            GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+        }
+
+        if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
+            MyRevsClient.getScript().setState(State.KILLING);
+        }
+
+        Log.debug("Ended looting process. Switching back to killing");
     }
 
-    public static boolean hasDecreased(String itemName, int count){
-        return Query.groundItems().nameEquals(itemName).count() == count -1;
+    private static void openLootingBag() {
+        getLootingBag().ifPresent(lootingBag -> {
+            if (lootingBag.getId() == 11941) {
+                lootingBag.click("Open");
+            }
+        });
+        if (Inventory.isFull() && Inventory.contains("Shark")) {
+            Query.inventory().nameEquals("Shark").findClosestToMouse().ifPresent(shark -> shark.click("Eat"));
+        }
+    }
+
+    private static Optional<InventoryItem> getLootingBag() {
+        return Query.inventory().nameEquals("Looting bag").findFirst();
+    }
+
+    private static List<GroundItem> getAllLoot() {
+        return Query.groundItems()
+                .nameEquals(lootToPickUp)
+                .sorted(Comparator.comparingInt(item -> Pricing.lookupPrice(item.getId()).orElse(0)))
+                .toList();
+    }
+
+    private static boolean hasPkerBeenDetected() {
+        return MyRevsClient.getScript().getPlayerDetectionThread().hasPkerBeenDetected();
+    }
+
+    public static boolean hasDecreased(int count) {
+        return getAllLoot().size() == count - 1;
     }
 
     public static boolean hasLootBeenDetected() {
-        for (var item : lootToPickUp) {
-            if (Query.groundItems().nameEquals(item).isAny()) {
-                return true;
-            }
-        }
-        return false;
+        if (hasPkerBeenDetected()) return false;
+        return !getAllLoot().isEmpty();
+//         for (var item : lootToPickUp) {
+//             if (Query.groundItems().nameEquals(item).isAny()) {
+//                 return true;
+//             }
+//         }
+//         return false;
     }
 
     public static int getTotalValue() {
@@ -110,7 +155,7 @@ public class LootingManager {
         LootingManager.totalValue = totalValue;
     }
 
-    public static List<String> getLootToPickUp() {
+    public static String[] getLootToPickUp() {
         return lootToPickUp;
     }
 

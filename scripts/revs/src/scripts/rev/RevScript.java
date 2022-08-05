@@ -2,6 +2,7 @@ package scripts.rev;
 
 import dax.api_lib.DaxWalker;
 import dax.walker_engine.WalkingCondition;
+import lombok.Getter;
 import org.tribot.script.sdk.Combat;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.MessageListening;
@@ -24,7 +25,9 @@ import static dax.shared.helpers.BankHelper.openBank;
 @TribotScriptManifest(name = "Revs", author = "Deniz", category = "Moneymaking")
 public class RevScript extends MyScriptExtension {
 
+    @Getter
     private DetectPlayerThread playerDetectionThread = null;
+
     private MulingClient muleClient;
     public AtomicReference<State> state = new AtomicReference<>(State.STARTING);
     private WorldTile selectedMonsterTile = new WorldTile(3160, 10115,0 ); // West demons by default
