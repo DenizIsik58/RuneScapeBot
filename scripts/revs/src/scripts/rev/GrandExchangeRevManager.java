@@ -79,6 +79,7 @@ public class GrandExchangeRevManager {
         for (var item : getAllSellItems()) {
             // Will wait until the offer shows up in the GE.
             MyExchange.createGrandExchangeOffer(item);
+            Waiting.waitNormal(3000, 300);
             // Check if GE is full
             if (MyExchange.isGrandExchangeSlotsFull()) {
                 // GE IS FULL. COLLECT ITEMS
