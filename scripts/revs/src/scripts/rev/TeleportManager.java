@@ -91,6 +91,13 @@ public class TeleportManager {
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");
                     GlobalWalking.walkTo(chosenMobArea, () -> {
+                        if (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
+                            if (MyRevsClient.getScript().getPlayerDetectionThread().hasPkerBeenDetected()){
+                                MyRevsClient.getScript().setState(State.BANKING);
+                                return WalkState.FAILURE;
+                            }
+                        }
+
                         MyOptions.setRunOn();
                         return WalkState.CONTINUE;
                     });

@@ -89,7 +89,7 @@ public class GrandExchangeRevManager {
             }
         }
         Waiting.waitNormal(2000, 250);
-
+        // Collect at the end
         if (MyExchange.hasOfferToCollect()){
             GrandExchange.collectAll();
         }
