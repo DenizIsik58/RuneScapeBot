@@ -135,7 +135,10 @@ public class LootingManager {
     }
 
     private static boolean hasPkerBeenDetected() {
-        return MyRevsClient.getScript().getPlayerDetectionThread().hasPkerBeenDetected();
+        if (MyRevsClient.getScript().getPlayerDetectionThread() != null){
+            return MyRevsClient.getScript().getPlayerDetectionThread().hasPkerBeenDetected();
+        }
+       return false;
     }
 
     public static boolean hasDecreased(int count) {
