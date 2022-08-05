@@ -3,6 +3,7 @@ package scripts.rev;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GrandExchangeOffer;
+import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
@@ -12,13 +13,18 @@ import scripts.api.MyScriptVariables;
 import java.util.List;
 
 import static scripts.api.MyBanker.openBank;
+import static scripts.api.utility.Utility.distinctBy;
 
 public class GrandExchangeRevManager {
 
     private static boolean shouldRepeat = false;
 
+    public static List<InventoryItem> getAllSellItems() {
+        return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item -> item.getId() != 995 && item.getId() != 22547).distinctById().toList();
+    }
 
-    public static void sellLoot(){
+
+    public static void sellLoot() {
         Log.debug("Trying to sell loot");
 
         MyExchange.walkToGrandExchange();
@@ -28,12 +34,12 @@ public class GrandExchangeRevManager {
         }
         Bank.depositInventory();
         var isEmpty = Waiting.waitUntil(Inventory::isEmpty);
-        if (!isEmpty){
+        if (!isEmpty) {
             Log.debug("Couldn't empty. Trying again..");
-            sellLoot();
+            Waiting.waitUntil(Inventory::isEmpty);
         }
         var itemsToSell = 0;
-        for (var item : LootingManager.getLootToPickUp()){
+        for (var item : LootingManager.getLootToPickUp()) {
             if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
                 continue;
             }
@@ -44,7 +50,7 @@ public class GrandExchangeRevManager {
             }
 
             if (item.equals("Bracelet of ethereum (uncharged)")) {
-                if (!Bank.contains(item)){
+                if (!Bank.contains(item)) {
                     break;
                 }
                 if (Bank.getCount(item) <= 10 && Bank.contains(item)) {
@@ -57,68 +63,37 @@ public class GrandExchangeRevManager {
                 continue;
             }
 
-            if (Query.bank().nameEquals(item).isAny()){
+            if (Query.bank().nameEquals(item).isAny()) {
                 itemsToSell++;
                 MyBanker.withdraw(item, 10000000, true);
             }
         }
-        if (itemsToSell == 0){
+        if (itemsToSell == 0) {
             Log.debug("No items to sell");
             return;
         }
         MyBanker.closeBank();
         MyExchange.openExchange();
-        while (true) {
-            if (Inventory.getAll().size() == 0){
-                Log.debug("Nothing to sell");
+
+        for (var item : getAllSellItems()) {
+            // Will wait until the offer shows up in the GE.
+            MyExchange.createGrandExchangeOffer(item);
+            // Check if GE is full
+            if (MyExchange.isGrandExchangeSlotsFull()) {
+                // GE IS FULL. COLLECT ITEMS
+                GrandExchange.collectAll();
+                // Wait till it has collected and slots are empty
+                Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
             }
-            Log.debug("I'm in upper loop");
-            int counter = 0;
-
-            if (!MyExchange.isExchangeOpen()){
-                MyExchange.openExchange();
-            }
-
-            if (Inventory.getAll().size() == 1 && Inventory.contains("Coins")) {
-                Log.debug("Done selling loot");
-                break;
-            }
-
-            while (counter != 8) {
-                Log.debug("I'm in inner loop");
-                if (!MyExchange.isExchangeOpen() || Inventory.getAll().size() == 0){
-                    Log.debug("0 items left");
-                    break;
-                }
-
-
-                if (Inventory.getAll().size() == 1 && Query.inventory().nameEquals("Coins").isAny()) {
-                    break;
-                }
-                for (var item : Inventory.getAll()) {
-
-                    if (counter == 8 || item.getName().equals("Craw's bow (u)")) {
-                        break;
-                    }
-                    if (item.getName().equals("Coins") || item.getName().contains("Ring of wealth (")){
-                        continue;
-                    }
-
-                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-2).type(GrandExchangeOffer.Type.SELL).build());
-                    counter++;
-                    Waiting.wait(2000);
-                }
-
-                Waiting.wait(3000);
-            }
-
-            Waiting.wait(2000);
-            GrandExchange.collectAll();
-            MyExchange.closeExchange();
-            openBank();
-            MyBanker.depositAll();
         }
-        if (shouldRepeat){
+        Waiting.waitNormal(2000, 250);
+
+        if (MyExchange.hasOfferToCollect()){
+            GrandExchange.collectAll();
+        }
+
+
+        if (shouldRepeat) {
             sellLoot();
         }
         shouldRepeat = false;
@@ -127,7 +102,7 @@ public class GrandExchangeRevManager {
     }
 
 
-    public static void mule(){
+    public static void mule() {
         if (MuleManager.hasEnoughToMule()) {
             MuleManager.takeOutGp();
             try {
@@ -189,7 +164,6 @@ public class GrandExchangeRevManager {
                         });
                         return false;
                     });
-
 
 
                     // Second trade

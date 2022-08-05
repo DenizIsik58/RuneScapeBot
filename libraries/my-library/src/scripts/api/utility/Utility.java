@@ -1,9 +1,9 @@
 package scripts.api.utility;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Utility {
@@ -18,6 +18,11 @@ public class Utility {
 
     public static int[] integerListToIntArray(List<Integer> list) {
         return list.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    public static <T> Predicate<T> distinctBy(Function<? super T, ?> keyExtractor) {
+        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
 }

@@ -3,6 +3,8 @@ package scripts.api;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
+import org.tribot.script.sdk.types.GrandExchangeOffer;
+import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 
@@ -41,6 +43,19 @@ public class MyExchange {
         }
         GrandExchange.open();
         return Waiting.waitUntil(3000, MyExchange::isExchangeOpen);
+    }
+
+    public static boolean hasOfferToCollect(){
+        return Query.grandExchangeOffers().statusEquals(GrandExchangeOffer.Status.COMPLETED).isAny();
+    }
+
+    public static boolean isGrandExchangeSlotsFull(){
+        return !Query.grandExchangeOffers().statusEquals(GrandExchangeOffer.Status.EMPTY).isAny();
+    }
+
+    public static boolean createGrandExchangeOffer(InventoryItem item){
+        GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-3).type(GrandExchangeOffer.Type.SELL).build());
+        return Waiting.waitUntil(() -> Query.grandExchangeOffers().itemNameEquals(item.getName()).isAny());
     }
 
 
