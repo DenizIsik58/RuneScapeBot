@@ -38,6 +38,7 @@ public class GrandExchangeRevManager {
             Log.debug("Couldn't empty. Trying again..");
             Waiting.waitUntil(Inventory::isEmpty);
         }
+        MyBanker.withdraw("Coins", 2147000000, false);
         var itemsToSell = 0;
         for (var item : LootingManager.getLootToPickUp()) {
             if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
