@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static dax.shared.helpers.BankHelper.openBank;
-import static scripts.rev.LootingManager.setStateBankIfNotInWilderness;
+
 
 @TribotScriptManifest(name = "Revs", author = "Deniz", category = "Moneymaking")
 public class RevScript extends MyScriptExtension {
@@ -90,16 +90,6 @@ public class RevScript extends MyScriptExtension {
     @Override
     protected void onMainLoop() {
         MyScriptVariables.updateStatus(state.toString());
-
-        if (RevkillerManager.isIsPkerDetected()){
-            if (!Combat.isInWilderness()){
-                RevkillerManager.setIsPkerDetected(false);
-            }
-            Log.debug("Pker has been detected!");
-            setState(State.BANKING);
-            return;
-        }
-
         updateState();
 
         handlePkThread();
@@ -247,16 +237,12 @@ public class RevScript extends MyScriptExtension {
             MyCamera.init();
             PrayerManager.init();
             RevkillerManager.setiWasFirst(false);
-            BoostingManager.resetBoost();
             Log.debug("Switching to killing state");
             setState(State.KILLING);
         }
     }
 
     private void handleKilling() {
-        if (setStateBankIfNotInWilderness()){
-            return;
-        }
         RevkillerManager.killMonster();
     }
 
@@ -274,9 +260,6 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handleLooting() {
-        if (setStateBankIfNotInWilderness()){
-            return;
-        }
         LootingManager.loot();
 
     }

@@ -1,6 +1,7 @@
 package scripts.rev;
 
 import org.tribot.script.sdk.GameTab;
+import org.tribot.script.sdk.Skill;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
@@ -11,15 +12,14 @@ public class BoostingManager {
 
 
     public static boolean isBoosted(){
-        return isBoosted;
+        return Skill.RANGED.getCurrentLevel() != Skill.RANGED.getActualLevel();
     }
 
     public static void resetBoost() {
-        BoostingManager.isBoosted = false;
+
     }
 
     public static void boost() {
-        BoostingManager.isBoosted = true;
         Query.inventory().nameContains("Divine ranging potion").findClosestToMouse().map(InventoryItem::click);
         GameTab.EQUIPMENT.open();
         Waiting.wait(2000);

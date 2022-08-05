@@ -94,7 +94,8 @@ public class MyRevsClient {
             return;
         }
         if (message.equals("<col=ef1020>The effects of the divine potion have worn off.")){
-            BoostingManager.resetBoost();
+            Log.debug("Divine pot expired");
+            //BoostingManager.resetBoost();
             return;
         }
         if (message.equals("You don't have enough inventory space.")){

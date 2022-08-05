@@ -35,16 +35,10 @@ public class LootingManager {
     public static void loot(){
         Log.debug("Started looting process");
 
-        if (setStateBankIfNotInWilderness()){
-            return;
-        }
-
         while(hasLootBeenDetected()){
             for (var loot : lootToPickUp){
                 Query.groundItems().nameEquals(loot).findFirst().ifPresent(item -> {
-                    if (setStateBankIfNotInWilderness()){
-                        return;
-                    }
+
                     if (Inventory.isFull() && Inventory.contains("Shark")){
                         Query.inventory().nameEquals("Shark").findClosestToMouse().map(InventoryItem::click);
                     }
@@ -88,9 +82,6 @@ public class LootingManager {
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
 
-            if (setStateBankIfNotInWilderness()){
-                return;
-            }
             if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()){
                 MyRevsClient.getScript().setState(State.KILLING);
             }
@@ -100,14 +91,6 @@ public class LootingManager {
 
     public static boolean hasDecreased(String itemName, int count){
         return Query.groundItems().nameEquals(itemName).count() == count -1;
-    }
-
-    public static boolean setStateBankIfNotInWilderness(){
-        if (!Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()){
-            MyRevsClient.getScript().setState(State.BANKING);
-            return true;
-        }
-        return false;
     }
 
     public static boolean hasLootBeenDetected() {

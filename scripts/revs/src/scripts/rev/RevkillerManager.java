@@ -9,16 +9,15 @@ import scripts.api.MyCamera;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
-import static scripts.rev.LootingManager.setStateBankIfNotInWilderness;
+
 
 public class RevkillerManager {
-    private static int demonId = 7936;
-    private static int orkId = 7937;
+    private static final int demonId = 7936;
+    private static final int orkId = 7937;
     private static boolean iWasFirst = false;
     private static Npc target = null;
     private static int killCount = 0;
     private static int startRangeLevel = Skill.RANGED.getCurrentLevel();
-    private static boolean isPkerDetected = false;
 
     public static void killMonster(){
 
@@ -43,10 +42,6 @@ public class RevkillerManager {
         }
         if (Query.players().count() == 0) {
             iWasFirst = true;
-        }
-
-        if (setStateBankIfNotInWilderness()){
-            return;
         }
 
         if (iWasFirst) {
@@ -189,13 +184,6 @@ public class RevkillerManager {
         }
     }
 
-    public static void setIsPkerDetected(boolean isPkerDetected) {
-        RevkillerManager.isPkerDetected = isPkerDetected;
-    }
-
-    public static boolean isIsPkerDetected() {
-        return isPkerDetected;
-    }
 
     public static boolean hasLevelGained(){
         return startRangeLevel != Skill.RANGED.getCurrentLevel();
