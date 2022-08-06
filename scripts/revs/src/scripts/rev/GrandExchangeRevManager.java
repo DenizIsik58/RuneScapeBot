@@ -85,6 +85,13 @@ public class GrandExchangeRevManager {
             while (!successfullyPosted && attempts < 5) {
                 attempts++;
                 successfullyPosted = MyExchange.createGrandExchangeOffer(item);
+                // Check if GE is full
+                if (MyExchange.isGrandExchangeSlotsFull()) {
+                    // GE IS FULL. COLLECT ITEMS
+                    GrandExchange.collectAll();
+                    // Wait till it has collected and slots are empty
+                    Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
+                }
             }
 
             if (!successfullyPosted) {
