@@ -12,6 +12,7 @@ import scripts.api.MyScriptVariables;
 
 import java.util.List;
 
+import static scripts.api.MyBanker.closeBank;
 import static scripts.api.MyBanker.openBank;
 import static scripts.api.utility.Utility.distinctBy;
 
@@ -26,7 +27,7 @@ public class GrandExchangeRevManager {
 
     public static void sellLoot() {
         Log.debug("Trying to sell loot");
-
+        closeBank();
         MyExchange.walkToGrandExchange();
         openBank();
         if (!BankSettings.isNoteEnabled()) {
