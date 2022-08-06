@@ -442,7 +442,7 @@ public class BankManagerRevenant {
         if (MyRevsClient.myPlayerIsInFerox()){
             GlobalWalking.walkTo(new WorldTile(3133, 3628, 0)); // bank spot at ferox
         }
-        var inBank = Waiting.waitUntil(MyBanker::openBank);
+        var inBank = MyBanker.openBank();
         if (!inBank){
             Log.debug("Couldn't enter the bank. Trying again..");
             MyBanker.openBank();
