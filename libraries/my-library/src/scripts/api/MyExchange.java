@@ -55,7 +55,7 @@ public class MyExchange {
 
     public static boolean createGrandExchangeOffer(InventoryItem item){
         GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-3).type(GrandExchangeOffer.Type.SELL).build());
-        return Waiting.waitUntil(() -> Query.grandExchangeOffers().itemNameEquals(item.getName()).isAny());
+        return Waiting.waitUntil(2000, () -> Query.grandExchangeOffers().itemNameEquals(item.getName()).isAny());
     }
 
 
