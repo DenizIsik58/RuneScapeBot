@@ -47,7 +47,7 @@ public class MulerScript extends MyScriptExtension {
     protected void setupScript(ScriptSetup setup) {
         //setup.disableWaitForLogin();
         //setup.disableBreakHandler();
-        scriptSetup = setup;
+        //scriptSetup = setup;
     }
 
     @Override
@@ -77,13 +77,13 @@ public class MulerScript extends MyScriptExtension {
 
     @Override
     protected void onEnding() {
-        ScriptListening.addPreEndingListener(() -> {
+
             try {
                 muler.stop();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+
     }
 
 
