@@ -132,6 +132,7 @@ public class BankManagerRevenant {
             Waiting.waitUntil(() -> Inventory.contains("Looting bag"));
             Waiting.waitNormal(1000,100);
         }
+        openBank();
         var lb = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
         if (lb != null) {
             if (lb.click("View")) {
