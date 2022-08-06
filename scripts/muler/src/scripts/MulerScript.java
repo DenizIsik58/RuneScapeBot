@@ -42,34 +42,6 @@ public class MulerScript extends MyScriptExtension {
         state = MulerState.IDLING;
     }
 
-    @Override
-    public void configure(@NotNull ScriptConfig config) {
-        // we create our own
-
-        var leftPaint = BasicPaintTemplate.builder()
-                .location(PaintLocation.BOTTOM_LEFT_VIEWPORT)
-                .row(PaintRows.scriptName(getTextRowTemplate()))
-                .row(PaintRows.runtime(getTextRowTemplate()))
-                .row(getTextRowTemplate().label("qwd").value(MyScriptVariables::getProfit).build())
-                .row(getTextRowTemplate().label("qdqwd").value(MyScriptVariables::getRangedLevelString).build())
-                .row(getTextRowTemplate().label("qwd Count").value(MyScriptVariables::getKillCountString).build())
-                .row(getTextRowTemplate().label("qwd").value(MyScriptVariables::getDeathString).build())
-                .row(getTextRowTemplate().label("qwd days left").value(String.valueOf(MyPlayer.getMembershipDaysRemaining())).build())
-                .row(getTextRowTemplate().label("Times muled").value(MyScriptVariables::getTimesMuled).build())
-                .row(getTextRowTemplate().label("Status").value(MyScriptVariables::getStatus).build())
-                .build();
-
-        var rightBuilder = BasicPaintTemplate.builder()
-                .location(PaintLocation.BOTTOM_RIGHT_VIEWPORT);
-        setupPaint(rightBuilder);
-
-        var rightPaint = rightBuilder.build();
-
-        Painting.addPaint(leftPaint::render);
-        Painting.addPaint(rightPaint::render);
-
-    }
-
 
     @Override
     protected void setupScript(ScriptSetup setup) {
