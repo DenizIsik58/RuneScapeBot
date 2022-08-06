@@ -126,7 +126,7 @@ public class LootingManager {
                 .toList();
     }
 
-    private static boolean hasPkerBeenDetected() {
+    public static boolean hasPkerBeenDetected() {
         if (MyRevsClient.getScript().getPlayerDetectionThread() != null){
             return MyRevsClient.getScript().getPlayerDetectionThread().hasPkerBeenDetected();
         }
