@@ -1,5 +1,7 @@
 package scripts.rev;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
@@ -19,6 +21,9 @@ public class RevkillerManager {
     private static Npc target = null;
     private static int killCount = 0;
     private static int startRangeLevel = Skill.RANGED.getCurrentLevel();
+
+    @Getter @Setter
+    private static boolean hasClickedSpot = false;
 
     public static void killMonster(){
 
@@ -124,7 +129,7 @@ public class RevkillerManager {
 
 
 
-            if (target == null){
+            if (target == null && !hasClickedSpot){
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile(), () -> {
                     if (LootingManager.hasPkerBeenDetected()){
                         MyRevsClient.getScript().setState(State.BANKING);
@@ -132,6 +137,7 @@ public class RevkillerManager {
                     }
                     return WalkState.CONTINUE;
                 });
+                setHasClickedSpot(true);
                 target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
             }
 

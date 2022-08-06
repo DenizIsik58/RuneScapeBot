@@ -100,6 +100,7 @@ public class LootingManager {
             GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             MyRevsClient.getScript().setState(State.KILLING);
         }
+        RevkillerManager.setHasClickedSpot(false);
 
         Log.debug("Ended looting process. Switching back to killing");
     }
