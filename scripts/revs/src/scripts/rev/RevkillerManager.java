@@ -5,6 +5,7 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.Npc;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.MyCamera;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
@@ -124,6 +125,13 @@ public class RevkillerManager {
 
 
             if (target == null){
+                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile(), () -> {
+                    if (LootingManager.hasPkerBeenDetected()){
+                        MyRevsClient.getScript().setState(State.BANKING);
+                        return WalkState.FAILURE;
+                    }
+                    return WalkState.CONTINUE;
+                });
                 target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
             }
 
