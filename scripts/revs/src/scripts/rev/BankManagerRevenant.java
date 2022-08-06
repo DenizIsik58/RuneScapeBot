@@ -465,6 +465,7 @@ public class BankManagerRevenant {
             openBank();
             MyBanker.depositAll();
             Log.debug("Equipment not satisfied. Trying again");
+            equipAndChargeItems();
             getEquipmentBankTask().execute();
         } else {
             withdrawGearAttempts.set(0);
