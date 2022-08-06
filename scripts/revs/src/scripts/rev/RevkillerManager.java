@@ -46,16 +46,18 @@ public class RevkillerManager {
         if (Combat.isAutoRetaliateOn()){
             Combat.setAutoRetaliate(false);
         }
-        if (Query.players().isNotEquipped(DetectPlayerThread.getPvmGear()).isAny() || Query.players().count() == 0) {
-            iWasFirst = true;
-        }
 
-        if (iWasFirst) {
+       /* if (Query.players().isNotEquipped(DetectPlayerThread.getPvmGear()).isAny() || Query.players().count() == 0) {
+            iWasFirst = true;
+        }*/
+
+        //if (iWasFirst) {
             if (!MyRevsClient.getScript().getSelectedMonsterTile().isVisible()){
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
             PrayerManager.enableQuickPrayer();
             MyCamera.setCameraAngle();
+
             if (hasLevelGained()){
                 MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));
             }
@@ -191,12 +193,12 @@ public class RevkillerManager {
                 MyRevsClient.getScript().setState(State.BANKING);
             }
 
-        }else {
+       /* }else {
             if ((Query.players().isEquipped("Black d'hide body", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace").isAny() || Query.players().isBeingInteractedWith().isAny() || Query.players().isHealthBarVisible().isAny()) && !iWasFirst) {
                 // Hop worlds
                 WorldManager.hopToRandomMemberWorldWithRequirements();
             }
-        }
+        }*/
     }
 
 

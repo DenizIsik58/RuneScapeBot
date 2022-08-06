@@ -9,6 +9,7 @@ import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.MyBanker;
 import scripts.api.MyExchange;
 import scripts.api.MyOptions;
+import scripts.api.MyTeleporting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +38,12 @@ public class TeleportManager {
             Log.debug("[INFO_LISTENER] Started journey towards the cave...");
             if (Combat.getWildernessLevel() > 20){
                 GlobalWalking.walkTo(enclaveDoor);
+            }
+
+            if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars()){
+                if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
+                    Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
+                }
             }
 
             if (MyRevsClient.myPlayerIsInFerox()) {

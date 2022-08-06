@@ -32,6 +32,10 @@ public class MyRevsClient {
         return EquipmentManager.getBraceCharges() >= 700;
     }
 
+    public static boolean myPlayerIsInCasteWars(){
+        return Area.fromRectangle(new WorldTile(2435, 3103, 0), new WorldTile(2456, 3073, 0)).containsMyPlayer();
+    }
+
     public static boolean myPlayerIsInGE(){
         return isInLocation(true, Area.fromRectangle(new WorldTile(3131, 3518, 0), new WorldTile(3201, 3457, 0)));
     }
@@ -55,7 +59,9 @@ public class MyRevsClient {
 
     private static boolean isInLocation(boolean resetTeleBlockIfTrue, Area area) {
         if (area.containsMyPlayer()) {
-            if (resetTeleBlockIfTrue) resetTeleblock();
+            if (resetTeleBlockIfTrue) {
+                resetTeleblock();
+            }
             return true;
         }
         return false;
