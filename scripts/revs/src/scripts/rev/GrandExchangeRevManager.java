@@ -78,8 +78,19 @@ public class GrandExchangeRevManager {
 
         for (var item : getAllSellItems()) {
             // Will wait until the offer shows up in the GE.
-            MyExchange.createGrandExchangeOffer(item);
-            Waiting.waitNormal(3000, 300);
+
+            boolean successfullyPosted = false;
+            int attempts = 0;
+
+            while (!successfullyPosted && attempts < 5) {
+                attempts++;
+                successfullyPosted = MyExchange.createGrandExchangeOffer(item);
+            }
+
+            if (!successfullyPosted) {
+                Log.error("Failed to post item after 5 attempts");
+            }
+
             // Check if GE is full
             if (MyExchange.isGrandExchangeSlotsFull()) {
                 // GE IS FULL. COLLECT ITEMS
