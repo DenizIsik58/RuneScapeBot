@@ -26,7 +26,7 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean danger = new AtomicBoolean(false);
     //    private final AtomicBoolean dangerFlag = new AtomicBoolean(false);
     private final AtomicBoolean isAntiPking = new AtomicBoolean(false);
-    private final static String[] PVM_GEAR = new String[]{"Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
+    private final static String[] PVM_GEAR = new String[]{"Black d'hide body","Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
     private final SimpleBooleanProperty running = new SimpleBooleanProperty(false);
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
@@ -314,7 +314,7 @@ public class DetectPlayerThread extends Thread {
                 }
 
             } else {
-                Log.debug("Out of wilderness. Resetting danger states");
+                //Log.debug("Out of wilderness. Resetting danger states");
                 if (isTeleblocked()) setTeleblocked(false);
                 if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
                 if (inDanger()) setInDanger(false);

@@ -55,7 +55,7 @@ public class LootingManager {
 
 
             // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
-            item.interact("Take", LootingManager::hasPkerBeenDetected);
+            item.interact("Take", () -> hasPkerBeenDetected() || LootingManager.tripValue < 450000);
 
             if (itemIndex == 0) {
                 // HOVERS HERE AND DOESN'T FINISH THE LOOP
