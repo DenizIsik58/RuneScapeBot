@@ -338,7 +338,9 @@ public class DetectPlayerThread extends Thread {
         return MyRevsClient.myPlayerIsDead();
     }
 
-
+    public static String[] getPvmGear() {
+        return PVM_GEAR;
+    }
 }
 
 

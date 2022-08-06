@@ -46,7 +46,7 @@ public class RevkillerManager {
         if (Combat.isAutoRetaliateOn()){
             Combat.setAutoRetaliate(false);
         }
-        if (Query.players().count() == 0) {
+        if (Query.players().isNotEquipped(DetectPlayerThread.getPvmGear()).isAny() || Query.players().count() == 0) {
             iWasFirst = true;
         }
 
