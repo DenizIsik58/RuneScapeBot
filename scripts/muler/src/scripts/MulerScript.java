@@ -1,78 +1,71 @@
 package scripts;
 
-import lombok.SneakyThrows;
-import org.jetbrains.annotations.NotNull;
 import org.tribot.script.sdk.*;
-import org.tribot.script.sdk.script.ScriptConfig;
-import org.tribot.script.sdk.script.TribotScript;
 import org.tribot.script.sdk.script.TribotScriptManifest;
+import scripts.api.MyScriptExtension;
 
 import java.io.IOException;
 
 @TribotScriptManifest(name = "RevMuler", author = "Deniz", category = "Tools", description = "My muler")
 
 
-public class MulerScript implements TribotScript {
+public class MulerScript extends MyScriptExtension {
     private static MulerState state;
     private MultiServerSocket muler;
+    private String targetSlave = null;
+    private boolean hasFinishedCurrentTrade = true;
 
-    public static void processTrade(String name){
+    public void processTrade(String name) {
 
-        while(MultiServerSocket.getNames().size() != 0){
-            var player = "";
-            for(var playerName: MultiServerSocket.getNames()){
-                if (playerName.equals(name)){
-                    player = playerName;
-                    Chatbox.acceptTradeRequest(name);
-                    Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
+        var slaves = MultiServerSocket.getNames();
 
-                    Waiting.waitUntil(() -> {
-                        TradeScreen.getStage().map(screen -> {
-                            if (screen == TradeScreen.Stage.FIRST_WINDOW){
-                                if (TradeScreen.OtherPlayer.hasAccepted()){
-                                    TradeScreen.accept();
-                                    return true;
-                                }
-                            }
-                            return false;
-                        });
-                        return false;
-                    });
+        while (slaves.size() != 0) {
 
-
-                    Waiting.waitUntil(() -> {
-                        TradeScreen.getStage().map(screen -> {
-                            if (screen == TradeScreen.Stage.SECOND_WINDOW){
-                                if (TradeScreen.OtherPlayer.hasAccepted()){
-                                    TradeScreen.accept();
-                                    return true;
-                                }
-                            }
-                            return false;
-                        });
-                        return false;
-                    });
-
-                    MultiServerSocket.getNames().remove(player);
+            if (hasFinishedCurrentTrade()){
+                if (getTargetSlave() == null){
+                    setTargetSlave(slaves.get(0));
+                    setHasFinishedCurrentTrade(false);
                 }
             }
+
+            Waiting.wait(100);
         }
         state = MulerState.IDLING;
     }
 
     @Override
-    public void configure(@NotNull ScriptConfig config) {
-        //config.setBreakHandlerEnabled(true);
-        //config.setRandomsAndLoginHandlerEnabled(true);
+    protected void setupScript(ScriptSetup setup) {
+
     }
 
-    @SneakyThrows
     @Override
-    public void execute(@NotNull String args) {
+    protected void onStart(String args) {
         Log.info("Script has been started");
+        MessageListening.addTradeRequestListener(this::processTrade);
+        Log.info("Server initiated");
+        state = MulerState.IDLING;
+        muler = new MultiServerSocket();
+        new Thread(muler).start();
 
+    }
 
-        MessageListening.addTradeRequestListener(MulerScript::processTrade);
+    @Override
+    protected void onMainLoop() {
+
+        switch (getState()) {
+            case IDLING:
+                if (Login.isLoggedIn()) {
+                    Login.logout();
+                    Waiting.wait(5000);
+                }
+                return;
+            case MULING:
+                handleMuling();
+        }
+    }
+
+    @Override
+    protected void onEnding() {
         ScriptListening.addPreEndingListener(() -> {
             try {
                 muler.stop();
@@ -80,31 +73,8 @@ public class MulerScript implements TribotScript {
                 e.printStackTrace();
             }
         });
-
-        Log.info("Server initiated");
-        state = MulerState.IDLING;
-        muler = new MultiServerSocket();
-        new Thread(muler).start();
-
-        while (true){
-
-            if (state == MulerState.IDLING){
-                if (Login.isLoggedIn()){
-                    Login.logout();
-                    Waiting.wait(5000);
-                }
-            }
-
-            if (state == MulerState.MULING){
-                if (!Login.isLoggedIn()){
-                    Login.login();
-                }
-            }
-            Waiting.wait(100);
-        }
-
-
     }
+
 
     public static MulerState getState() {
         return state;
@@ -112,5 +82,56 @@ public class MulerScript implements TribotScript {
 
     public static void setState(MulerState state) {
         MulerScript.state = state;
+    }
+
+    private void handleMuling(){
+        if (getTargetSlave() != null){
+                Waiting.waitUntil(100000, () -> Chatbox.acceptTradeRequest(getTargetSlave()));
+                Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
+                Waiting.waitUntil(() -> {
+                    TradeScreen.getStage().map(screen -> {
+                        if (screen == TradeScreen.Stage.FIRST_WINDOW) {
+                            if (TradeScreen.OtherPlayer.hasAccepted()) {
+                                TradeScreen.accept();
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                    return false;
+                });
+
+
+                Waiting.waitUntil(() -> {
+                    TradeScreen.getStage().map(screen -> {
+                        if (screen == TradeScreen.Stage.SECOND_WINDOW) {
+                            if (TradeScreen.OtherPlayer.hasAccepted()) {
+                                TradeScreen.accept();
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                    return false;
+                });
+                MultiServerSocket.getNames().remove(0);
+                setHasFinishedCurrentTrade(true);
+        }
+    }
+
+    private void setTargetSlave(String targetSlave) {
+        this.targetSlave = targetSlave;
+    }
+
+    public String getTargetSlave() {
+        return targetSlave;
+    }
+
+    private boolean hasFinishedCurrentTrade(){
+        return hasFinishedCurrentTrade;
+    }
+
+    public void setHasFinishedCurrentTrade(boolean hasFinishedCurrentTrade) {
+        this.hasFinishedCurrentTrade = hasFinishedCurrentTrade;
     }
 }
