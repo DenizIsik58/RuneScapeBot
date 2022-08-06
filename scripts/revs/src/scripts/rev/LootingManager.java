@@ -32,8 +32,6 @@ public class LootingManager {
     public static void loot() {
         Log.debug("Started looting process");
 
-        Optional<GroundItem> lootOptional;
-
         List<GroundItem> possibleLoot = getAllLoot();
 
         for (int itemIndex = 0; itemIndex < possibleLoot.size(); itemIndex++) {
@@ -55,7 +53,7 @@ public class LootingManager {
 
 
             // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
-            item.interact("Take", () -> hasPkerBeenDetected() || LootingManager.tripValue < 450000);
+            item.interact("Take", LootingManager::hasPkerBeenDetected);
 
             if (itemIndex == 0) {
                 // HOVERS HERE AND DOESN'T FINISH THE LOOP
@@ -82,11 +80,6 @@ public class LootingManager {
                 totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
                 var totalString = MathUtility.getProfitPerHourString(totalValue);
                 MyScriptVariables.setProfit(totalString);
-                if (tripValue > 450000) {
-                    TeleportManager.teleportOutOfWilderness("Teleporting out. I have: " + tripValue + " gold!");
-
-                    // teleport out
-                }
             }
         }
 

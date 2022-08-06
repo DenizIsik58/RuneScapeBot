@@ -175,9 +175,8 @@ public class RevkillerManager {
                 MyRevsClient.getScript().setState(State.BANKING);
             }
 
-            // DO NOT HOP; KILL MOBS
         }else {
-            if ((Query.players().isEquipped("Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace").isAny() || Query.players().isBeingInteractedWith().isAny() || Query.players().isHealthBarVisible().isAny()) && !iWasFirst) {
+            if ((Query.players().isEquipped("Black d'hide body", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace").isAny() || Query.players().isBeingInteractedWith().isAny() || Query.players().isHealthBarVisible().isAny()) && !iWasFirst) {
                 // Hop worlds
                 WorldManager.hopToRandomMemberWorldWithRequirements();
             }
