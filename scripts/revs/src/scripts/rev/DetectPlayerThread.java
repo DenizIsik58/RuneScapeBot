@@ -79,6 +79,7 @@ public class DetectPlayerThread extends Thread {
         return Query.players()
                 .withinCombatLevels(getWildernessLevel())
                 .notInArea(FEROX_ENCLAVE)
+                .isNotEquipped(PVM_GEAR)
                 .hasSkullIcon()
                 .isAny();
 
