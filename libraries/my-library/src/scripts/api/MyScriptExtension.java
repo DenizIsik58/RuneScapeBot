@@ -89,7 +89,9 @@ public abstract class MyScriptExtension implements TribotScript {
         MyCamera.init();
         MyOptions.init();
 
-        if (setup.mainLoopWaitsForLogin) MyClient.waitUntilLoggedIn();
+        if (setup.mainLoopWaitsForLogin) {
+            MyClient.waitUntilLoggedIn();
+        }
 
         onStart(args);
 
