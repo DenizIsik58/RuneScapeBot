@@ -207,6 +207,7 @@ public class GrandExchangeRevManager {
 
 
     public static void restockFromBank(List<String> itemsTobuy) {
+        MyExchange.closeExchange();
         openBank();
         Bank.withdrawAll("Coins");
         Waiting.wait(3500);
