@@ -91,7 +91,7 @@ public class TeleportManager {
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");
                     GlobalWalking.walkTo(chosenMobArea, () -> {
-                        if (LootingManager.hasPkerBeenDetected() || !MyRevsClient.myPlayerIsInCave() || !Combat.isInWilderness()){
+                        if (LootingManager.hasPkerBeenDetected() && !MyRevsClient.myPlayerIsInCave() && !Combat.isInWilderness()){
                             Log.debug("Pker has been seen, im not in cave or im not in wildy -> Banking");
                             MyRevsClient.getScript().setState(State.BANKING);
                             return WalkState.FAILURE;
