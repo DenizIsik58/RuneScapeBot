@@ -443,6 +443,7 @@ public class BankManagerRevenant {
             Log.debug("Couldn't enter the bank. Trying again..");
             MyBanker.openBank();
         }
+
         Log.debug("Entered bank");
         Waiting.waitNormal(2000, 300);
         Log.debug("Checking weapon charges");
@@ -459,6 +460,8 @@ public class BankManagerRevenant {
         }*/
 
         if (!getEquipmentBankTask().isSatisfied()) {
+            openBank();
+            MyBanker.depositAll();
             Log.debug("Equipment not satisfied. Trying again");
             getEquipmentBankTask().execute();
         } else {

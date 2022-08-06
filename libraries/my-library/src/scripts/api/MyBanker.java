@@ -102,6 +102,11 @@ public class MyBanker {
             Waiting.waitUntil(3000, Inventory::isEmpty);
         }
 
+        if (Equipment.getAll().size() != 0){
+            Bank.depositEquipment();
+            Waiting.waitUntil(3000, () -> Equipment.getAll().size() == 0);
+        }
+
         return true;
     }
 
