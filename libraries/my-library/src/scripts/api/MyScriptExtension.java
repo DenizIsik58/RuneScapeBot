@@ -110,10 +110,16 @@ public abstract class MyScriptExtension implements TribotScript {
         private boolean mainLoopWaitsForLogin = true;
         private int mainLoopInterval = 50;
 
+        public ScriptSetup enableWaitForLogin() {
+            this.mainLoopWaitsForLogin = true;
+            return this;
+        }
+
         public ScriptSetup disableWaitForLogin() {
             this.mainLoopWaitsForLogin = false;
             return this;
         }
+
         public ScriptSetup setMainLoopInterval(int interval) {
             mainLoopInterval = interval;
             return this;

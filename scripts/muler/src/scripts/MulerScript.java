@@ -94,9 +94,10 @@ public class MulerScript extends MyScriptExtension {
 
         switch (getState()) {
             case IDLING:
-                scriptSetup.disableLoginHandler();
+                scriptSetup.disableWaitForLogin();
                 return;
             case MULING:
+                scriptSetup.enableWaitForLogin();
                 MyClient.waitUntilLoggedIn();
                 handleMuling();
         }
