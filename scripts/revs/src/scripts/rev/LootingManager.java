@@ -96,7 +96,7 @@ public class LootingManager {
 
         }
 
-        if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
+        if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave() || !RevkillerManager.getTarget().isValid()) {
             GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             MyRevsClient.getScript().setState(State.KILLING);
         }
