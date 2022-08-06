@@ -20,10 +20,13 @@ public class BoostingManager {
     }
 
     public static void boost() {
-        Query.inventory().nameContains("Divine ranging potion").findClosestToMouse().map(InventoryItem::click);
-        GameTab.EQUIPMENT.open();
-        Waiting.wait(2000);
-        Query.inventory().nameEquals("Shark").findFirst().map(InventoryItem::click);
+        Query.inventory().nameContains("Divine ranging potion").findClosestToMouse().ifPresent(pot -> {
+            pot.click("Drink");
+            GameTab.EQUIPMENT.open();
+            Waiting.wait(2000);
+            Query.inventory().nameEquals("Shark").findFirst().map(InventoryItem::click);
+        });
+
     }
 
 }
