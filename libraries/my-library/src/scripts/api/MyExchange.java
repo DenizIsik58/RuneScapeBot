@@ -63,17 +63,15 @@ public class MyExchange {
     public static boolean walkToGrandExchange() {
         if (isExchangeNearby()) return true;
 
-        var lastTB = MyScriptVariables.getVariable("lastTeleblockNotification", 0L);
-        if (System.currentTimeMillis() - lastTB < (60 * 1000) * 2) {
-            Log.warn("Didn't attempt to teleport because we've been teleblocked in the last two minutes.");
-        } else {
-            Log.debug("Teleporting to Grand Exchange as I have a ring");
-            if (MyTeleporting.Wealth.GrandExchange.canUseTeleport()) {
-                MyBanker.closeBank();
-                MyTeleporting.Wealth.GrandExchange.useTeleport();
-                return Waiting.waitUntil(5000, MyExchange::isExchangeNearby);
-            }
+        //var lastTB = MyScriptVariables.getVariable("lastTeleblockNotification", 0L);
+
+        Log.debug("Trying to walk towards grand exchange");
+        if (MyTeleporting.Wealth.GrandExchange.canUseTeleport()) {
+            MyBanker.closeBank();
+            MyTeleporting.Wealth.GrandExchange.useTeleport();
+            return Waiting.waitUntil(5000, MyExchange::isExchangeNearby);
         }
+
         if (Bank.isNearby() && !Query.inventory().nameContains("Ring of wealth (").isAny() || !Query.equipment().nameContains("Ring of wealth (").isAny()) {
             MyBanker.openBank();
             Query.bank().nameContains("Ring of wealth (").findFirst().ifPresent(wealth -> {

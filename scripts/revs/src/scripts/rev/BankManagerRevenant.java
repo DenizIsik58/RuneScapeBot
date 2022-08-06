@@ -122,6 +122,11 @@ public class BankManagerRevenant {
 
     public static void emptyLootingBag() {
         if (!Inventory.contains("Looting bag")){
+            if (!Bank.contains("Looting bag")){
+                Log.debug("We have no looting bag");
+                return;
+            }
+            openBank();
             Log.debug("Withdrawing looting bag");
             MyBanker.withdraw("Looting bag", 1, false);
             Waiting.waitUntil(() -> Inventory.contains("Looting bag"));
@@ -215,10 +220,7 @@ public class BankManagerRevenant {
 
 
         // Take out our stuff
-
-        openBank();
         emptyLootingBag();
-        closeBank();
 
         if (!isEquipmentBankTaskSatisfied()){
             Log.debug("[ERROR_LISTENER] We did not satisfy the gear setup. Trying again..");
