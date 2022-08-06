@@ -146,6 +146,7 @@ public class BankManagerRevenant {
                 }
             }
         }
+        MyBanker.closeBank();
         Log.debug("I don't have a looting bag");
     }
 
