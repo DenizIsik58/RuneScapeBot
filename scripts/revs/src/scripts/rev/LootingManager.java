@@ -93,7 +93,7 @@ public class LootingManager {
 
         // starts back here with brea
         Log.debug("I'm done looting");
-        GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+
         if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
 
             if (!RevkillerManager.getTarget().isVisible()) {
@@ -101,11 +101,10 @@ public class LootingManager {
             }
             RevkillerManager.getTarget().click();
 
-        } else {
-            GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
         }
 
         if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
+            GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             MyRevsClient.getScript().setState(State.KILLING);
         }
 
