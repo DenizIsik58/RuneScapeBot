@@ -129,15 +129,17 @@ public class RevkillerManager {
 
 
 
-            if (target == null && !hasClickedSpot){
-                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile(), () -> {
-                    if (LootingManager.hasPkerBeenDetected()){
-                        MyRevsClient.getScript().setState(State.BANKING);
-                        return WalkState.FAILURE;
-                    }
-                    return WalkState.CONTINUE;
-                });
-                setHasClickedSpot(true);
+            if (target == null){
+                if (!hasClickedSpot){
+                    GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile(), () -> {
+                        if (LootingManager.hasPkerBeenDetected()){
+                            MyRevsClient.getScript().setState(State.BANKING);
+                            return WalkState.FAILURE;
+                        }
+                        return WalkState.CONTINUE;
+                    });
+                    setHasClickedSpot(true);
+                }
                 target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
             }
 
