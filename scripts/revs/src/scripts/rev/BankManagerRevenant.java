@@ -12,6 +12,7 @@ import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
+import scripts.api.MyExchange;
 import scripts.api.MyTeleporting;
 
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import static scripts.api.MyClient.*;
 
 
 public class BankManagerRevenant {
-    public static List<String> itemsToBuy = new ArrayList<>();
 
     private static AtomicInteger withdrawGearAttempts = new AtomicInteger(0);
     private static BankTask equipmentBankTask = null;
@@ -108,9 +108,8 @@ public class BankManagerRevenant {
         // Buy items if we need
         if (itemsToBuy.size() != 0) {
             itemsToBuy.forEach(Log::info);
-            if (!GrandExchange.isNearby()) {
-                GlobalWalking.walkTo(new WorldTile(3164, 3484, 0));
-            }
+            MyExchange.walkToGrandExchange();
+            DecantManager.decantPotionsFromBank();
             Log.debug("I'm out of supplies. Selling loot and buying more.");
             GrandExchangeRevManager.sellLoot();
             openBank();
@@ -541,9 +540,7 @@ public class BankManagerRevenant {
         }
 
         if (itemsToBuy.size() != 0) {
-            if (!GrandExchange.isNearby()) {
-                GlobalWalking.walkTo(new WorldTile(3164, 3484, 0));
-            }
+            MyExchange.walkToGrandExchange();
             GrandExchangeRevManager.sellLoot();
 
             GrandExchangeRevManager.restockFromBank(itemsToBuy);

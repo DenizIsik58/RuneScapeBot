@@ -16,7 +16,7 @@ public class MyClient {
                 .inIndexPath(indexPath)
                 .actionContains(action)
                 .findFirst()
-                .map(widget -> widget.click(action))
+                .map(widget ->  widget.click(action))
                 .orElse(false);
     }
 

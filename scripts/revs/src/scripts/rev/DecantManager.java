@@ -1,37 +1,50 @@
 package scripts.rev;
 
-import org.tribot.script.sdk.Bank;
-import org.tribot.script.sdk.BankSettings;
+import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.types.Widget;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import scripts.api.MyBanker;
+import scripts.api.MyClient;
+import scripts.api.MyExchange;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class DecantManager {
-    public static boolean hasDecanted = false;
-    private static final List<String> potions = new ArrayList<>(Arrays.asList("Divine ranging potion(", "Stamina potion(", "Prayer potion("));
+    private static final List<String> potions = new ArrayList<>(Arrays.asList(
+            "Divine ranging potion(1)","Divine ranging potion(2)","Divine ranging potion(3)","Divine ranging potion(4)",
+            "Stamina potion(1)","Stamina potion(2)","Stamina potion(3)","Stamina potion(4)",
+            "Prayer potion(1)","Prayer potion(2)","Prayer potion(3)","Prayer potion(4)"
+    ));
 
 
     public static void decantPotionsFromBank(){
-        if(!BankSettings.isNoteEnabled()){
-            BankSettings.setNoteEnabled(true);
-        }
+
+        MyExchange.walkToGrandExchange();
+        MyBanker.openBank();
+        MyBanker.depositInventory();
 
         for (var item: potions){
-            var noted = Query.bank().nameContains(item).findFirst().orElse(null);
-            if (noted != null){
-                Bank.withdrawAll(item);
-                Waiting.wait(3000);
-            }
+            Query.bank().nameEquals(item).findFirst().ifPresent(pot -> {
+                MyBanker.withdraw(pot.getName(), 100000, true);
+            });
         }
+
+        MyBanker.closeBank();
 
         GlobalWalking.walkTo(new WorldTile(3157, 3481, 0));
         Query.npcs().idEquals(5449).findBestInteractable().map(c -> c.interact("Decant"));
-        hasDecanted = true;
+        Waiting.waitUntil(() -> MyClient.isWidgetVisible(582, 6));
+        Query.widgets()
+                .inIndexPath(582, 6)
+                .findFirst()
+                .map(Widget::click);
+        MyBanker.openBank();
+        MyBanker.depositInventory();
 
     }
 }

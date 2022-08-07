@@ -124,7 +124,6 @@ public class MulerScript extends MyScriptExtension {
         }
 
         while (MultiServerSocket.getNames().size() != 0) {
-            Log.debug(getTargetSlave());
             if (getTargetSlave() != null) {
                 Log.debug("Target slave: " + getTargetSlave());
                 Waiting.waitUntil(100000, () -> Chatbox.acceptTradeRequest(getTargetSlave()));
@@ -155,8 +154,10 @@ public class MulerScript extends MyScriptExtension {
                     });
                     return false;
                 });
+                Log.debug("Finished trading: Removing " + MultiServerSocket.getNames().get(index) + " from the list!");
                 MultiServerSocket.getNames().remove(index);
                 setTargetSlave(null);
+                Log.debug("Target slave is: " + getTargetSlave());
                 setHasFinishedCurrentTrade(true);
             }
             Waiting.wait(50);
