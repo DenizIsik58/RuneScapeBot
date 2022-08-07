@@ -5,6 +5,7 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GrandExchangeOffer;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.WorldTile;
+import org.tribot.script.sdk.util.Retry;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
 import scripts.api.MyExchange;
@@ -55,11 +56,11 @@ public class GrandExchangeRevManager {
                 if (!Bank.contains(item)) {
                     break;
                 }
-                if (Bank.getCount(item) <= 10 && Bank.contains(item)) {
+                if (Bank.getCount(item) <= 5 && Bank.contains(item)) {
                     continue;
                 }
                 Log.warn("Pulling out bracelet");
-                MyBanker.withdraw(item, Bank.getCount(item) - 10, true);
+                MyBanker.withdraw(item, Bank.getCount(item) - 5, true);
                 Waiting.waitUntil(() -> Inventory.contains(item));
                 itemsToSell++;
                 continue;
@@ -72,6 +73,9 @@ public class GrandExchangeRevManager {
         }
         if (itemsToSell == 0) {
             Log.debug("No items to sell");
+            openBank();
+            MyBanker.depositAll();
+            mule();
             return;
         }
         MyBanker.closeBank();
@@ -133,7 +137,11 @@ public class GrandExchangeRevManager {
 
                 var msg = MyRevsClient.getScript().getSocketClient().sendMessage("I want to mule! " + MyPlayer.get().get().getName());
                 Waiting.wait(2000);
+                Log.debug(msg);
                 var content = msg.split(" ");
+                for (String s : content) {
+                    Log.debug(s);
+                }
                 int x = Integer.parseInt(content[0]);
                 int y = Integer.parseInt(content[1]);
                 int z = Integer.parseInt(content[2]);
@@ -169,8 +177,19 @@ public class GrandExchangeRevManager {
                 }
 
                 if (Query.players().nameEquals(mulerName).findFirst().isPresent()) {
+                    Log.debug("Muler found! " + mulerName);
+                    Waiting.waitNormal(5000, 250);
+                    Log.debug("Trading muler..");
                     Query.players().nameEquals(mulerName).findFirst().map(muler -> muler.interact("Trade with"));
+                    String finalMulerName = mulerName;
 
+                    TradeScreen.getStage().ifPresent(screen -> {
+                       var inTrade = Waiting.waitUntil(() -> screen == TradeScreen.Stage.FIRST_WINDOW);
+                       if (!inTrade){
+                           Log.debug("Not in trade. Trying again..");
+                           retryTrade(finalMulerName);
+                       }
+                    });
                     //Waiting.waitNormal(2000, 200);
 
                     Waiting.waitUntil(() -> {
@@ -200,9 +219,19 @@ public class GrandExchangeRevManager {
                     MyScriptVariables.setTimesMuled(String.valueOf(MuleManager.getAmountTimesMuled()));
                 }
             } catch (Exception e) {
+                MyRevsClient.getScript().getSocketClient().startConnection("localhost", 6668);
                 Log.debug("Tried connecting to mule but couldn't");
+                Log.error(e);
             }
         }
+    }
+
+    private static void retryTrade(String mulerName) {
+
+            Query.players().nameEquals(mulerName).findFirst().map(muler -> muler.interact("Trade with"));
+            TradeScreen.OtherPlayer.getName().ifPresent(muler -> {
+                Waiting.waitUntil(()-> muler.equals(mulerName));
+            });
     }
 
 

@@ -80,8 +80,13 @@ public class RevScript extends MyScriptExtension {
             return WalkingCondition.State.CONTINUE_WALKER;
         });
 
-        muleClient = new MulingClient();
-        muleClient.startConnection("127.0.0.1", 6668);
+        try {
+            muleClient = new MulingClient();
+            muleClient.startConnection("127.0.0.1", 6668);
+        }catch (Exception e){
+            Log.debug(e);
+        }
+
 
         MyOptions.init();
         MyCamera.init();
@@ -215,7 +220,7 @@ public class RevScript extends MyScriptExtension {
     private void handleSellLoot() {
 
         GrandExchangeRevManager.sellLoot();
-        Log.warn("NOT YET IMPLEMENTED");
+        //Log.warn("NOT YET IMPLEMENTED");
     }
 
     private void handleStarting() {
@@ -291,8 +296,15 @@ public class RevScript extends MyScriptExtension {
     }
 
     public MulingClient getSocketClient() {
+        if (muleClient != null) {
+            return muleClient;
+        }
+        muleClient = new MulingClient();
+        muleClient.startConnection("localhost", 6668);
         return muleClient;
     }
+
+
 
     public WorldTile getSelectedMonsterTile() {
         return selectedMonsterTile;

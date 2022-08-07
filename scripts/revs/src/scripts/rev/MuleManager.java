@@ -16,12 +16,12 @@ public class MuleManager {
 
     public static void takeOutGp(){
 
-        Query.bank().nameEquals("Coins").findFirst().ifPresent(gp -> MyBanker.withdraw(995, gp.getStack() - 2000000, false));
+        Query.bank().nameEquals("Coins").findFirst().ifPresent(gp -> MyBanker.withdraw(995, gp.getStack() - 3000000, false));
         MyBanker.closeBank();
     }
     public static boolean hasEnoughToMule(){
         var stack = Query.bank().nameEquals("Coins").findFirst().map(Stackable::getStack).orElse(0);
-        return stack >= 7000000;
+        return stack >= 10000000;
     }
 
     public static int getAmountTimesMuled() {

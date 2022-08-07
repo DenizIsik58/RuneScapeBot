@@ -68,18 +68,14 @@ public class MultiServerSocket implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        try {
-            serverSocket = new ServerSocket(6668, 32, InetAddress.getByName("localhost"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        serverSocket = new ServerSocket(6668, 32, InetAddress.getByName("localhost"));
+
+
         while (true) {
-            //Log.info("Accepting connections");
-            try {
+            Log.info("Accepting connections");
                 new EchoClientHandler(serverSocket.accept()).start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
             Waiting.wait(50);
         }
     }
@@ -107,7 +103,7 @@ public class MultiServerSocket implements Runnable {
 
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    //Log.info(inputLine);
+                    Log.info(inputLine);
                     if (inputLine.contains("I want to mule!")) {
                         try {
                             var content = inputLine.split(" ");
@@ -126,7 +122,7 @@ public class MultiServerSocket implements Runnable {
                             out.println(MyPlayer.getTile().getX() + " " + MyPlayer.getTile().getY() + " " + MyPlayer.getTile().getPlane() + " " + MyPlayer.get().get().getName() + " " + WorldHopper.getCurrentWorld());
                             out.println();
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            Log.debug("Couldn't mule");
                         }
                     }
                 }
