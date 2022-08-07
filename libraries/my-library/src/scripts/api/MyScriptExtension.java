@@ -97,6 +97,7 @@ public abstract class MyScriptExtension implements TribotScript {
         onStart(args);
 
         while (running.get()) {
+            MyScriptVariables.updateFPS(String.valueOf(GameState.getFps()));
             onMainLoop();
             Waiting.wait(setup.mainLoopInterval);
         }
