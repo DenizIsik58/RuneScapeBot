@@ -156,6 +156,7 @@ public class MulerScript extends MyScriptExtension {
                     return false;
                 });
                 MultiServerSocket.getNames().remove(index);
+                setTargetSlave(null);
                 setHasFinishedCurrentTrade(true);
             }
             Waiting.wait(50);

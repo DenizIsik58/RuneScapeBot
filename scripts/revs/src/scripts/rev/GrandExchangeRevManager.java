@@ -224,6 +224,7 @@ public class GrandExchangeRevManager {
                 Log.error(e);
             }
         }
+        WorldManager.hopToRandomMemberWorldWithRequirements();
     }
 
     private static void retryTrade(String mulerName) {
@@ -251,7 +252,7 @@ public class GrandExchangeRevManager {
                 if (item.equals("Leather boots") || item.equals("Leather body") || item.equals("Coif")) {
                     GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).price(1000).type(GrandExchangeOffer.Type.BUY).build());
                 } else {
-                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).priceAdjustment(2).type(GrandExchangeOffer.Type.BUY).build());
+                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).priceAdjustment(5).type(GrandExchangeOffer.Type.BUY).build());
                 }
             }
             Waiting.wait(3000);
