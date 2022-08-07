@@ -23,9 +23,8 @@ public class MyScriptVariables {
     private final AtomicReference<String> deathString = new AtomicReference<>("0");
     private final AtomicReference<String> timesMuledString = new AtomicReference<String>("0");
     private final AtomicReference<String> killCountString = new AtomicReference<String>("0");
-    private final AtomicReference<String> rangedLevelString = new AtomicReference<String>(Skill.RANGED.getActualLevel() + " (0 gained)");
+    private final AtomicReference<String> rangedLevelString = new AtomicReference<String>(String.valueOf(Skill.RANGED.getActualLevel()) + " (0 gained)");
 
-    private AtomicReference<String> fps = new AtomicReference<>("0");
     private final LocalDateTime startTime;
 
 
@@ -114,9 +113,6 @@ public class MyScriptVariables {
         get().status.set(status);
     }
 
-    public static void updateFPS(String fps){
-        get().fps.set(fps);
-    }
     public static String getStatus() {
         return get().status.get();
     }
