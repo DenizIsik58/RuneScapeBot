@@ -54,7 +54,7 @@ public abstract class MyScriptExtension implements TribotScript {
                 .location(PaintLocation.BOTTOM_LEFT_VIEWPORT)
                 .row(PaintRows.scriptName(getTextRowTemplate()))
                 .row(PaintRows.runtime(getTextRowTemplate()))
-                .row(getTextRowTemplate().label("FPS").value(String.valueOf(GameState.getFps())).build())
+                .row(getTextRowTemplate().label("FPS").value(String.valueOf(GameState.getState())).build())
                 .row(getTextRowTemplate().label("Profit").value(MyScriptVariables::getProfit).build())
                 .row(getTextRowTemplate().label("Ranged level").value(MyScriptVariables::getRangedLevelString).build())
                 .row(getTextRowTemplate().label("Kill Count").value(MyScriptVariables::getKillCountString).build())
