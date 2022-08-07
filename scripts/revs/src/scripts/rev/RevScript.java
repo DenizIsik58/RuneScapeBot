@@ -111,7 +111,6 @@ public class RevScript extends MyScriptExtension {
         Mouse.setSpeed(200);
 
         MyOptions.setRunOn();
-        DecantManager.decantPotionsFromBank();
 
         switch(getState()) {
             case STARTING:
