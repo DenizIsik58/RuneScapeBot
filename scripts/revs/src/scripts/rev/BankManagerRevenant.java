@@ -29,7 +29,7 @@ public class BankManagerRevenant {
     private static AtomicInteger withdrawGearAttempts = new AtomicInteger(0);
     private static BankTask equipmentBankTask = null;
     private static BankTask inventoryBankTask = null;
-
+    private static boolean isUsingGlory = true;
 
     public static void init() {
         withdrawGear();
@@ -521,6 +521,7 @@ public class BankManagerRevenant {
             if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)") || item.equals("Bandos cloak")) {
                 continue;
             }
+
             if (!Query.bank().nameEquals(item).isAny()) {
                 Log.debug("We don't have: " + item + ". Added to list");
                 itemsToBuy.add(item);
@@ -536,6 +537,14 @@ public class BankManagerRevenant {
             Log.debug("We're out of bracelets. Added to list.");
             itemsToBuy.add("Bracelet of ethereum (uncharged)");
         }
+
+        if (!Query.bank().nameEquals("Amulet of glory(6)").isAny()){
+            if (isUsingGlory){
+                Log.debug("Out of glories. Adding to buy list!");
+                itemsToBuy.add("Amulet of glory(6)");
+            }
+        }
+
 
         if (itemsToBuy.size() != 0) {
             MyExchange.walkToGrandExchange();
