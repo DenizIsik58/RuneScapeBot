@@ -205,6 +205,8 @@ public class GrandExchangeRevManager {
                         return false;
                     });
 
+                    Waiting.waitNormal(3000, 300);
+
 
                     // Second trade
                     TradeScreen.getStage().map(tradeScreen -> {
