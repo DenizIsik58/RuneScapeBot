@@ -178,9 +178,6 @@ public class BankManagerRevenant {
                 });
             }
 
-
-
-
                 MyBanker.openBank();
                 var amount = Query.inventory().idEquals(21820).findFirst().map(InventoryItem::getStack).orElse(0);
                 MyBanker.deposit(21820, amount - 250,false);
@@ -225,7 +222,8 @@ public class BankManagerRevenant {
 
         if (!isEquipmentBankTaskSatisfied()){
             Log.debug("[ERROR_LISTENER] We did not satisfy the gear setup. Trying again..");
-            withdrawGear();
+            //withdrawGear();
+            equipAndChargeItems();
         }
 
         if (!MyRevsClient.myPlayerIsInFerox()){
