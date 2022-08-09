@@ -96,7 +96,11 @@ public abstract class MyScriptExtension implements TribotScript {
             MyClient.waitUntilLoggedIn();
         }
 
-        onStart(args);
+        try {
+            onStart(args);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         while (running.get()) {
             onMainLoop();
