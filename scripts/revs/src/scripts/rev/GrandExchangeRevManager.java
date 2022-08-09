@@ -122,6 +122,8 @@ public class GrandExchangeRevManager {
             sellLoot();
         }
         MyExchange.closeExchange();
+        MyBanker.openBank();
+        MyBanker.depositInventory();
         shouldRepeat = false;
 
         mule();
