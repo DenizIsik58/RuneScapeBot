@@ -1,29 +1,25 @@
 package scripts.rev;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import okhttp3.*;
+import org.tribot.api.General;
 
-/**
- * Class used to execute Discord Webhooks with low effort
- */
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.*;
+
 public class DiscordWebhook {
+
+    private static final OkHttpClient client = new OkHttpClient();
 
     private final String url;
     private String content;
     private String username;
     private String avatarUrl;
+    private File file;
     private boolean tts;
-    private List<EmbedObject> embeds = new ArrayList<>();
+    private final List<EmbedObject> embeds = new ArrayList<>();
 
     /**
      * Constructs a new DiscordWebhook instance
@@ -34,28 +30,43 @@ public class DiscordWebhook {
         this.url = url;
     }
 
-    public void setContent(String content) {
+    public DiscordWebhook setContent(String content) {
         this.content = content;
+        return this;
     }
 
-    public void setUsername(String username) {
+    public DiscordWebhook setUsername(String username) {
         this.username = username;
+        return this;
     }
 
-
-    public void setAvatarUrl(String avatarUrl) {
+    public DiscordWebhook setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+        return this;
     }
 
-    public void setTts(boolean tts) {
+    public DiscordWebhook setTts(boolean tts) {
         this.tts = tts;
+        return this;
     }
 
-    public void addEmbed(EmbedObject embed) {
+    public DiscordWebhook addEmbed(EmbedObject embed) {
+        if (file != null) {
+            throw new IllegalArgumentException("File upload not supported with embeds");
+        }
         this.embeds.add(embed);
+        return this;
     }
 
-    public void execute() throws IOException {
+    public DiscordWebhook addFile(File file) {
+        if (!embeds.isEmpty()) {
+            throw new IllegalArgumentException("File upload not supported with embeds");
+        }
+        this.file = file;
+        return this;
+    }
+
+    public void execute() {
         if (this.content == null && this.embeds.isEmpty()) {
             throw new IllegalArgumentException("Set content or add at least one EmbedObject");
         }
@@ -141,20 +152,26 @@ public class DiscordWebhook {
             json.put("embeds", embedObjects.toArray());
         }
 
-        URL url = new URL(this.url);
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-        connection.addRequestProperty("Content-Type", "application/json");
-        connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
+        RequestBody requestBody;
+        if (file == null) {
+            requestBody = RequestBody.create(json.toString(), MediaType.get("application/json; charset=utf-8"));
+        } else {
+            requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file", file.getName(), RequestBody.create(file, MediaType.parse("image/png")))
+                    .addFormDataPart("payload_json", json.toString())
+                    .build();
+        }
 
-        OutputStream stream = connection.getOutputStream();
-        stream.write(json.toString().getBytes());
-        stream.flush();
-        stream.close();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
 
-        connection.getInputStream().close(); //I'm not sure why but it doesn't work without getting the InputStream
-        connection.disconnect();
+        try (Response response = client.newCall(request).execute()) {
+        } catch (IOException e) {
+            General.println("Failed to make discord webhook request");
+        }
     }
 
     public static class EmbedObject {
@@ -167,7 +184,7 @@ public class DiscordWebhook {
         private Thumbnail thumbnail;
         private Image image;
         private Author author;
-        private List<Field> fields = new ArrayList<>();
+        private final List<Field> fields = new ArrayList<>();
 
         public String getTitle() {
             return title;
@@ -250,9 +267,9 @@ public class DiscordWebhook {
             return this;
         }
 
-        private class Footer {
-            private String text;
-            private String iconUrl;
+        private static class Footer {
+            private final String text;
+            private final String iconUrl;
 
             private Footer(String text, String iconUrl) {
                 this.text = text;
@@ -268,8 +285,8 @@ public class DiscordWebhook {
             }
         }
 
-        private class Thumbnail {
-            private String url;
+        private static class Thumbnail {
+            private final String url;
 
             private Thumbnail(String url) {
                 this.url = url;
@@ -280,8 +297,8 @@ public class DiscordWebhook {
             }
         }
 
-        private class Image {
-            private String url;
+        private static class Image {
+            private final String url;
 
             private Image(String url) {
                 this.url = url;
@@ -292,10 +309,10 @@ public class DiscordWebhook {
             }
         }
 
-        private class Author {
-            private String name;
-            private String url;
-            private String iconUrl;
+        private static class Author {
+            private final String name;
+            private final String url;
+            private final String iconUrl;
 
             private Author(String name, String url, String iconUrl) {
                 this.name = name;
@@ -316,10 +333,10 @@ public class DiscordWebhook {
             }
         }
 
-        private class Field {
-            private String name;
-            private String value;
-            private boolean inline;
+        private static class Field {
+            private final String name;
+            private final String value;
+            private final boolean inline;
 
             private Field(String name, String value, boolean inline) {
                 this.name = name;
@@ -341,9 +358,9 @@ public class DiscordWebhook {
         }
     }
 
-    private class JSONObject {
+    private static class JSONObject {
 
-        private final HashMap<String, Object> map = new HashMap<>();
+        private final Map<String, Object> map = new HashMap<>();
 
         void put(String key, Object value) {
             if (value != null) {
@@ -369,7 +386,7 @@ public class DiscordWebhook {
                 } else if (val instanceof Boolean) {
                     builder.append(val);
                 } else if (val instanceof JSONObject) {
-                    builder.append(val.toString());
+                    builder.append(val);
                 } else if (val.getClass().isArray()) {
                     builder.append("[");
                     int len = Array.getLength(val);

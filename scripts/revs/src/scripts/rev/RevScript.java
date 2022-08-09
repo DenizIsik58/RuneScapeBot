@@ -3,12 +3,16 @@ package scripts.rev;
 import dax.api_lib.DaxWalker;
 import dax.walker_engine.WalkingCondition;
 import lombok.Getter;
+import org.tribot.api.util.Screenshots;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
+import org.tribot.script.sdk.pricing.Pricing;
+import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import org.tribot.util.Util;
 import scripts.api.*;
 import scripts.api.concurrency.Debounce;
 
@@ -17,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,9 +44,6 @@ public class RevScript extends MyScriptExtension {
     private final Debounce walkDebounce = new Debounce(1000, TimeUnit.MILLISECONDS);
     private DiscordWebhook lootWebhook;
     private DiscordWebhook onEndWebHook;
-    private DiscordWebhook onStartWebHook;
-
-
 
     @Override
     protected void setupScript(ScriptSetup setup) {
@@ -68,21 +70,11 @@ public class RevScript extends MyScriptExtension {
     }
 
     @Override
-    protected void onStart(String args) {
+    protected void onStart(String args) throws IOException {
         // we put the args from the script start here so incase you have a script with args you can use them in your script from this
         lootWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006526256378040390/lBQqh9sKBdmHY3DFI7gKBhAq38gMZr5SsC8CUTICxqYLfrivwA4YI_ODE8iZFjRDuEwm");
         onEndWebHook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
-        onStartWebHook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
 
-        var captureWithPaint = Screenshot.captureWithPaint();
-        var outputFile = new File(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date() + ".png"));
-        try {
-            ImageIO.write(captureWithPaint, "png", outputFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        onStartWebHook.addEmbed(new DiscordWebhook.EmbedObject().setImage(outputFile.getPath()));
         MessageListening.addServerMessageListener(MyRevsClient::processMessage);
 
         DaxWalker.setGlobalWalkingCondition(() -> {
@@ -156,6 +148,12 @@ public class RevScript extends MyScriptExtension {
     @Override
     protected void onEnding() {
         // Send a SS to discord
+        var outputFile = ScreenShotManager.takeScreenShotAndSave();
+
+        MyRevsClient.getScript().getLootWebhook().setUsername("Revenant moneymaking")
+                .setContent("Reventant script ended for user: " + MyPlayer.getUsername())
+                .addFile(outputFile)
+                .execute();
 
         if (muleClient != null) {
             muleClient.stopConnection();
@@ -166,6 +164,10 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void updateState() {
+        if (Query.npcs().nameEquals("Death").isAny()){
+            Query.gameObjects().idEquals(39549).findFirst().ifPresent(portal -> portal.click("Use"));
+        }
+
         if (isState(State.STARTING) || isState(State.SELLLOOT)) {
             return;
         }
@@ -328,10 +330,6 @@ public class RevScript extends MyScriptExtension {
 
     public DiscordWebhook getOnEndWebHook() {
         return onEndWebHook;
-    }
-
-    public DiscordWebhook getOnStartWebHook() {
-        return onStartWebHook;
     }
 
     public WorldTile getSelectedMonsterTile() {

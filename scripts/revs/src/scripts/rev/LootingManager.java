@@ -86,14 +86,12 @@ public class LootingManager {
             } else {
 
                 if (Pricing.lookupPrice(item.getId()).orElse(0) >= 3800000) {
-                    var captureWithPaint = Screenshot.captureWithPaint();
-                    var outputFile = new File(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date() + ".png"));
-                    try {
-                        ImageIO.write(captureWithPaint, "png", outputFile);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    MyRevsClient.getScript().getLootWebhook().addEmbed(new DiscordWebhook.EmbedObject().setImage(outputFile.getPath()));
+                    var outputFile = ScreenShotManager.takeScreenShotAndSave();
+
+                    MyRevsClient.getScript().getLootWebhook().setUsername("Revenant Farm")
+                            .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "You have received a drop - **" + item.getName() + " - Value = " + Pricing.lookupPrice(item.getId()).orElse(0) + "**")
+                            .addFile(outputFile)
+                            .execute();
                 }
                 tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                 totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
