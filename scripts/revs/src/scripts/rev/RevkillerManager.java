@@ -47,6 +47,10 @@ public class RevkillerManager {
             Combat.setAutoRetaliate(false);
         }
 
+        if (Options.AttackOption.getNpcAttackOption() != Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE){
+            Options.AttackOption.setNpcAttackOption(Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE);
+        }
+
        /* if (Query.players().isNotEquipped(DetectPlayerThread.getPvmGear()).isAny() || Query.players().count() == 0) {
             iWasFirst = true;
         }*/
