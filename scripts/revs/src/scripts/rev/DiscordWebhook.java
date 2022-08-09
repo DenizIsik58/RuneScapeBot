@@ -65,7 +65,6 @@ public class DiscordWebhook {
         json.put("content", this.content);
         json.put("username", this.username);
         json.put("avatar_url", this.avatarUrl);
-        json.put("bufferedImage", this.bufferedImage);
         json.put("tts", this.tts);
 
         if (!this.embeds.isEmpty()) {

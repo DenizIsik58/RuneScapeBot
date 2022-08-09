@@ -1,5 +1,6 @@
 package scripts.api;
 
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.painting.Painting;
@@ -75,6 +76,7 @@ public abstract class MyScriptExtension implements TribotScript {
 
     }
 
+    @SneakyThrows
     @Override
     public void execute(@NotNull String args) {
 

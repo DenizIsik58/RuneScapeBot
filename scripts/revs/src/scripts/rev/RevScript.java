@@ -68,7 +68,7 @@ public class RevScript extends MyScriptExtension {
     }
 
     @Override
-    protected void onStart(String args) throws IOException {
+    protected void onStart(String args) {
         // we put the args from the script start here so incase you have a script with args you can use them in your script from this
         lootWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006526256378040390/lBQqh9sKBdmHY3DFI7gKBhAq38gMZr5SsC8CUTICxqYLfrivwA4YI_ODE8iZFjRDuEwm");
         onEndWebHook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
