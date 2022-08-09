@@ -224,6 +224,7 @@ public class BankManagerRevenant {
             Log.debug("[ERROR_LISTENER] We did not satisfy the gear setup. Trying again..");
             //withdrawGear();
             equipAndChargeItems();
+            getEquipmentBankTask().execute();
         }
 
         if (!MyRevsClient.myPlayerIsInFerox()){

@@ -116,7 +116,7 @@ public class TeleportManager {
     }
 
     public static boolean monsterTileIsDetected(WorldTile tile){
-        return tile.isRendered() || tile.isVisible() || tile.isInLineOfSight();
+        return tile.isRendered() || tile.isVisible();
     }
 
     public static void teleportOutOfWilderness(String message){
