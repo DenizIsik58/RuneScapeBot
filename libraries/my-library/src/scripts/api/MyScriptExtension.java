@@ -12,6 +12,7 @@ import org.tribot.script.sdk.script.TribotScript;
 
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class MyScriptExtension implements TribotScript {
@@ -28,7 +29,7 @@ public abstract class MyScriptExtension implements TribotScript {
 
     protected abstract void setupScript(ScriptSetup setup);
     protected void setupPaint(BasicPaintTemplate.BasicPaintTemplateBuilder paint) {}
-    protected abstract void onStart(String args);
+    protected abstract void onStart(String args) throws IOException;
     protected abstract void onMainLoop();
     protected abstract void onEnding();
 

@@ -1,16 +1,24 @@
 package scripts.rev;
 
 
+import javafx.stage.Screen;
+import org.tribot.api.util.Screenshots;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GroundItem;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import scripts.api.MyScriptExtension;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,6 +84,17 @@ public class LootingManager {
                 Log.debug("Not changed");
                 loot();
             } else {
+
+                if (Pricing.lookupPrice(item.getId()).orElse(0) >= 3800000) {
+                    var captureWithPaint = Screenshot.captureWithPaint();
+                    var outputFile = new File(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date() + ".png"));
+                    try {
+                        ImageIO.write(captureWithPaint, "png", outputFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    MyRevsClient.getScript().getLootWebhook().addEmbed(new DiscordWebhook.EmbedObject().setImage(outputFile.getPath()));
+                }
                 tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                 totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
                 var totalString = MathUtility.getProfitPerHourString(totalValue);
