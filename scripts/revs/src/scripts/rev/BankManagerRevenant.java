@@ -41,6 +41,7 @@ public class BankManagerRevenant {
     }
 
     public static void checkIfWeHaveEmblemDrop() {
+        MyBanker.openBank();
         List<String> valueAbles = new ArrayList<>(Arrays.asList("Ancient relic", "Ancient effigy", "Ancient medallion"));
         for (var item : valueAbles) {
             if (Query.bank().nameEquals(item).isAny()) {

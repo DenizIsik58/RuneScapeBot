@@ -88,6 +88,9 @@ public class GrandExchangeRevManager {
             int attempts = 0;
 
             while (!successfullyPosted && attempts < 5) {
+                if (!MyExchange.isExchangeOpen()) {
+                    MyExchange.openExchange();
+                }
                 attempts++;
                 successfullyPosted = MyExchange.createGrandExchangeOffer(item);
                 // Check if GE is full
