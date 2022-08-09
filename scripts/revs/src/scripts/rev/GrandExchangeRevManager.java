@@ -121,6 +121,7 @@ public class GrandExchangeRevManager {
         if (shouldRepeat) {
             sellLoot();
         }
+        MyExchange.closeExchange();
         shouldRepeat = false;
 
         mule();
