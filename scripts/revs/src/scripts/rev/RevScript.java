@@ -150,8 +150,8 @@ public class RevScript extends MyScriptExtension {
         // Send a SS to discord
         var outputFile = ScreenShotManager.takeScreenShotAndSave();
 
-        MyRevsClient.getScript().getLootWebhook().setUsername("Revenant moneymaking")
-                .setContent("Reventant script ended for user: " + MyPlayer.getUsername())
+        MyRevsClient.getScript().getLootWebhook().setUsername("Revenant Farm")
+                .setContent("Reventant script ended! User " + MyPlayer.getUsername() + " managed to farm a total of **" + LootingManager.getTotalValue() + " Gold**")
                 .addFile(outputFile)
                 .execute();
 
