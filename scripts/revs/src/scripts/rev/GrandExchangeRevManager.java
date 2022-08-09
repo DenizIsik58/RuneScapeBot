@@ -187,7 +187,7 @@ public class GrandExchangeRevManager {
                     String finalMulerName = mulerName;
 
                     TradeScreen.getStage().ifPresent(screen -> {
-                       var inTrade = Waiting.waitUntil(() -> screen == TradeScreen.Stage.FIRST_WINDOW);
+                       var inTrade = Waiting.waitUntil(100000, () -> screen == TradeScreen.Stage.FIRST_WINDOW);
                        if (!inTrade){
                            Log.debug("Not in trade. Trying again..");
                            retryTrade(finalMulerName);
