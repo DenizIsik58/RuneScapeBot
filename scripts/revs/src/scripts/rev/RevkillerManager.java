@@ -3,6 +3,7 @@ package scripts.rev;
 import lombok.Getter;
 import lombok.Setter;
 import org.tribot.script.sdk.*;
+import org.tribot.script.sdk.query.PlayerQuery;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.Npc;
@@ -56,6 +57,11 @@ public class RevkillerManager {
         }*/
 
         //if (iWasFirst) {
+        if (pvmers().count() < 2) {
+            iWasFirst = true;
+        }
+
+        if (iWasFirst){
             if (!MyRevsClient.getScript().getSelectedMonsterTile().isVisible()){
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
@@ -196,16 +202,22 @@ public class RevkillerManager {
                 TeleportManager.teleportOutOfWilderness("We have above 500k gold. Trying to teleport out...");
                 MyRevsClient.getScript().setState(State.BANKING);
             }
+        }else {
+            WorldManager.hopToRandomMemberWorldWithRequirements();
+        }
+
 
        /* }else {
             if ((Query.players().isEquipped("Black d'hide body", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace").isAny() || Query.players().isBeingInteractedWith().isAny() || Query.players().isHealthBarVisible().isAny()) && !iWasFirst) {
                 // Hop worlds
-                WorldManager.hopToRandomMemberWorldWithRequirements();
             }
         }*/
     }
 
 
+    private static PlayerQuery pvmers(){
+        return Query.players().isEquipped(DetectPlayerThread.getPvmGear());
+    }
     public static boolean hasLevelGained(){
         return startRangeLevel != Skill.RANGED.getCurrentLevel();
     }
