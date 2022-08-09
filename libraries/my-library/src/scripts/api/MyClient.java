@@ -7,9 +7,23 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Widget;
 import org.tribot.script.sdk.util.Retry;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.Optional;
 
 public class MyClient {
+
+    public static JFrame findTRiBotFrame() {
+        Frame[] frames = JFrame.getFrames();
+        if (frames[0] != null) return (JFrame) frames[0];
+        Log.error("Error, could not find TRiBot Frame.");
+        return null;
+    }
+
+    public static JRootPane getRootPane() {
+        return (JRootPane) JFrame.getFrames()[0].getComponent(0);
+    }
+
 
     public static boolean clickWidget(String action, int... indexPath) {
         return Query.widgets()
