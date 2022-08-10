@@ -3,27 +3,18 @@ package scripts.rev;
 import dax.api_lib.DaxWalker;
 import dax.walker_engine.WalkingCondition;
 import lombok.Getter;
-import org.tribot.api.util.Screenshots;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
-import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
-import org.tribot.util.Util;
 import scripts.api.*;
 import scripts.api.concurrency.Debounce;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,7 +36,8 @@ public class RevScript extends MyScriptExtension {
 
     private final Debounce walkDebounce = new Debounce(1000, TimeUnit.MILLISECONDS);
     private DiscordWebhook lootWebhook;
-    private DiscordWebhook onEndWebHook;
+    private DiscordWebhook onEndWebhook;
+    private DiscordWebhook onDeathWebhook;
 
     @Override
     protected void setupScript(ScriptSetup setup) {
@@ -75,7 +67,10 @@ public class RevScript extends MyScriptExtension {
     protected void onStart(String args) throws IOException {
         // we put the args from the script start here so incase you have a script with args you can use them in your script from this
         lootWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006526256378040390/lBQqh9sKBdmHY3DFI7gKBhAq38gMZr5SsC8CUTICxqYLfrivwA4YI_ODE8iZFjRDuEwm");
-        onEndWebHook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
+        onEndWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
+        onDeathWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006886106870075443/KgnJFpyL07_92FZ2fk8pxpCSDCxDQ_pIDDU0i2NwhxvRFG8KScu1eLKMz9VfT1xcwI3N");
+
+
 
         if (MyClient.findTRiBotFrame() != null){
             MyClient.findTRiBotFrame().setState(JFrame.ICONIFIED);
@@ -156,7 +151,7 @@ public class RevScript extends MyScriptExtension {
         // Send a SS to discord
         var outputFile = ScreenShotManager.takeScreenShotAndSave();
 
-        getOnEndWebHook().setUsername("Revenant Farm")
+        getOnEndWebhook().setUsername("Revenant Farm")
                 .setContent("Reventant script ended! User " + MyPlayer.getUsername() + " managed to farm a total of **" + LootingManager.getTotalValue() + " Gold**")
                 .addFile(outputFile)
                 .execute();
@@ -300,11 +295,15 @@ public class RevScript extends MyScriptExtension {
     private void handleDeath() {
         TeleportManager.setHasVisitedBeforeTrip(false);
         DeathManger.incrementTotalDeaths();
-        Log.info("Oh dear! FUCK! :( - You have just died with: " + LootingManager.getTripValue() + " Gold!! BASTARD");
-        // in the future we should implement logging the pker names... for hate and for lookout lol
-        Log.info("Total times died so far: " + DeathManger.totalDeaths());
-        MyScriptVariables.setDeath(String.valueOf(DeathManger.totalDeaths()));
         LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue());
+        var outputFile = ScreenShotManager.takeScreenShotAndSave();
+
+        getOnDeathWebhook().setUsername("Revenant Farm")
+                .setContent("**" + MyPlayer.getUsername() + "** has just died with: " + LootingManager.getTripValue() + " Gold** - profit so far: " + LootingManager.getTotalValue() + "\n\nTotal times dies: " + DeathManger.totalDeaths())
+                .addFile(outputFile)
+                .execute();
+        // in the future we should implement logging the pker names... for hate and for lookout lol
+        MyScriptVariables.setDeath(String.valueOf(DeathManger.totalDeaths()));
         LootingManager.resetTripValue();
         DeathManger.reGearFromDeath();
     }
@@ -334,8 +333,12 @@ public class RevScript extends MyScriptExtension {
         return lootWebhook;
     }
 
-    public DiscordWebhook getOnEndWebHook() {
-        return onEndWebHook;
+    public DiscordWebhook getOnEndWebhook() {
+        return onEndWebhook;
+    }
+
+    public DiscordWebhook getOnDeathWebhook() {
+        return onDeathWebhook;
     }
 
     public WorldTile getSelectedMonsterTile() {

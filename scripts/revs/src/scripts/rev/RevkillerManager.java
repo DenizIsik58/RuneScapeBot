@@ -111,6 +111,7 @@ public class RevkillerManager {
                 }
             }
 
+
             if (Prayer.getPrayerPoints() < 15) {
                 PrayerManager.maintainPrayerPotion();
                 if (target != null){
@@ -198,7 +199,7 @@ public class RevkillerManager {
                 return;
             }
 
-            if (LootingManager.getTripValue() >= 500000) {
+            if (LootingManager.getTripValue() >= 200000) {
                 TeleportManager.teleportOutOfWilderness("We have above 500k gold. Trying to teleport out...");
                 MyRevsClient.getScript().setState(State.BANKING);
             }
