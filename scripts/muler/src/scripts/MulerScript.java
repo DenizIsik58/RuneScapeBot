@@ -25,11 +25,11 @@ public class MulerScript extends MyScriptExtension {
 
     public void processTrade(String name) {
         Log.debug("Added: " + name + " to the list!");
-        traders.add(name);
+
+        if (!traders.contains(name)){
+            traders.add(name);
+        }
         var slaves = MultiServerSocket.getNames();
-        slaves.forEach(Log::debug);
-        Log.debug(name);
-        Log.debug(getTargetSlave());
 
         while (slaves.size() != 0) {
             for (int i = 0; i <= slaves.size() - 1; i++) {
@@ -104,7 +104,6 @@ public class MulerScript extends MyScriptExtension {
 
     }
 
-
     public static MulerState getState() {
         return state.get();
     }
@@ -123,7 +122,7 @@ public class MulerScript extends MyScriptExtension {
             Log.debug("Target slave: " + getTargetSlave());
             Waiting.waitUntil(100000, () -> Chatbox.acceptTradeRequest(getTargetSlave()));
             Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
-            Waiting.waitUntil(20000, () -> {
+            Waiting.waitUntil(() -> {
                 TradeScreen.getStage().map(screen -> {
                     if (screen == TradeScreen.Stage.FIRST_WINDOW) {
                         if (TradeScreen.OtherPlayer.hasAccepted()) {
@@ -137,7 +136,7 @@ public class MulerScript extends MyScriptExtension {
             });
 
 
-            var success = Waiting.waitUntil(20000, () -> {
+            Waiting.waitUntil(25000, () -> {
                 TradeScreen.getStage().map(screen -> {
                     if (screen == TradeScreen.Stage.SECOND_WINDOW) {
                         if (TradeScreen.OtherPlayer.hasAccepted()) {
@@ -150,10 +149,6 @@ public class MulerScript extends MyScriptExtension {
                 return false;
             });
 
-            if (!success) {
-                Log.debug("No success. Trying again");
-                return;
-            }
             Log.debug("Finished trading: Removing " + MultiServerSocket.getNames().get(index) + " from the list!");
             MultiServerSocket.getNames().remove(index);
             traders.remove(0);
