@@ -200,6 +200,7 @@ public class GrandExchangeRevManager {
             Waiting.waitNormal(5000, 250);
             Log.debug("Trading muler..");
             Query.players().nameEquals(mulerName).findFirst().map(muler -> muler.interact("Trade with"));
+            String finalMulerName = mulerName;
 
             /*TradeScreen.getStage().ifPresent(screen -> {
                 var inTrade = Waiting.waitUntil(100000, () -> screen == TradeScreen.Stage.FIRST_WINDOW);
@@ -210,9 +211,8 @@ public class GrandExchangeRevManager {
             });*/
             //Waiting.waitNormal(2000, 200);
 
-            var inTrade = Waiting.waitUntil(50000, () -> {
+            var inTrade = Waiting.waitUntil(25000, () -> {
                 TradeScreen.getStage().map(tradeScreen -> {
-                    Log.debug("I'm in first trade");
                     if (tradeScreen == TradeScreen.Stage.FIRST_WINDOW) {
                         TradeScreen.offerAll(995);
                         Waiting.wait(4000);
