@@ -178,54 +178,9 @@ public class GrandExchangeRevManager {
                     WorldHopper.hop(world);
 
                 }
-                while (Query.players().nameEquals(mulerName).findFirst().isEmpty()) {
-                    Waiting.wait(200);
-                }
 
-                if (Query.players().nameEquals(mulerName).findFirst().isPresent()) {
-                    Log.debug("Muler found! " + mulerName);
-                    Waiting.waitNormal(5000, 250);
-                    Log.debug("Trading muler..");
-                    Query.players().nameEquals(mulerName).findFirst().map(muler -> muler.interact("Trade with"));
-                    String finalMulerName = mulerName;
+                trade(mulerName);
 
-                    TradeScreen.getStage().ifPresent(screen -> {
-                       var inTrade = Waiting.waitUntil(100000, () -> screen == TradeScreen.Stage.FIRST_WINDOW);
-                       if (!inTrade){
-                           Log.debug("Not in trade. Trying again..");
-                           retryTrade(finalMulerName);
-                       }
-                    });
-                    //Waiting.waitNormal(2000, 200);
-
-                    Waiting.waitUntil(() -> {
-                        TradeScreen.getStage().map(tradeScreen -> {
-                            if (tradeScreen == TradeScreen.Stage.FIRST_WINDOW) {
-                                TradeScreen.offerAll(995);
-                                Waiting.wait(4000);
-                                TradeScreen.accept();
-                                return true;
-                            }
-                            return false;
-                        });
-                        return false;
-                    });
-
-                    Waiting.waitNormal(3000, 300);
-
-
-                    // Second trade
-                    TradeScreen.getStage().map(tradeScreen -> {
-                        if (tradeScreen == TradeScreen.Stage.SECOND_WINDOW) {
-                            Waiting.wait(4000);
-                            TradeScreen.accept();
-                            return true;
-                        }
-                        return false;
-                    });
-                    MuleManager.incrementAmountTimesMuled();
-                    MyScriptVariables.setTimesMuled(String.valueOf(MuleManager.getAmountTimesMuled()));
-                }
             } catch (Exception e) {
                 MyRevsClient.getScript().getSocketClient().startConnection("localhost", 6668);
                 Log.debug("Tried connecting to mule but couldn't");
@@ -233,6 +188,62 @@ public class GrandExchangeRevManager {
             }
         }
         WorldManager.hopToRandomMemberWorldWithRequirements();
+    }
+
+    private static void trade(String mulerName){
+        while (Query.players().nameEquals(mulerName).findFirst().isEmpty()) {
+            Waiting.wait(200);
+        }
+
+        if (Query.players().nameEquals(mulerName).findFirst().isPresent()) {
+            Log.debug("Muler found! " + mulerName);
+            Waiting.waitNormal(5000, 250);
+            Log.debug("Trading muler..");
+            Query.players().nameEquals(mulerName).findFirst().map(muler -> muler.interact("Trade with"));
+            String finalMulerName = mulerName;
+
+            TradeScreen.getStage().ifPresent(screen -> {
+                var inTrade = Waiting.waitUntil(100000, () -> screen == TradeScreen.Stage.FIRST_WINDOW);
+                if (!inTrade){
+                    Log.debug("Not in trade. Trying again..");
+                    retryTrade(finalMulerName);
+                }
+            });
+            //Waiting.waitNormal(2000, 200);
+
+            var inTrade = Waiting.waitUntil(25000, () -> {
+                TradeScreen.getStage().map(tradeScreen -> {
+                    if (tradeScreen == TradeScreen.Stage.FIRST_WINDOW) {
+                        TradeScreen.offerAll(995);
+                        Waiting.wait(4000);
+                        TradeScreen.accept();
+                        return true;
+                    }
+                    return false;
+                });
+                return false;
+            });
+
+            if (!inTrade) {
+                Log.debug("Couldn't get in trade. Trying again..");
+                trade(mulerName);
+            }
+
+            Waiting.waitNormal(3000, 300);
+
+
+            // Second trade
+            TradeScreen.getStage().map(tradeScreen -> {
+                if (tradeScreen == TradeScreen.Stage.SECOND_WINDOW) {
+                    Waiting.wait(4000);
+                    TradeScreen.accept();
+                    return true;
+                }
+                return false;
+            });
+            MuleManager.incrementAmountTimesMuled();
+            MyScriptVariables.setTimesMuled(String.valueOf(MuleManager.getAmountTimesMuled()));
+        }
     }
 
     private static void retryTrade(String mulerName) {
