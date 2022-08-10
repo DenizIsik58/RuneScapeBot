@@ -202,13 +202,13 @@ public class GrandExchangeRevManager {
             Query.players().nameEquals(mulerName).findFirst().map(muler -> muler.interact("Trade with"));
             String finalMulerName = mulerName;
 
-            /*TradeScreen.getStage().ifPresent(screen -> {
+            TradeScreen.getStage().ifPresent(screen -> {
                 var inTrade = Waiting.waitUntil(100000, () -> screen == TradeScreen.Stage.FIRST_WINDOW);
                 if (!inTrade){
                     Log.debug("Not in trade. Trying again..");
                     retryTrade(finalMulerName);
                 }
-            });*/
+            });
             //Waiting.waitNormal(2000, 200);
 
             var inTrade = Waiting.waitUntil(25000, () -> {
