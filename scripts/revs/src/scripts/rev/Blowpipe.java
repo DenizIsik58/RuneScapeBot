@@ -8,6 +8,7 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.tasks.Amount;
 import org.tribot.script.sdk.tasks.EquipmentReq;
 import org.tribot.script.sdk.types.EquipmentItem;
+import org.tribot.script.sdk.types.GrandExchangeOffer;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.util.Retry;
 import org.tribot.script.sdk.walking.GlobalWalking;
@@ -160,36 +161,34 @@ public class Blowpipe{
                        if (bow.getName().equals("Craw's bow")) {
                            MyBanker.withdraw(bow.getId(), 1, false);
                            MyBanker.closeBank();
-                           Query.inventory().nameEquals(bow.getName()).findFirst().map(c -> {
-                               Waiting.waitUntil(() -> c.click("Uncharge"));
-                               Waiting.waitUntil(ChatScreen::isOpen);
-                               Waiting.waitNormal(1250, 125);
-                               clickWidget("Yes", 584, 1);
-                               Waiting.waitUntil(() -> Inventory.contains(25547));
-                               MyExchange.walkToGrandExchange();
-                               MyExchange.openExchange();
-                               boolean successfullyPosted = false;
-                               int attempts = 0;
-                               while (!successfullyPosted && attempts < 5) {
-                                   if (!MyExchange.isExchangeOpen()) {
-                                       MyExchange.openExchange();
-                                   }
-                                   attempts++;
-                                   successfullyPosted = MyExchange.createGrandExchangeOffer(c);
-                                   // Check if GE is full
-                                   if (MyExchange.isGrandExchangeSlotsFull()) {
-                                       // GE IS FULL. COLLECT ITEMS
-                                       GrandExchange.collectAll();
-                                       // Wait till it has collected and slots are empty
-                                       Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
-                                   }
+                           Waiting.waitUntil(() -> bow.click("Uncharge"));
+                           Waiting.waitUntil(ChatScreen::isOpen);
+                           Waiting.waitNormal(1250, 125);
+                           clickWidget("Yes", 584, 1);
+                           Waiting.waitUntil(() -> Inventory.contains(25547));
+                           MyExchange.walkToGrandExchange();
+                           MyExchange.openExchange();
+                           boolean successfullyPosted = false;
+                           int attempts = 0;
+                           while (!successfullyPosted && attempts < 5) {
+                               if (!MyExchange.isExchangeOpen()) {
+                                   MyExchange.openExchange();
                                }
-                               GrandExchange.collectAll();
-                               GrandExchangeRevManager.buyFromBank(emptyBlowpipeId, 1);
+                               attempts++;
+                               successfullyPosted = GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(bow.getName()).quantity(Inventory.getCount(1)).priceAdjustment(-3).type(GrandExchangeOffer.Type.SELL).build());
 
-                               return true;
-                           });
-                       };
+                               // Check if GE is full
+                               if (MyExchange.isGrandExchangeSlotsFull()) {
+                                   // GE IS FULL. COLLECT ITEMS
+                                   GrandExchange.collectAll();
+                                   // Wait till it has collected and slots are empty
+                                   Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
+                               }
+                           }
+                           GrandExchange.collectAll();
+                           GrandExchangeRevManager.buyFromBank(emptyBlowpipeId, 1);
+                           return true;
+                       }
                        return false;
                     });
                 }
