@@ -185,6 +185,7 @@ public class Blowpipe{
                 var withdrawAmount = MathUtility.roundUpToNearest(dartsNeeded, 50);
                 if (Bank.getCount(dartId) < dartsNeeded) {
                     Log.error("Not enough darts in bank.");
+                    GrandExchangeRevManager.buyFromBank(dartId, 2000);
                     return false;
                 }
                 bankDartCount.set((int) withdrawAmount);
@@ -208,7 +209,8 @@ public class Blowpipe{
                 MyBanker.openBank();
                 var withdrawAmount = MathUtility.roundUpToNearest(scalesNeeded, 100);
                 if (Bank.getCount(zulrahScaleId) < scalesNeeded) {
-                    Log.error("Not enough darts in bank.");
+                    Log.error("Not enough scales in bank.");
+                    GrandExchangeRevManager.buyFromBank(zulrahScaleId, 2000);
                     return false;
                 }
                 bankScaleCount.set((int) withdrawAmount);

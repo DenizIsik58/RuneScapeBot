@@ -279,7 +279,7 @@ public class BankManagerRevenant {
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
                     //.addEquipmentItem(EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1)))
-                    .addEquipmentItem(Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.ADAMANT))
+                    //.addEquipmentItem(Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.ADAMANT))
                     .addEquipmentItem(BankManagerRevenant::getAmulet)
                     .build();
         }
@@ -458,6 +458,7 @@ public class BankManagerRevenant {
             Log.debug("Equipment task not satisfied. Checking if we need to buy gear..");
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
+
         }/* else {
             Log.debug("Checking brace and bow charges");
             EquipmentManager.checkBraceletCharges();
@@ -470,6 +471,7 @@ public class BankManagerRevenant {
             Log.debug("Equipment not satisfied. Trying again");
             equipAndChargeItems();
             getEquipmentBankTask().execute();
+            BankTask.builder().addEquipmentItem(Blowpipe.equipBlowpipe(1000, Blowpipe.Dart.ADAMANT)).build().execute();
         } else {
             withdrawGearAttempts.set(0);
         }
