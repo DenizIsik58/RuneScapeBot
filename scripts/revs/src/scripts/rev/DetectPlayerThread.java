@@ -38,7 +38,7 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
     private final AtomicBoolean paused = new AtomicBoolean(false);
 
-    private final AtomicBoolean outOfFood = new AtomicBoolean(false);
+    private static final AtomicBoolean outOfFood = new AtomicBoolean(false);
 
     @Getter @Setter
     private static Projectile lastProjectile = null;
@@ -176,7 +176,7 @@ public class DetectPlayerThread extends Thread {
              }, 15000);
     }
 
-    public void handleEatAndPrayer(Player pker) {
+    public static void handleEatAndPrayer(Player pker) {
 
         pker.getEquippedItem(Equipment.Slot.WEAPON).map(Item::getName).ifPresent(playerWeapon -> {
             if (playerWeapon.toLowerCase().contains("staff")) {
@@ -244,14 +244,9 @@ public class DetectPlayerThread extends Thread {
                    WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
 
                    GlobalWalking.walkTo(stairs, () -> {
-
-                       if (isFrozen()){
-                           return WalkState.FAILURE;
-                       }
-                       // where do we handle eating?
                        handleEatAndPrayer(pker);
-
-                       return WalkState.CONTINUE;
+                        Log.debug("Returning failure");
+                       return WalkState.FAILURE;
                    });
                    Query.gameObjects().idEquals(31558).findBestInteractable()
                            .map(c -> c.interact("Climb-up")
@@ -259,44 +254,21 @@ public class DetectPlayerThread extends Thread {
                            .orElse(false);
                    handleEatAndPrayer(pker);
 
-               }else {
+               } else {
 
                    //handleEatAndPrayer(pker);
                    ensureWalkingPermission();
                    //MyExchange.walkToGrandExchange();
                    GlobalWalking.walkTo(edgevilleDitch, () -> {
-                       if (isFrozen()){
-                           return WalkState.FAILURE;
-                       }
-                       // where do we handle eating?
+
                        handleEatAndPrayer(pker);
-                       return WalkState.CONTINUE;
+                       Log.debug("Returning failure");
+                       return WalkState.FAILURE;
 
                    });
                }
                 continue;
             }
-            // Else
-            // Do antipk here
-            PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
-
-            // 2. Fight back pker if not
-            if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()) {
-                pker.click();
-            }
-
-            handleEatAndPrayer(pker);
-
-            // 3. try to run away if we are not frozen
-            // TODO: Currently only runs no matter what. We need to figure out how we are frozen.
-            /*if (MyRevsClient.myPlayerIsInCave()) {
-                ensureWalkingPermission();
-
-            } else {
-                handleEatAndPrayer(pker);
-                ensureWalkingPermission();
-                MyExchange.walkToGrandExchange();
-            }*/
 
             Waiting.wait(100);
         }
@@ -407,11 +379,11 @@ public class DetectPlayerThread extends Thread {
                         if (isAntiPking()) {
                             setAntiPking(false);
                         }
-                        while (!MyRevsClient.myPlayerIsInGE()) {
+                        /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {
 
-                        }
+                        }*/
 
-                        TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                        //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
                         //MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                         setHasPkerBeenDetected(true);
                     } else {

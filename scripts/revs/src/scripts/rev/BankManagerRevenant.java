@@ -264,6 +264,8 @@ public class BankManagerRevenant {
         }
     }
 
+    privat st
+
     public static BankTask getEquipmentBankTask() {
         if (equipmentBankTask == null) {
             Log.debug("equipment task");
@@ -279,7 +281,7 @@ public class BankManagerRevenant {
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
                     //.addEquipmentItem(EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1)))
-                    .addEquipmentItem(Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.ADAMANT))
+                    .addEquipmentItem(Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.MITHRIL))
                     .addEquipmentItem(BankManagerRevenant::getAmulet)
                     .build();
         }

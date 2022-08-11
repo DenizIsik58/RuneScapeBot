@@ -154,9 +154,11 @@ public class Blowpipe{
         }
 
         if (wasEquipped) {
+            MyBanker.closeBank();
             Equipment.remove(blowpipeId);
+            Waiting.waitUntil(() -> !Equipment.contains(blowpipeId));
         }
-        Waiting.waitUntil(() -> !Equipment.contains(blowpipeId));
+
 
         if (info == null) {
             info = checkBlowpipe();
@@ -164,6 +166,7 @@ public class Blowpipe{
         if (info.hasCharges(amount)) {
             return true;
         }
+
         int dartsNeeded = info.getDartsNeededForCharges(amount);
         int scalesNeeded = info.getScalesNeededForCharges(amount);
         if (dartsNeeded > 0) {
@@ -186,7 +189,7 @@ public class Blowpipe{
                 var withdrawAmount = MathUtility.roundUpToNearest(dartsNeeded, 50);
                 if (Bank.getCount(dartId) < dartsNeeded) {
                     Log.error("Not enough darts in bank.");
-                    GrandExchangeRevManager.buyFromBank(dartId, dartsNeeded);
+                    GrandExchangeRevManager.buyFromBank(dartId, dartsNeeded * 3);
 
                 }
                 Log.debug("Dart withdraw amount: " + withdrawAmount);
@@ -223,6 +226,8 @@ public class Blowpipe{
 
         Log.debug(bankDartCount.get());
         Log.debug(bankScaleCount.get());
+        Log.debug(depositDarts);
+        Log.debug(depositDarts);
         if (bankDartCount.get() > 0 || bankScaleCount.get() > 0) {
             MyBanker.openBank();
 
@@ -230,15 +235,17 @@ public class Blowpipe{
                 if (depositDarts) {
                     MyBanker.deposit(dartType.id, bankDartCount.get(), true);
                 }
-            } else {
-                MyBanker.withdraw(dartType.id, bankDartCount.get(), true);
+                else {
+                    Log.debug("Trying to withdraw: " + dartType.name);
+                    MyBanker.withdraw(dartType.id, bankDartCount.get(), true);
+                }
             }
             if (bankScaleCount.get() > 0) {
                 if (depositScales) {
-                    MyBanker.deposit(dartType.id, bankScaleCount.get(), true);
+                    MyBanker.deposit(zulrahScaleId, bankScaleCount.get(), true);
+                } else {
+                    MyBanker.withdraw(zulrahScaleId, bankScaleCount.get(), true);
                 }
-            } else {
-                MyBanker.withdraw(dartType.id, bankScaleCount.get(), true);
             }
         }
         
@@ -328,7 +335,7 @@ public class Blowpipe{
                 }
             }
             var scalesRequired = amount * multiplier;
-            Log.log("Scales Required = " + scalesRequired);
+            Log.debug("Scales Required = " + scalesRequired);
             return scaleCount >= scalesRequired;
         }
 
