@@ -414,17 +414,18 @@ public class DetectPlayerThread extends Thread {
                                         }
                                     }
 
-                                });
-                            Log.debug("Ticks: " + tickCounter());
-                            if (tickCounter() >= 3) {
-                            Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                    if (tickCounter() >= 3) {
+                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                    }
+                                    Log.debug("Ticks: " + tickCounter());
 
-                        }
+                                });
+
 
                         /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {
 
                         }*/
-
+                        
                         TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
                         //MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                         setHasPkerBeenDetected(true);
