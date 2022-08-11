@@ -209,9 +209,9 @@ public class DetectPlayerThread extends Thread {
     public void antiPk() {
         var pker = getPker();
 
-        while (true) {
-            setProjectile();
+        while (isTeleblocked()) {
             //proj();
+            setProjectile();
 
             if (pker == null) {
                 // run away if our target is not nearby
@@ -227,7 +227,6 @@ public class DetectPlayerThread extends Thread {
                if (MyRevsClient.myPlayerIsInCave()) {
                    WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
                    GlobalWalking.walkTo(stairs, () -> {
-                       setProjectile();
                        if (isFrozen()){
                            Log.debug("Im fronze");
                            return WalkState.FAILURE;
@@ -248,7 +247,6 @@ public class DetectPlayerThread extends Thread {
                    //MyExchange.walkToGrandExchange();
                    WorldTile edgevilleDitch = new WorldTile(3104, 3519, 0); // Tile edge ditch
                    GlobalWalking.walkTo(edgevilleDitch, () -> {
-                       setProjectile();
                        if (isFrozen()){
                            return WalkState.FAILURE;
                        }
@@ -262,7 +260,6 @@ public class DetectPlayerThread extends Thread {
             }
             // Else
             // Do antipk here
-            setProjectile();
             PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
             //Log.debug("My target is: " + pker.getName());
 
@@ -314,12 +311,15 @@ public class DetectPlayerThread extends Thread {
 
     public static boolean isFrozen(){
         if (lastProjectile != null && !isTimerStarted) {
-            var isFrozen =  lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
-            if (isFrozen) {
-                isTimerStarted = true;
-                resetFreezeTimer();
+            var hasThrown =  lastProjectile.getDestination().equals(MyPlayer.getTile());
+            if (hasThrown) {
+                Waiting.wait(250);
+                if (!MyPlayer.isMoving()){
+                    isTimerStarted = true;
+                    resetFreezeTimer();
+                    return true;
+                }
             }
-            return isFrozen;
         }
         return false;
 
