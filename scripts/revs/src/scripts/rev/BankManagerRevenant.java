@@ -64,7 +64,9 @@ public class BankManagerRevenant {
     }
 
     public static void equipAndChargeItems() {
-        //equipAndCharge(true);
+        if (Skill.RANGED.getActualLevel() < 75) {
+            equipAndCharge(true);
+        }
         equipAndCharge(false);
     }
 
@@ -264,7 +266,12 @@ public class BankManagerRevenant {
         }
     }
 
-    privat st
+    private static EquipmentReq getBow(){
+        if (Skill.RANGED.getActualLevel() >= 75) {
+            Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.MITHRIL);
+        }
+        return EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1));
+    }
 
     public static BankTask getEquipmentBankTask() {
         if (equipmentBankTask == null) {
@@ -280,8 +287,7 @@ public class BankManagerRevenant {
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
-                    //.addEquipmentItem(EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1)))
-                    .addEquipmentItem(Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.MITHRIL))
+                    .addEquipmentItem(BankManagerRevenant::getBow)
                     .addEquipmentItem(BankManagerRevenant::getAmulet)
                     .build();
         }

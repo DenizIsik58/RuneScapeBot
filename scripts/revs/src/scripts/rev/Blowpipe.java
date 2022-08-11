@@ -12,6 +12,7 @@ import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.util.Retry;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
+import scripts.api.MyExchange;
 import scripts.api.utility.MathUtility;
 import scripts.api.utility.StringsUtility;
 
@@ -24,6 +25,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+
+import static scripts.api.MyClient.clickWidget;
 
 public class Blowpipe{
 
@@ -149,6 +152,47 @@ public class Blowpipe{
                 MyBanker.withdraw(emptyBlowpipeId, 1, false);
             } else {
                 Log.error("No blowpipe found.");
+                MyBanker.openBank();
+                MyBanker.depositAll();
+                if (Bank.contains("Craw's bow") || Bank.contains("Craw's bow (u)")) {
+                    var item = Query.bank().nameContains("Craw's bow").findFirst();
+                    item.map(bow -> {
+                       if (bow.getName().equals("Craw's bow")) {
+                           MyBanker.withdraw(bow.getId(), 1, false);
+                           MyBanker.closeBank();
+                           Query.inventory().nameEquals(bow.getName()).findFirst().map(c -> {
+                               Waiting.waitUntil(() -> c.click("Uncharge"));
+                               Waiting.waitUntil(ChatScreen::isOpen);
+                               Waiting.waitNormal(1250, 125);
+                               clickWidget("Yes", 584, 1);
+                               Waiting.waitUntil(() -> Inventory.contains(25547));
+                               MyExchange.walkToGrandExchange();
+                               MyExchange.openExchange();
+                               boolean successfullyPosted = false;
+                               int attempts = 0;
+                               while (!successfullyPosted && attempts < 5) {
+                                   if (!MyExchange.isExchangeOpen()) {
+                                       MyExchange.openExchange();
+                                   }
+                                   attempts++;
+                                   successfullyPosted = MyExchange.createGrandExchangeOffer(c);
+                                   // Check if GE is full
+                                   if (MyExchange.isGrandExchangeSlotsFull()) {
+                                       // GE IS FULL. COLLECT ITEMS
+                                       GrandExchange.collectAll();
+                                       // Wait till it has collected and slots are empty
+                                       Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
+                                   }
+                               }
+                               GrandExchange.collectAll();
+                               GrandExchangeRevManager.buyFromBank(emptyBlowpipeId, 1);
+
+                               return true;
+                           });
+                       };
+                       return false;
+                    });
+                }
                 return false;
             }
         }
