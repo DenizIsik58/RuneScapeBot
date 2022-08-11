@@ -5,13 +5,13 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GrandExchangeOffer;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.WorldTile;
-import org.tribot.script.sdk.util.Retry;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
 import scripts.api.MyExchange;
 import scripts.api.MyScriptVariables;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static scripts.api.MyBanker.closeBank;
 import static scripts.api.MyBanker.openBank;
@@ -43,7 +43,7 @@ public class GrandExchangeRevManager {
             Waiting.waitUntil(Inventory::isEmpty);
         }
         MyBanker.withdraw("Coins", 2147000000, false);
-        var itemsToSell = 0;
+        AtomicInteger itemsToSell = new AtomicInteger();
         for (var item : LootingManager.getLootToPickUp()) {
             if (item.equals("Looting bag") || item.equals("Coins")) {
                 continue;
@@ -66,6 +66,7 @@ public class GrandExchangeRevManager {
                             clickWidget("Yes", 584, 1);
                             Waiting.waitUntil(() -> Inventory.contains(22547));
                             MyBanker.openBank();
+                            itemsToSell.getAndIncrement();
                         });
                     }
                 }
@@ -82,16 +83,16 @@ public class GrandExchangeRevManager {
                 Log.warn("Pulling out bracelet");
                 MyBanker.withdraw(item, Bank.getCount(item) - 5, true);
                 Waiting.waitUntil(() -> Inventory.contains(item));
-                itemsToSell++;
+                itemsToSell.getAndIncrement();
                 continue;
             }
 
             if (Query.bank().nameEquals(item).isAny()) {
-                itemsToSell++;
+                itemsToSell.getAndIncrement();
                 MyBanker.withdraw(item, 10000000, true);
             }
         }
-        if (itemsToSell == 0) {
+        if (itemsToSell.get() == 0) {
             Log.debug("No items to sell");
             openBank();
             MyBanker.depositAll();
