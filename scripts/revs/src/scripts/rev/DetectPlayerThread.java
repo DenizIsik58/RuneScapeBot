@@ -188,46 +188,59 @@ public class DetectPlayerThread extends Thread {
     public void antiPk() {
         var pker = getPker();
 
-        if (pker == null) {
-            // run away if our target is not nearby
-            Log.debug("trying to hop worlds... Target is not in sight");
-            WorldManager.hopToRandomMemberWorldWithRequirements();
-            TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
-            return;
-        }
+        while (true) {
 
-        PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
-        proj();
-        Log.debug("My target is: " + pker.getName());
-        // pker will not be null from here on just use pker now instead of getPker
-        // We are tbed or our target is still here. Fight them
+            if (pker == null) {
+                // run away if our target is not nearby
+                Log.debug("trying to hop worlds... Target is not in sight");
+                WorldManager.hopToRandomMemberWorldWithRequirements();
+                TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
+                return;
+            }
+
+            if (!isFrozen()) {
+                // Start running
+                Log.debug("Im not frozen. Running!");
+                WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
+                GlobalWalking.walkTo(stairs, () -> {
+                    if (isFrozen()) return WalkState.FAILURE;
+                    // where do we handle eating?
+                    handleEatAndPrayer(pker);
+                    var clickedSteps = Query.gameObjects().idEquals(31558).findBestInteractable()
+                            .map(c -> c.interact("Climb-up")
+                                    && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
+                            .orElse(false);
+                    return clickedSteps ? WalkState.SUCCESS : WalkState.CONTINUE;
+                });
+            }
+            // Else
+            // Do antipk here
 
 
-        // 2. Fight back pker if not
-        if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()) {
-            // Our player is not attacking him.
-            pker.click("Attack");
-        }
 
-        // 3. try to run away if we are not frozen
-        // TODO: Currently only runs no matter what. We need to figure out how we are frozen.
-        WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
-        if (MyRevsClient.myPlayerIsInCave()) {
-            ensureWalkingPermission();
-            GlobalWalking.walkTo(stairs, () -> {
-                //if (isFrozen()) return WalkState.FAILURE;
-                // where do we handle eating?
+            PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
+            proj();
+            Log.debug("My target is: " + pker.getName());
+
+            // 2. Fight back pker if not
+            if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()) {
+                // Our player is not attacking him.
+                Log.debug("Attacking target!");
+                pker.click("Attack");
+            }
+
+            // 3. try to run away if we are not frozen
+            // TODO: Currently only runs no matter what. We need to figure out how we are frozen.
+            /*if (MyRevsClient.myPlayerIsInCave()) {
+                ensureWalkingPermission();
+
+            } else {
                 handleEatAndPrayer(pker);
-                var clickedSteps = Query.gameObjects().idEquals(31558).findBestInteractable()
-                        .map(c -> c.interact("Climb-up")
-                                && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
-                    .orElse(false);
-                return clickedSteps ? WalkState.SUCCESS : WalkState.CONTINUE;
-            });
-        } else {
-            handleEatAndPrayer(pker);
-            ensureWalkingPermission();
-            MyExchange.walkToGrandExchange();
+                ensureWalkingPermission();
+                MyExchange.walkToGrandExchange();
+            }*/
+
+            Waiting.wait(100);
         }
 
     }
@@ -236,7 +249,7 @@ public class DetectPlayerThread extends Thread {
         return Query.projectiles()
                 .isTargetingMe()
                 .isMoving()
-                .graphicIdEquals(181).findFirst();
+                .graphicIdEquals(178).findFirst();
     }
 
     public static void proj(){
@@ -331,10 +344,11 @@ public class DetectPlayerThread extends Thread {
                             continue;
                         }
                     }
+
                     if (isAntiPking()) {
                         proj();
                         Log.debug("[DANGER_LISTENER] We are anti-pking");
-                        //antiPk();
+                        antiPk();
                     }
                 }
 
