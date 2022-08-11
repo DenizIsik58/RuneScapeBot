@@ -228,17 +228,17 @@ public class Blowpipe{
 
             if (bankDartCount.get() > 0) {
                 if (depositDarts) {
-                    MyBanker.deposit(dartType.id, bankDartCount.get(), false);
+                    MyBanker.deposit(dartType.id, bankDartCount.get(), true);
                 }
             } else {
-                MyBanker.withdraw(dartType.id, bankDartCount.get(), false);
+                MyBanker.withdraw(dartType.id, bankDartCount.get(), true);
             }
             if (bankScaleCount.get() > 0) {
                 if (depositScales) {
-                    MyBanker.deposit(dartType.id, bankScaleCount.get(), false);
+                    MyBanker.deposit(dartType.id, bankScaleCount.get(), true);
                 }
             } else {
-                MyBanker.withdraw(dartType.id, bankScaleCount.get(), false);
+                MyBanker.withdraw(dartType.id, bankScaleCount.get(), true);
             }
         }
         
