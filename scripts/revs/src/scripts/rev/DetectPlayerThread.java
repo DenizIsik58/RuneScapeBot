@@ -399,11 +399,14 @@ public class DetectPlayerThread extends Thread {
                                         // Run west
                                         Log.debug("Player on east. Running west!");
                                         MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
+                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                                     }else {
                                         //Player west
                                         // Run east
                                         Log.debug("Player on west. Running east!");
                                         MyPlayer.getTile().translate(15, 0).clickOnMinimap();
+                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+
                                     }
                                 });
 
