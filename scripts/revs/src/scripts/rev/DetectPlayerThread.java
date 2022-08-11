@@ -220,6 +220,9 @@ public class DetectPlayerThread extends Thread {
 
         while (isTeleblocked()) {
 
+            handleEatAndPrayer(pker);
+
+
             if (entangleDetecter == null) {
                 entangleDetecter = new MagicManager();
                 new Thread(entangleDetecter).start();
