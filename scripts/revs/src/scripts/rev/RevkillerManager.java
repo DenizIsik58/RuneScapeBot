@@ -199,8 +199,10 @@ public class RevkillerManager {
             }
 
             if (LootingManager.getTripValue() >= 200000) {
-                TeleportManager.teleportOutOfWilderness("We have above 500k gold. Trying to teleport out...");
-                MyRevsClient.getScript().setState(State.BANKING);
+                if (!MyRevsClient.myPlayerIsInGE()) {
+                    Log.debug("Teleporting to ge after hitting 200k treshold");
+                    Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                }
             }
         }else {
             WorldManager.hopToRandomMemberWorldWithRequirements();
