@@ -259,12 +259,12 @@ public class DetectPlayerThread extends Thread {
             // Do antipk here
 
             PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
-            Log.debug("My target is: " + pker.getName());
+            //Log.debug("My target is: " + pker.getName());
 
             // 2. Fight back pker if not
             if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()) {
                 // Our player is not attacking him.
-                Log.debug("Attacking target!");
+                //Log.debug("Attacking target!");
                 pker.click("Attack");
             }
 
