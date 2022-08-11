@@ -155,7 +155,7 @@ public class Blowpipe{
                 Log.error("No blowpipe found.");
                 MyBanker.openBank();
                 MyBanker.depositAll();
-                GrandExchangeRevManager.sellLoot();
+                GrandExchangeRevManager.sellBow();
                 GrandExchangeRevManager.buyFromBank(emptyBlowpipeId, 1);
                 return true;
             }

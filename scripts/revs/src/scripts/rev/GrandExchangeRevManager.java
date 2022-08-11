@@ -74,25 +74,8 @@ public class GrandExchangeRevManager {
             }
         }
 
-        if (Query.bank().nameContains("Craw's bow").isAny()) {
-
-            itemsToSell.getAndIncrement();
-            if (Skill.RANGED.getActualLevel() >= 75) {
-                if (Bank.contains("Craw's bow") || Bank.contains("Craw's bow (u)")) {
-                    Query.bank().nameContains("Craw's bow").findFirst().map(c -> MyBanker.withdraw(c.getName(), 1, false));
-                    MyBanker.closeBank();
-                    Query.inventory().nameEquals("Craw's bow").findFirst().ifPresent(bow -> {
-                        Waiting.waitUntil(() -> bow.click("Uncharge"));
-                        Waiting.waitNormal(1250, 125);
-                        clickWidget("Yes", 584, 1);
-                        Waiting.waitUntil(() -> Inventory.contains(22547) && Inventory.contains(21820));
-                        MyBanker.openBank();
-                    });
-                }
-            }
-        }
-
         Log.debug("Items to sell: " + itemsToSell.get());
+
         if (itemsToSell.get() == 0) {
             Log.debug("No items to sell");
             openBank();
@@ -144,9 +127,6 @@ public class GrandExchangeRevManager {
         if (MyExchange.hasOfferToCollect()){
             GrandExchange.collectAll();
         }
-
-        
-
 
         if (shouldRepeat) {
             sellLoot();
@@ -269,12 +249,61 @@ public class GrandExchangeRevManager {
         }
     }
 
-    private static void retryTrade(String mulerName) {
+    public static void sellBow() {
 
-            Query.players().nameEquals(mulerName).findFirst().map(muler -> muler.interact("Trade with"));
-            TradeScreen.getStage().ifPresent(stage -> {
-                Waiting.waitUntil(25000, ()-> stage == TradeScreen.Stage.FIRST_WINDOW );
-            });
+        if (Query.bank().nameContains("Craw's bow").isAny()) {
+            if (Skill.RANGED.getActualLevel() >= 75) {
+                if (Bank.contains("Craw's bow") || Bank.contains("Craw's bow (u)")) {
+                    Query.bank().nameContains("Craw's bow").findFirst().map(c -> MyBanker.withdraw(c.getName(), 1, false));
+                    MyBanker.closeBank();
+                    Query.inventory().nameEquals("Craw's bow").findFirst().ifPresent(bow -> {
+                        Waiting.waitUntil(() -> bow.click("Uncharge"));
+                        Waiting.waitNormal(1250, 125);
+                        clickWidget("Yes", 584, 1);
+                        Waiting.waitUntil(() -> Inventory.contains(22547) && Inventory.contains(21820));
+                        MyBanker.openBank();
+                    });
+                }
+            }
+        }
+        for (var item : getAllSellItems()) {
+            // Will wait until the offer shows up in the GE.
+
+            boolean successfullyPosted = false;
+            int attempts = 0;
+
+            while (!successfullyPosted && attempts < 5) {
+                if (!MyExchange.isExchangeOpen()) {
+                    MyExchange.openExchange();
+                }
+                attempts++;
+                successfullyPosted = MyExchange.createGrandExchangeOffer(item);
+                // Check if GE is full
+                if (MyExchange.isGrandExchangeSlotsFull()) {
+                    // GE IS FULL. COLLECT ITEMS
+                    GrandExchange.collectAll();
+                    // Wait till it has collected and slots are empty
+                    Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
+                }
+            }
+
+            if (!successfullyPosted) {
+                Log.error("Failed to post item after 5 attempts");
+            }
+
+            // Check if GE is full
+            if (MyExchange.isGrandExchangeSlotsFull()) {
+                // GE IS FULL. COLLECT ITEMS
+                GrandExchange.collectAll();
+                // Wait till it has collected and slots are empty
+                Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
+            }
+        }
+        Waiting.waitNormal(2000, 250);
+        // Collect at the end
+        if (MyExchange.hasOfferToCollect()){
+            GrandExchange.collectAll();
+        }
     }
 
 
