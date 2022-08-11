@@ -291,6 +291,7 @@ public class DetectPlayerThread extends Thread {
         return Query.projectiles()
                 .isTargetingMe()
                 .isMoving()
+                .graphicIdEquals(178)
                 .findFirst();
     }
 
