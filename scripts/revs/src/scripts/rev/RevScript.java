@@ -296,11 +296,11 @@ public class RevScript extends MyScriptExtension {
         Log.debug("Dead");
         TeleportManager.setHasVisitedBeforeTrip(false);
         DeathManger.incrementTotalDeaths();
-        LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue());
+        LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue() - 400000);
         var outputFile = ScreenShotManager.takeScreenShotAndSave();
 
         onDeathWebhook.setUsername("Revenant Farm")
-                .setContent("**" + MyPlayer.getUsername() + "** has just died with: " + LootingManager.getTripValue() + " Gold** - profit so far: " + LootingManager.getTotalValue() + " - Total times dies: " + DeathManger.totalDeaths())
+                .setContent("**" + MyPlayer.getUsername() + "** has just died with: " + LootingManager.getTripValue() + " Gold** - profit so far: **" + LootingManager.getTotalValue() + "** - Total times dies: " + DeathManger.totalDeaths())
                 .addFile(outputFile)
                 .execute();
         // in the future we should implement logging the pker names... for hate and for lookout lol

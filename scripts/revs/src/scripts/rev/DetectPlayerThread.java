@@ -1,7 +1,6 @@
 package scripts.rev;
 
 
-import dax.api_lib.DaxWalker;
 import javafx.beans.property.SimpleBooleanProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -236,12 +235,16 @@ public class DetectPlayerThread extends Thread {
 
                if (MyRevsClient.myPlayerIsInCave()) {
                    WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
-                   //stairs.clickOnMinimap();
 
                    GlobalWalking.walkTo(stairs, () -> {
+                       setProjectile();
+                       if (isFrozen()){
+                           return WalkState.FAILURE;
+                       }
+                       // where do we handle eating?
                        handleEatAndPrayer(pker);
 
-                       return WalkState.FAILURE;
+                       return WalkState.CONTINUE;
                    });
                    Query.gameObjects().idEquals(31558).findBestInteractable()
                            .map(c -> c.interact("Climb-up")
@@ -254,8 +257,14 @@ public class DetectPlayerThread extends Thread {
                    //MyExchange.walkToGrandExchange();
                    WorldTile edgevilleDitch = new WorldTile(3104, 3519, 0); // Tile edge ditch
                    GlobalWalking.walkTo(edgevilleDitch, () -> {
+                       setProjectile();
+                       if (isFrozen()){
+                           return WalkState.FAILURE;
+                       }
+                       // where do we handle eating?
                        handleEatAndPrayer(pker);
-                       return WalkState.FAILURE;
+                       return WalkState.CONTINUE;
+
                    });
                }
                 continue;
@@ -291,7 +300,6 @@ public class DetectPlayerThread extends Thread {
         return Query.projectiles()
                 .isTargetingMe()
                 .isMoving()
-                .graphicIdEquals(178)
                 .findFirst();
     }
 
