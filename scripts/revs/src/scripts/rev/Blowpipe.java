@@ -155,34 +155,9 @@ public class Blowpipe{
                 Log.error("No blowpipe found.");
                 MyBanker.openBank();
                 MyBanker.depositAll();
-                if (Bank.contains("Craw's bow") || Bank.contains("Craw's bow (u)")) {
-                        Query.bank().nameContains("Craw's bow").findFirst().map(c -> MyBanker.withdraw(c.getName(), 1, false));
-                        MyBanker.closeBank();
-                        Query.inventory().nameEquals("Craw's bow").findFirst().ifPresent(bow -> {
-                        Waiting.waitUntil(() -> bow.click("Uncharge"));
-                        Waiting.waitUntil(ChatScreen::isOpen);
-                        Waiting.waitNormal(1250, 125);
-                        clickWidget("Yes", 584, 1);
-                        Waiting.waitUntil(() -> Inventory.contains(21820));
-                    });
-                    MyBanker.closeBank();
-                    MyExchange.walkToGrandExchange();
-                    MyExchange.openExchange();
-                        // Check if GE is full
-                    if (MyExchange.isGrandExchangeSlotsFull()) {
-                        // GE IS FULL. COLLECT ITEMS
-                        GrandExchange.collectAll();
-                        // Wait till it has collected and slots are empty
-                        Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
-                    }
-
-                    Query.inventory().nameEquals("Craw's bow (u)").findFirst().map(MyExchange::createGrandExchangeOffer);
-
-                    GrandExchange.collectAll();
-                    GrandExchangeRevManager.buyFromBank(emptyBlowpipeId, 1);
-
-                }
-                return false;
+                GrandExchangeRevManager.sellLoot();
+                GrandExchangeRevManager.buyFromBank(emptyBlowpipeId, 1);
+                return true;
             }
         }
 

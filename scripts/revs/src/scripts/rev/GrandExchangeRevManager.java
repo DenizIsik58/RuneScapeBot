@@ -15,6 +15,7 @@ import java.util.List;
 
 import static scripts.api.MyBanker.closeBank;
 import static scripts.api.MyBanker.openBank;
+import static scripts.api.MyClient.clickWidget;
 import static scripts.api.utility.Utility.distinctBy;
 
 public class GrandExchangeRevManager {
@@ -44,7 +45,7 @@ public class GrandExchangeRevManager {
         MyBanker.withdraw("Coins", 2147000000, false);
         var itemsToSell = 0;
         for (var item : LootingManager.getLootToPickUp()) {
-            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
+            if (item.equals("Looting bag") || item.equals("Coins")) {
                 continue;
             }
 
@@ -52,6 +53,24 @@ public class GrandExchangeRevManager {
                 shouldRepeat = true;
                 break;
             }
+
+            if (item.contains("Craw's bow")) {
+                if (Skill.RANGED.getActualLevel() >= 75) {
+                    if (Bank.contains("Craw's bow") || Bank.contains("Craw's bow (u)")) {
+                        Query.bank().nameContains("Craw's bow").findFirst().map(c -> MyBanker.withdraw(c.getName(), 1, false));
+                        MyBanker.closeBank();
+                        Query.inventory().nameEquals("Craw's bow").findFirst().ifPresent(bow -> {
+                            Waiting.waitUntil(() -> bow.click("Uncharge"));
+                            Waiting.waitUntil(ChatScreen::isOpen);
+                            Waiting.waitNormal(1250, 125);
+                            clickWidget("Yes", 584, 1);
+                            Waiting.waitUntil(() -> Inventory.contains(22547));
+                            MyBanker.openBank();
+                        });
+                    }
+                }
+            }
+
 
             if (item.equals("Bracelet of ethereum (uncharged)")) {
                 if (!Bank.contains(item)) {
