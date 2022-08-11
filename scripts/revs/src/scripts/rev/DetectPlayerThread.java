@@ -45,6 +45,7 @@ public class DetectPlayerThread extends Thread {
     @Getter @Setter
     private static boolean isTimerStarted = false;
     private static boolean isEntangled = false;
+    private static MagicManager entangleDetecter = null;
 
     public DetectPlayerThread(RevScript revScript) {
         this.script = revScript;
@@ -218,8 +219,12 @@ public class DetectPlayerThread extends Thread {
         var pker = getPker();
 
         while (isTeleblocked()) {
-            proj();
-            setProjectile();
+
+            if (entangleDetecter == null) {
+                entangleDetecter = new MagicManager();
+                new Thread(entangleDetecter).start();
+            }
+
 
             if (pker == null || !canTargetAttackMe(pker.getName())) {
                 // run away if our target is not nearby
@@ -237,7 +242,7 @@ public class DetectPlayerThread extends Thread {
                    WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
 
                    GlobalWalking.walkTo(stairs, () -> {
-                       setProjectile();
+
                        if (isFrozen()){
                            return WalkState.FAILURE;
                        }
@@ -257,7 +262,6 @@ public class DetectPlayerThread extends Thread {
                    //MyExchange.walkToGrandExchange();
                    WorldTile edgevilleDitch = new WorldTile(3104, 3519, 0); // Tile edge ditch
                    GlobalWalking.walkTo(edgevilleDitch, () -> {
-                       setProjectile();
                        if (isFrozen()){
                            return WalkState.FAILURE;
                        }
@@ -338,7 +342,6 @@ public class DetectPlayerThread extends Thread {
             }
         }
         return false;
-
     }
 
     private void ensureWalkingPermission() {
@@ -430,6 +433,7 @@ public class DetectPlayerThread extends Thread {
                 if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
                 if (inDanger()) setInDanger(false);
                 if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
+                if (entangleDetecter != null) entangleDetecter = null;
             }
         }
         // if running was set false and thread is ending, run these one last time
@@ -437,6 +441,7 @@ public class DetectPlayerThread extends Thread {
         if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
         if (inDanger()) setInDanger(false);
         if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
+        if (entangleDetecter != null) entangleDetecter = null;
     }
 
     // Could put this in a Utility Class to reuse
