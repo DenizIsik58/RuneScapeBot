@@ -44,6 +44,7 @@ public class DetectPlayerThread extends Thread {
     private static Projectile lastProjectile = null;
     @Getter @Setter
     private static boolean isTimerStarted = false;
+    private static boolean isEntangled = false;
 
     public DetectPlayerThread(RevScript revScript) {
         this.script = revScript;
@@ -161,6 +162,7 @@ public class DetectPlayerThread extends Thread {
                      Log.debug("Timer is over we are unfrozen!");
                      lastProjectile = null;
                      isTimerStarted = false;
+                     isEntangled = false;
                  }
              }, 15000);
     }
@@ -259,12 +261,9 @@ public class DetectPlayerThread extends Thread {
             // Else
             // Do antipk here
             PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
-            //Log.debug("My target is: " + pker.getName());
 
             // 2. Fight back pker if not
             if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()) {
-                // Our player is not attacking him.
-                //Log.debug("Attacking target!");
                 pker.click("Attack");
             }
 
@@ -308,6 +307,7 @@ public class DetectPlayerThread extends Thread {
     }
 
     public static boolean isFrozen(){
+        if (isEntangled) return true;
         if (lastProjectile != null && !isTimerStarted) {
             Log.debug("Timer is not started and last entangle is not null");
             var hasThrown =  lastProjectile.getDestination().equals(MyPlayer.getTile());
@@ -315,8 +315,9 @@ public class DetectPlayerThread extends Thread {
                 Log.debug("Entangle successfully landed");
                 Waiting.wait(250);
                 if (!MyPlayer.isMoving()){
-                    Log.debug("Out player is not moving. We are frozen");
+                    Log.debug("Our player is not moving. We are frozen");
                     isTimerStarted = true;
+                    isEntangled = true;
                     resetFreezeTimer();
                     return true;
                 }
