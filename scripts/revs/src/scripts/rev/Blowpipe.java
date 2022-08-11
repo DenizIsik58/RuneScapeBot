@@ -156,41 +156,31 @@ public class Blowpipe{
                 MyBanker.openBank();
                 MyBanker.depositAll();
                 if (Bank.contains("Craw's bow") || Bank.contains("Craw's bow (u)")) {
-                    var item = Query.bank().nameContains("Craw's bow").findFirst();
-                    item.map(bow -> {
-                       if (bow.getName().equals("Craw's bow")) {
-                           MyBanker.withdraw(bow.getId(), 1, false);
-                           MyBanker.closeBank();
-                           Waiting.waitUntil(() -> bow.click("Uncharge"));
-                           Waiting.waitUntil(ChatScreen::isOpen);
-                           Waiting.waitNormal(1250, 125);
-                           clickWidget("Yes", 584, 1);
-                           Waiting.waitUntil(() -> Inventory.contains(25547));
-                           MyExchange.walkToGrandExchange();
-                           MyExchange.openExchange();
-                           boolean successfullyPosted = false;
-                           int attempts = 0;
-                           while (!successfullyPosted && attempts < 5) {
-                               if (!MyExchange.isExchangeOpen()) {
-                                   MyExchange.openExchange();
-                               }
-                               attempts++;
-                               successfullyPosted = GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(bow.getName()).quantity(Inventory.getCount(1)).priceAdjustment(-3).type(GrandExchangeOffer.Type.SELL).build());
-
-                               // Check if GE is full
-                               if (MyExchange.isGrandExchangeSlotsFull()) {
-                                   // GE IS FULL. COLLECT ITEMS
-                                   GrandExchange.collectAll();
-                                   // Wait till it has collected and slots are empty
-                                   Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
-                               }
-                           }
-                           GrandExchange.collectAll();
-                           GrandExchangeRevManager.buyFromBank(emptyBlowpipeId, 1);
-                           return true;
-                       }
-                       return false;
+                        Query.bank().nameContains("Craw's bow").findFirst().map(c -> MyBanker.withdraw(c.getName(), 1, false));
+                        MyBanker.closeBank();
+                        Query.inventory().nameEquals("Craw's bow").findFirst().ifPresent(bow -> {
+                        Waiting.waitUntil(() -> bow.click("Uncharge"));
+                        Waiting.waitUntil(ChatScreen::isOpen);
+                        Waiting.waitNormal(1250, 125);
+                        clickWidget("Yes", 584, 1);
+                        Waiting.waitUntil(() -> Inventory.contains(21820));
                     });
+                    MyBanker.closeBank();
+                    MyExchange.walkToGrandExchange();
+                    MyExchange.openExchange();
+                        // Check if GE is full
+                    if (MyExchange.isGrandExchangeSlotsFull()) {
+                        // GE IS FULL. COLLECT ITEMS
+                        GrandExchange.collectAll();
+                        // Wait till it has collected and slots are empty
+                        Waiting.waitUntil(() -> !MyExchange.isGrandExchangeSlotsFull());
+                    }
+
+                    Query.inventory().nameEquals("Craw's bow (u)").findFirst().map(MyExchange::createGrandExchangeOffer);
+
+                    GrandExchange.collectAll();
+                    GrandExchangeRevManager.buyFromBank(emptyBlowpipeId, 1);
+
                 }
                 return false;
             }
