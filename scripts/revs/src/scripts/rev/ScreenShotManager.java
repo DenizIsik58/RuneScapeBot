@@ -1,5 +1,6 @@
 package scripts.rev;
 
+import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.Screenshot;
 
 import javax.imageio.ImageIO;
@@ -15,6 +16,7 @@ public class ScreenShotManager {
         try {
             ImageIO.write(Screenshot.captureWithPaint(), "png", outputFile);
         } catch (IOException e) {
+            Log.error(e);
             e.printStackTrace();
         }
         return outputFile;
