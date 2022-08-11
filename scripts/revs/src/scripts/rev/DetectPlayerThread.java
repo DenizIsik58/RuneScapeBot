@@ -383,7 +383,6 @@ public class DetectPlayerThread extends Thread {
                             setAntiPking(false);
                         }
                         Query.players()
-                                .hasSkullIcon()
                                 .withinCombatLevels(Combat.getWildernessLevel())
                                 .isNotEquipped(PVM_GEAR)
                                 .findFirst()
@@ -395,7 +394,7 @@ public class DetectPlayerThread extends Thread {
                                     }else {
                                         // Run north
                                     }*/
-
+                                    Log.debug("Timer has started: " + hasTickCounterStarted());
                                     if (!hasTickCounterStarted) {
                                         if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
                                             // Player is east
@@ -415,6 +414,7 @@ public class DetectPlayerThread extends Thread {
                                     }
 
                                     if (tickCounter() >= 3) {
+                                        Log.debug("Counter greater than 3 teleporting out");
                                         Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                                     }
                                     Log.debug("Ticks: " + tickCounter());
@@ -425,9 +425,10 @@ public class DetectPlayerThread extends Thread {
                         /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {
 
                         }*/
-                        
-                        TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
-                        //MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+                        if (!MyPlayer.isHealthBarVisible()){
+                            TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                            MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+                        }
                         setHasPkerBeenDetected(true);
                     } else {
                         if (!isAntiPking()) {
