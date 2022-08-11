@@ -155,7 +155,6 @@ public class DetectPlayerThread extends Thread {
     }
 
     public static void resetFreezeTimer() {
-         new Thread(() -> {
              new java.util.Timer().schedule(new TimerTask() {
                  @Override
                  public void run() {
@@ -164,7 +163,6 @@ public class DetectPlayerThread extends Thread {
                      isTimerStarted = false;
                  }
              }, 15000);
-         });
     }
 
     public void handleEatAndPrayer(Player pker) {
@@ -210,7 +208,7 @@ public class DetectPlayerThread extends Thread {
         var pker = getPker();
 
         while (isTeleblocked()) {
-            //proj();
+            proj();
             setProjectile();
 
             if (pker == null) {
@@ -292,7 +290,7 @@ public class DetectPlayerThread extends Thread {
         return Query.projectiles()
                 .isTargetingMe()
                 .isMoving()
-                .graphicIdEquals(178).findFirst();
+                .findFirst();
     }
 
     public static void proj(){
@@ -311,10 +309,13 @@ public class DetectPlayerThread extends Thread {
 
     public static boolean isFrozen(){
         if (lastProjectile != null && !isTimerStarted) {
+            Log.debug("Timer is not started and last entangle is not null");
             var hasThrown =  lastProjectile.getDestination().equals(MyPlayer.getTile());
             if (hasThrown) {
+                Log.debug("Entangle successfully landed");
                 Waiting.wait(250);
                 if (!MyPlayer.isMoving()){
+                    Log.debug("Out player is not moving. We are frozen");
                     isTimerStarted = true;
                     resetFreezeTimer();
                     return true;
