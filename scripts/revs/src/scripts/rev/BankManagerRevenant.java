@@ -532,7 +532,7 @@ public class BankManagerRevenant {
 
         for (var item : EquipmentManager.getBasicGear()) {
 
-            if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)") || item.equals("Bandos cloak")) {
+            if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
                 continue;
             }
 

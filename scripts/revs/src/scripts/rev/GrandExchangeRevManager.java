@@ -327,6 +327,9 @@ public class GrandExchangeRevManager {
             } else {
                 if (item.equals("Leather boots") || item.equals("Leather body") || item.equals("Coif")) {
                     GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).price(1000).type(GrandExchangeOffer.Type.BUY).build());
+                } else if (item.equals("Bandos cloak")) {
+                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(1).priceAdjustment(6).type(GrandExchangeOffer.Type.BUY).build());
+
                 } else {
                     GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).priceAdjustment(5).type(GrandExchangeOffer.Type.BUY).build());
                 }
