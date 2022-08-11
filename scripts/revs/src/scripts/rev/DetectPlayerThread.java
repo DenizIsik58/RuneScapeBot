@@ -380,11 +380,32 @@ public class DetectPlayerThread extends Thread {
                         if (isAntiPking()) {
                             setAntiPking(false);
                         }
-                        var danger = Query.players()
+                        Query.players()
                                 .hasSkullIcon()
                                 .withinCombatLevels(Combat.getWildernessLevel())
-                                        .isNotEquipped(PVM_GEAR)
-                                                .findFirst().map()
+                                .isNotEquipped(PVM_GEAR)
+                                .findFirst()
+                                .ifPresent(pker -> {
+                                   /* if (pker.getTile().getY() > MyPlayer.getTile().getY()){
+                                        // Player is more north than me
+                                        // Run south
+                                        MyPlayer.getTile().translate(0, -10).clickOnMinimap();
+                                    }else {
+                                        // Run north
+                                    }*/
+
+                                    if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
+                                        // Player is east
+                                        // Run west
+                                        Log.debug("Player on east. Running west!");
+                                        MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
+                                    }else {
+                                        //Player west
+                                        // Run east
+                                        Log.debug("Player on west. Running east!");
+                                        MyPlayer.getTile().translate(15, 0).clickOnMinimap();
+                                    }
+                                });
 
                         /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {
 
