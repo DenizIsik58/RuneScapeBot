@@ -1,7 +1,11 @@
 package scripts.api.utility;
 
+import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.util.Retry;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,6 +84,15 @@ public class StringsUtility {
             else returnString.append(Character.toString(chars));
         });
         return returnString.toString();
+    }
+
+    public static String getTextFromFirstLineContaining(String... strings) {
+        AtomicReference<String> text = new AtomicReference<>("");
+        Retry.retry(3, () -> {
+            text.set(Query.widgets().inIndexPath(162, 56).textContains(strings).sorted(Comparator.comparingInt(Widget::getIndex)).findFirst().flatMap(Widget::getText).orElse(null));
+            return text.get() != null;
+        });
+        return text.get();
     }
 
 }

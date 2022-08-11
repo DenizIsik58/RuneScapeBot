@@ -64,7 +64,7 @@ public class BankManagerRevenant {
     }
 
     public static void equipAndChargeItems() {
-        equipAndCharge(true);
+        //equipAndCharge(true);
         equipAndCharge(false);
     }
 
@@ -278,7 +278,8 @@ public class BankManagerRevenant {
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1)))
+                    //.addEquipmentItem(EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1)))
+                    .addEquipmentItem(Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.ADAMANT))
                     .addEquipmentItem(BankManagerRevenant::getAmulet)
                     .build();
         }

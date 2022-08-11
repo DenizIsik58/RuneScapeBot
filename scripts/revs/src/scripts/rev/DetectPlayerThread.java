@@ -173,7 +173,7 @@ public class DetectPlayerThread extends Thread {
                      isTimerStarted = false;
                      isEntangled = false;
                  }
-             }, 14500);
+             }, 15000);
     }
 
     public void handleEatAndPrayer(Player pker) {
@@ -217,12 +217,9 @@ public class DetectPlayerThread extends Thread {
 
     public void antiPk() {
         var pker = getPker();
+        WorldTile edgevilleDitch = new WorldTile(3104, 3519, 0); // Tile edge ditch
 
         while (isTeleblocked()) {
-
-            handleEatAndPrayer(pker);
-
-
             if (entangleDetecter == null) {
                 entangleDetecter = new MagicManager();
                 new Thread(entangleDetecter).start();
@@ -236,6 +233,8 @@ public class DetectPlayerThread extends Thread {
                 TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
                 return;
             }
+
+            handleEatAndPrayer(pker);
 
             if (!isFrozen()) {
                 // Start running
@@ -256,7 +255,7 @@ public class DetectPlayerThread extends Thread {
                    });
                    Query.gameObjects().idEquals(31558).findBestInteractable()
                            .map(c -> c.interact("Climb-up")
-                                   && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
+                                   && Waiting.waitUntil(500, () -> !MyRevsClient.myPlayerIsInCave()))
                            .orElse(false);
                    handleEatAndPrayer(pker);
 
@@ -265,7 +264,6 @@ public class DetectPlayerThread extends Thread {
                    //handleEatAndPrayer(pker);
                    ensureWalkingPermission();
                    //MyExchange.walkToGrandExchange();
-                   WorldTile edgevilleDitch = new WorldTile(3104, 3519, 0); // Tile edge ditch
                    GlobalWalking.walkTo(edgevilleDitch, () -> {
                        if (isFrozen()){
                            return WalkState.FAILURE;
@@ -409,7 +407,11 @@ public class DetectPlayerThread extends Thread {
                         if (isAntiPking()) {
                             setAntiPking(false);
                         }
-                        //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                        while (!MyRevsClient.myPlayerIsInGE()) {
+
+                        }
+
+                        TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
                         //MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                         setHasPkerBeenDetected(true);
                     } else {

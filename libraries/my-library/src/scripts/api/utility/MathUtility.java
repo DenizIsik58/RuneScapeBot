@@ -110,5 +110,12 @@ public class MathUtility {
     }
 
 
+    public static float roundDownToNearest(float input, float increment) {
+        return (float) Math.floor(input / increment) * increment;
+    }
+
+    public static float roundUpToNearest(float input, float increment) {
+        return (float) (Math.ceil(input / increment) * increment);
+    }
 
 }
