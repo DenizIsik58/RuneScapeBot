@@ -173,7 +173,7 @@ public class DetectPlayerThread extends Thread {
                      isTimerStarted = false;
                      isEntangled = false;
                  }
-             }, 15000);
+             }, 14500);
     }
 
     public void handleEatAndPrayer(Player pker) {
@@ -255,6 +255,8 @@ public class DetectPlayerThread extends Thread {
                            .map(c -> c.interact("Climb-up")
                                    && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
                            .orElse(false);
+                   handleEatAndPrayer(pker);
+
                }else {
 
                    //handleEatAndPrayer(pker);
@@ -328,17 +330,14 @@ public class DetectPlayerThread extends Thread {
 
         if (lastProjectile != null && !isTimerStarted) {
             Log.debug("Timer is not started and last entangle is not null");
-            var hasThrown =  lastProjectile.getDestination().equals(MyPlayer.getTile());
-            if (hasThrown) {
+            var isFrozen =  lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
+            if (isFrozen) {
                 Log.debug("Entangle successfully landed");
-                Waiting.wait(250);
-                if (!MyPlayer.isMoving()){
-                    Log.debug("Our player is not moving. We are frozen");
-                    isTimerStarted = true;
-                    isEntangled = true;
-                    resetFreezeTimer();
-                    return true;
-                }
+                Log.debug("Our player is not moving. We are frozen");
+                isTimerStarted = true;
+                isEntangled = true;
+                resetFreezeTimer();
+                return true;
             }
         }
         return false;

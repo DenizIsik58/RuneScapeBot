@@ -1,5 +1,6 @@
 package scripts.rev;
 
+import obf.De;
 import org.tribot.script.sdk.Combat;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.MyPlayer;
@@ -18,6 +19,9 @@ public class MagicManager implements Runnable {
     public void run() {
         while (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
             DetectPlayerThread.setProjectile();
+            if (DetectPlayerThread.isFrozen()) {
+                Log.debug("We are frozen!");
+            }
             Waiting.wait(50);
         }
     }
