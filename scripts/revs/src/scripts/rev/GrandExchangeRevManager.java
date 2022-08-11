@@ -306,6 +306,9 @@ public class GrandExchangeRevManager {
         if (MyExchange.hasOfferToCollect()){
             GrandExchange.collectAll();
         }
+
+        MyExchange.closeExchange();
+        MyBanker.openBank();
     }
 
 
