@@ -189,6 +189,7 @@ public class Blowpipe{
                     GrandExchangeRevManager.buyFromBank(dartId, dartsNeeded);
 
                 }
+                Log.debug("Dart withdraw amount: " + withdrawAmount);
                 bankDartCount.set((int) withdrawAmount);
             }
             Waiting.waitNormal(400, 200);
@@ -214,11 +215,14 @@ public class Blowpipe{
                     GrandExchangeRevManager.buyFromBank(zulrahScaleId, scalesNeeded);
 
                 }
+                Log.debug("Scales withdraw amount: " + scalesNeeded);
                 bankScaleCount.set((int) withdrawAmount);
             }
             Waiting.waitNormal(400, 200);
         }
 
+        Log.debug(bankDartCount.get());
+        Log.debug(bankScaleCount.get());
         if (bankDartCount.get() > 0 || bankScaleCount.get() > 0) {
             MyBanker.openBank();
 
