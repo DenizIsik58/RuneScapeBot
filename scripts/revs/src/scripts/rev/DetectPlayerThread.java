@@ -53,10 +53,10 @@ public class DetectPlayerThread extends Thread {
 
         }
         // 5 mins might be too long and run into going another trip after?
-        if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 1000) * 5) {
+        /*if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 1000) * 5) {
             Log.debug("Handling teleblock");
             setTeleblocked(true);
-        } else setTeleblocked(false);
+        } else setTeleblocked(false);*/
 
     }
 
@@ -303,8 +303,9 @@ public class DetectPlayerThread extends Thread {
                 }
 
                 danger = inDanger();
-
+                proj();
                 if (danger) {
+                    proj();
                     Log.warn("[DANGER_LISTENER] HANDLING DANGER");
                     if (Mouse.getSpeed() == 200) {
                         int dangerMouseSpeed = getRandomNumber(1500, 2000);
@@ -320,7 +321,7 @@ public class DetectPlayerThread extends Thread {
                         //MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                         setHasPkerBeenDetected(true);
                     } else {
-
+                        proj();
                         if (!isAntiPking()) {
                             Log.debug("[DANGER_LISTENER] TELEBLOCKED - Enabling AntiPK");
                             // making it skip the antiPK the thread loop cycle it is set,
@@ -331,8 +332,9 @@ public class DetectPlayerThread extends Thread {
                         }
                     }
                     if (isAntiPking()) {
+                        proj();
                         Log.debug("[DANGER_LISTENER] We are anti-pking");
-                        antiPk();
+                        //antiPk();
                     }
                 }
 
