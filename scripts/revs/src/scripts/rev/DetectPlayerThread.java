@@ -1,6 +1,7 @@
 package scripts.rev;
 
 
+import dax.api_lib.DaxWalker;
 import javafx.beans.property.SimpleBooleanProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -103,6 +104,14 @@ public class DetectPlayerThread extends Thread {
                 .hasSkullIcon()
                 .notInArea(FEROX_ENCLAVE)
                 .isInteractingWithMe()
+                .isAny();
+    }
+
+    public static boolean canTargetAttackMe(String name){
+        return Query.players()
+                .withinCombatLevels(getWildernessLevel())
+                .nameEquals(name)
+                .notInArea(FEROX_ENCLAVE)
                 .isAny();
     }
 
@@ -213,7 +222,7 @@ public class DetectPlayerThread extends Thread {
             proj();
             setProjectile();
 
-            if (pker == null) {
+            if (pker == null || !canTargetAttackMe(pker.getName())) {
                 // run away if our target is not nearby
                 Log.debug("trying to hop worlds... Target is not in sight");
                 WorldManager.hopToRandomMemberWorldWithRequirements();
@@ -224,17 +233,15 @@ public class DetectPlayerThread extends Thread {
             if (!isFrozen()) {
                 // Start running
                 Log.debug("Im not frozen. Running!");
+
                if (MyRevsClient.myPlayerIsInCave()) {
                    WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
+                   //stairs.clickOnMinimap();
+
                    GlobalWalking.walkTo(stairs, () -> {
-                       if (isFrozen()){
-                           Log.debug("Im fronze");
-                           return WalkState.FAILURE;
-                       }
-                       // where do we handle eating?
                        handleEatAndPrayer(pker);
 
-                       return WalkState.CONTINUE;
+                       return WalkState.FAILURE;
                    });
                    Query.gameObjects().idEquals(31558).findBestInteractable()
                            .map(c -> c.interact("Climb-up")
@@ -247,13 +254,8 @@ public class DetectPlayerThread extends Thread {
                    //MyExchange.walkToGrandExchange();
                    WorldTile edgevilleDitch = new WorldTile(3104, 3519, 0); // Tile edge ditch
                    GlobalWalking.walkTo(edgevilleDitch, () -> {
-                       if (isFrozen()){
-                           return WalkState.FAILURE;
-                       }
-                       // where do we handle eating?
                        handleEatAndPrayer(pker);
-                       return WalkState.CONTINUE;
-
+                       return WalkState.FAILURE;
                    });
                }
                 continue;
@@ -307,7 +309,10 @@ public class DetectPlayerThread extends Thread {
     }
 
     public static boolean isFrozen(){
-        if (isEntangled) return true;
+        if (isEntangled) {
+            return true;
+        }
+
         if (lastProjectile != null && !isTimerStarted) {
             Log.debug("Timer is not started and last entangle is not null");
             var hasThrown =  lastProjectile.getDestination().equals(MyPlayer.getTile());
