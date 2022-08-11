@@ -5,15 +5,18 @@ import javafx.beans.property.SimpleBooleanProperty;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.interfaces.Item;
+import org.tribot.script.sdk.query.ProjectileQuery;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.Player;
+import org.tribot.script.sdk.types.Projectile;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.*;
 import scripts.api.utility.StringsUtility;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.tribot.script.sdk.Combat.getWildernessLevel;
@@ -194,7 +197,7 @@ public class DetectPlayerThread extends Thread {
         }
 
         PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
-
+        proj();
         Log.debug("My target is: " + pker.getName());
         // pker will not be null from here on just use pker now instead of getPker
         // We are tbed or our target is still here. Fight them
@@ -212,7 +215,7 @@ public class DetectPlayerThread extends Thread {
         if (MyRevsClient.myPlayerIsInCave()) {
             ensureWalkingPermission();
             GlobalWalking.walkTo(stairs, () -> {
-
+                //if (isFrozen()) return WalkState.FAILURE;
                 // where do we handle eating?
                 handleEatAndPrayer(pker);
                 var clickedSteps = Query.gameObjects().idEquals(31558).findBestInteractable()
@@ -227,6 +230,26 @@ public class DetectPlayerThread extends Thread {
             MyExchange.walkToGrandExchange();
         }
 
+    }
+
+    public static Optional<Projectile> getProjectile(){
+        return Query.projectiles()
+                .isTargetingMe()
+                .isMoving()
+                .graphicIdEquals(181).findFirst();
+    }
+
+    public static void proj(){
+        Log.debug("PROJECTILE: " + Query.projectiles().findFirst().filter(Projectile::isTargetingMe).map(Projectile::getGraphicId));
+        Log.debug("START: " + Query.projectiles().findFirst().filter(Projectile::isTargetingMe).map(Projectile::getStart));
+        Log.debug("DESTINATION: " + Query.projectiles().findFirst().filter(Projectile::isTargetingMe).map(Projectile::getDestination));
+        Log.debug("ORIENTATION: " + Query.projectiles().findFirst().filter(Projectile::isTargetingMe).map(pr -> pr.getOrientation()));
+
+        Log.debug("MY tile: " + MyPlayer.getTile());
+    }
+
+    public static boolean isFrozen(){
+        return getProjectile().map(entangle -> entangle.getDestination().equals(MyPlayer.getTile())).orElse(false);
     }
 
     private void ensureWalkingPermission() {
@@ -283,7 +306,6 @@ public class DetectPlayerThread extends Thread {
 
                 if (danger) {
                     Log.warn("[DANGER_LISTENER] HANDLING DANGER");
-
                     if (Mouse.getSpeed() == 200) {
                         int dangerMouseSpeed = getRandomNumber(1500, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
@@ -294,8 +316,8 @@ public class DetectPlayerThread extends Thread {
                         if (isAntiPking()) {
                             setAntiPking(false);
                         }
-                        TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
-                        MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+                        //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                        //MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                         setHasPkerBeenDetected(true);
                     } else {
 

@@ -140,8 +140,6 @@ public class RevkillerManager {
                 Waiting.wait(1500);
             }
 
-
-
             if (target == null){
                 if (!hasClickedSpot){
                     GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile(), () -> {
@@ -153,6 +151,7 @@ public class RevkillerManager {
                     });
                     setHasClickedSpot(true);
                 }
+                
                 target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
             }
 
