@@ -148,6 +148,12 @@ public class DetectPlayerThread extends Thread {
         return MyScriptVariables.getVariable("pkerName", "");
     }
 
+    public static void resetFreezeTimer() {
+         new Thread(() -> {
+
+         });
+    }
+
     public void handleEatAndPrayer(Player pker) {
 
         pker.getEquippedItem(Equipment.Slot.WEAPON).map(Item::getName).ifPresent(playerWeapon -> {
@@ -192,7 +198,7 @@ public class DetectPlayerThread extends Thread {
 
         while (true) {
             setProjectile();
-            proj();
+            //proj();
 
             if (pker == null) {
                 // run away if our target is not nearby
@@ -250,6 +256,8 @@ public class DetectPlayerThread extends Thread {
                 Log.debug("Attacking target!");
                 pker.click("Attack");
             }
+
+            handleEatAndPrayer(pker);
 
             // 3. try to run away if we are not frozen
             // TODO: Currently only runs no matter what. We need to figure out how we are frozen.
