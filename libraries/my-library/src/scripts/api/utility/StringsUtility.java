@@ -1,9 +1,11 @@
 package scripts.api.utility;
 
 import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.types.Widget;
 import org.tribot.script.sdk.util.Retry;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;

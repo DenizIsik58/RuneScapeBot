@@ -3,6 +3,7 @@ package scripts.api;
 import org.tribot.script.sdk.GameState;
 import org.tribot.script.sdk.GameTab;
 import org.tribot.script.sdk.MyPlayer;
+import org.tribot.script.sdk.Options;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
@@ -69,6 +70,8 @@ public class MyOptions {
 
     public static void init(){
         GameTab.setSwitchPreference(GameTab.SwitchPreference.KEYS);
+        Options.AttackOption.setPlayerAttackOption(Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE);
+        Options.AttackOption.setNpcAttackOption(Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE);
         Mouse.setSpeed(200);
         setAidOff();
         setRunOn();

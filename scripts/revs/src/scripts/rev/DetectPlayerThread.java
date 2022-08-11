@@ -282,7 +282,7 @@ public class DetectPlayerThread extends Thread {
 
             // 2. Fight back pker if not
             if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()) {
-                pker.click("Attack");
+                pker.click();
             }
 
             handleEatAndPrayer(pker);
