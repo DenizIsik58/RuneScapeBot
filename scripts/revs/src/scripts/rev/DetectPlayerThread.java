@@ -2,6 +2,8 @@ package scripts.rev;
 
 
 import javafx.beans.property.SimpleBooleanProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.interfaces.Item;
@@ -16,12 +18,14 @@ import scripts.api.*;
 import scripts.api.utility.StringsUtility;
 
 import java.util.Optional;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.tribot.script.sdk.Combat.getWildernessLevel;
 
 
 public class DetectPlayerThread extends Thread {
+
 
     private final RevScript script;
     private final AtomicBoolean teleblocked = new AtomicBoolean(false);
@@ -36,8 +40,10 @@ public class DetectPlayerThread extends Thread {
 
     private final AtomicBoolean outOfFood = new AtomicBoolean(false);
 
-    private static WorldTile lastTileFrozen = null;
+    @Getter @Setter
     private static Projectile lastProjectile = null;
+    @Getter @Setter
+    private static boolean isTimerStarted = false;
 
     public DetectPlayerThread(RevScript revScript) {
         this.script = revScript;
@@ -150,7 +156,14 @@ public class DetectPlayerThread extends Thread {
 
     public static void resetFreezeTimer() {
          new Thread(() -> {
-
+             new java.util.Timer().schedule(new TimerTask() {
+                 @Override
+                 public void run() {
+                     Log.debug("Timer is over we are unfrozen!");
+                     lastProjectile = null;
+                     isTimerStarted = false;
+                 }
+             }, 15000);
          });
     }
 
@@ -245,8 +258,6 @@ public class DetectPlayerThread extends Thread {
             // Else
             // Do antipk here
 
-
-
             PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
             Log.debug("My target is: " + pker.getName());
 
@@ -296,8 +307,13 @@ public class DetectPlayerThread extends Thread {
     }
 
     public static boolean isFrozen(){
-        if (lastProjectile != null) {
-            return lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
+        if (lastProjectile != null && !isTimerStarted) {
+            var isFrozen =  lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
+            if (isFrozen) {
+                isTimerStarted = true;
+                resetFreezeTimer();
+            }
+            return isFrozen;
         }
         return false;
 
