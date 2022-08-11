@@ -229,16 +229,18 @@ public class DetectPlayerThread extends Thread {
                    GlobalWalking.walkTo(stairs, () -> {
                        setProjectile();
                        if (isFrozen()){
+                           Log.debug("Im fronze");
                            return WalkState.FAILURE;
                        }
                        // where do we handle eating?
                        handleEatAndPrayer(pker);
-                       var clickedSteps = Query.gameObjects().idEquals(31558).findBestInteractable()
-                               .map(c -> c.interact("Climb-up")
-                                       && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
-                               .orElse(false);
-                       return clickedSteps ? WalkState.SUCCESS : WalkState.CONTINUE;
+
+                       return WalkState.CONTINUE;
                    });
+                   Query.gameObjects().idEquals(31558).findBestInteractable()
+                           .map(c -> c.interact("Climb-up")
+                                   && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
+                           .orElse(false);
                }else {
 
                    //handleEatAndPrayer(pker);
