@@ -54,24 +54,6 @@ public class GrandExchangeRevManager {
                 break;
             }
 
-            if (item.contains("Craw's bow")) {
-                if (Skill.RANGED.getActualLevel() >= 75) {
-                    if (Bank.contains("Craw's bow") || Bank.contains("Craw's bow (u)")) {
-                        Query.bank().nameContains("Craw's bow").findFirst().map(c -> MyBanker.withdraw(c.getName(), 1, false));
-                        MyBanker.closeBank();
-                        Query.inventory().nameEquals("Craw's bow").findFirst().ifPresent(bow -> {
-                            Waiting.waitUntil(() -> bow.click("Uncharge"));
-                            Waiting.waitNormal(1250, 125);
-                            clickWidget("Yes", 584, 1);
-                            Waiting.waitUntil(() -> Inventory.contains(22547) && Inventory.contains(21820));
-                            MyBanker.openBank();
-                            itemsToSell.getAndIncrement();
-                        });
-                    }
-                }
-            }
-
-
             if (item.equals("Bracelet of ethereum (uncharged)")) {
                 if (!Bank.contains(item)) {
                     continue;
@@ -91,6 +73,25 @@ public class GrandExchangeRevManager {
                 MyBanker.withdraw(item, 10000000, true);
             }
         }
+
+        if (Query.bank().nameContains("Craw's bow").isAny()) {
+
+            itemsToSell.getAndIncrement();
+            if (Skill.RANGED.getActualLevel() >= 75) {
+                if (Bank.contains("Craw's bow") || Bank.contains("Craw's bow (u)")) {
+                    Query.bank().nameContains("Craw's bow").findFirst().map(c -> MyBanker.withdraw(c.getName(), 1, false));
+                    MyBanker.closeBank();
+                    Query.inventory().nameEquals("Craw's bow").findFirst().ifPresent(bow -> {
+                        Waiting.waitUntil(() -> bow.click("Uncharge"));
+                        Waiting.waitNormal(1250, 125);
+                        clickWidget("Yes", 584, 1);
+                        Waiting.waitUntil(() -> Inventory.contains(22547) && Inventory.contains(21820));
+                        MyBanker.openBank();
+                    });
+                }
+            }
+        }
+
         Log.debug("Items to sell: " + itemsToSell.get());
         if (itemsToSell.get() == 0) {
             Log.debug("No items to sell");
@@ -99,6 +100,9 @@ public class GrandExchangeRevManager {
             mule();
             return;
         }
+
+
+
         MyBanker.closeBank();
         MyExchange.openExchange();
 
@@ -140,6 +144,8 @@ public class GrandExchangeRevManager {
         if (MyExchange.hasOfferToCollect()){
             GrandExchange.collectAll();
         }
+
+        
 
 
         if (shouldRepeat) {
