@@ -172,6 +172,7 @@ public class Blowpipe{
             info = checkBlowpipe();
         }
         if (info.hasCharges(amount)) {
+            Log.debug("I have enough charges");
             return true;
         }
 
@@ -269,10 +270,8 @@ public class Blowpipe{
             Query.inventory().idEquals(12924, 12926).findFirst().ifPresent(darts::useOn);
         });
 
-
-        if (wasBankOpen && !Bank.isOpen()) {
-            MyBanker.openBank();
-        }
+        MyBanker.openBank();
+        Log.debug("Done loading");
         return checkLastBlowpipeInfo().hasCharges(amount);
     }
 
