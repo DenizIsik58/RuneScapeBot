@@ -27,6 +27,8 @@ import static org.tribot.script.sdk.Combat.getWildernessLevel;
 public class DetectPlayerThread extends Thread {
 
 
+    @Setter
+    private static int tickCounter = 0;
     private final RevScript script;
     private final AtomicBoolean teleblocked = new AtomicBoolean(false);
     private final AtomicBoolean danger = new AtomicBoolean(false);
@@ -37,7 +39,7 @@ public class DetectPlayerThread extends Thread {
     private final SimpleBooleanProperty running = new SimpleBooleanProperty(false);
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
     private final AtomicBoolean paused = new AtomicBoolean(false);
-
+    private static boolean hasTickCounterStarted = false;
     private static final AtomicBoolean outOfFood = new AtomicBoolean(false);
 
     @Getter @Setter
@@ -394,21 +396,30 @@ public class DetectPlayerThread extends Thread {
                                         // Run north
                                     }*/
 
-                                    if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
-                                        // Player is east
-                                        // Run west
-                                        Log.debug("Player on east. Running west!");
-                                        MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
-                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                                    }else {
-                                        //Player west
-                                        // Run east
-                                        Log.debug("Player on west. Running east!");
-                                        MyPlayer.getTile().translate(15, 0).clickOnMinimap();
-                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-
+                                    if (!hasTickCounterStarted) {
+                                        if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
+                                            // Player is east
+                                            // Run west
+                                            Log.debug("Player on east. Running west!");
+                                            MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
+                                            Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
+                                            hasTickCounterStarted = true;
+                                        }else {
+                                            //Player west
+                                            // Run east
+                                            Log.debug("Player on west. Running east!");
+                                            MyPlayer.getTile().translate(15, 0).clickOnMinimap();
+                                            Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
+                                            hasTickCounterStarted = true;
+                                        }
                                     }
+
                                 });
+                            Log.debug("Ticks: " + tickCounter());
+                            if (tickCounter() >= 3) {
+                            Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+
+                        }
 
                         /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {
 
@@ -441,6 +452,7 @@ public class DetectPlayerThread extends Thread {
                 if (inDanger()) setInDanger(false);
                 if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
                 if (entangleDetecter != null) entangleDetecter = null;
+                hasTickCounterStarted = false;
             }
         }
         // if running was set false and thread is ending, run these one last time
@@ -449,6 +461,7 @@ public class DetectPlayerThread extends Thread {
         if (inDanger()) setInDanger(false);
         if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
         if (entangleDetecter != null) entangleDetecter = null;
+        hasTickCounterStarted = false;
     }
 
     // Could put this in a Utility Class to reuse
@@ -463,6 +476,16 @@ public class DetectPlayerThread extends Thread {
     public static String[] getPvmGear() {
         return PVM_GEAR;
     }
+
+    public static boolean hasTickCounterStarted() {
+        return hasTickCounterStarted;
+    }
+
+    public static int tickCounter(){
+        return tickCounter;
+    }
+
+
 }
 
 

@@ -70,6 +70,12 @@ public class RevScript extends MyScriptExtension {
         onEndWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
         onDeathWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006886106870075443/KgnJFpyL07_92FZ2fk8pxpCSDCxDQ_pIDDU0i2NwhxvRFG8KScu1eLKMz9VfT1xcwI3N");
 
+        GameListening.addGameTickListener(() -> {
+
+            if (DetectPlayerThread.hasTickCounterStarted()) {
+                DetectPlayerThread.setTickCounter(DetectPlayerThread.tickCounter() + 1);
+            }
+        });
 
 
         if (MyClient.findTRiBotFrame() != null){
@@ -214,7 +220,9 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void startPkThread() {
-        if (playerDetectionThread != null) killPkThread();
+        if (playerDetectionThread != null) {
+            killPkThread();
+        }
         playerDetectionThread = new DetectPlayerThread(this);
         playerDetectionThread.start();
     }
