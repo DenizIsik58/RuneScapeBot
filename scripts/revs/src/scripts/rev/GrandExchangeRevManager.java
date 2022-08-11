@@ -250,7 +250,7 @@ public class GrandExchangeRevManager {
     }
 
     public static void sellBow() {
-
+            Log.debug("Selling bow");
         if (Query.bank().nameContains("Craw's bow").isAny()) {
             if (Skill.RANGED.getActualLevel() >= 75) {
                 if (Bank.contains("Craw's bow") || Bank.contains("Craw's bow (u)")) {
@@ -266,9 +266,11 @@ public class GrandExchangeRevManager {
                 }
             }
         }
-        for (var item : getAllSellItems()) {
+        for (var item : Inventory.getAll()) {
             // Will wait until the offer shows up in the GE.
-
+            if (item.getId() == 995) {
+                continue;
+            }
             boolean successfullyPosted = false;
             int attempts = 0;
 
