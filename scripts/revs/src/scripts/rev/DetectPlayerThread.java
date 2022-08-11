@@ -5,7 +5,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.interfaces.Item;
-import org.tribot.script.sdk.query.ProjectileQuery;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.Player;
@@ -37,6 +36,9 @@ public class DetectPlayerThread extends Thread {
 
     private final AtomicBoolean outOfFood = new AtomicBoolean(false);
 
+    private static WorldTile lastTileFrozen = null;
+    private static Projectile lastProjectile = null;
+
     public DetectPlayerThread(RevScript revScript) {
         this.script = revScript;
         ScriptListening.addPauseListener(() -> paused.set(true));
@@ -53,10 +55,10 @@ public class DetectPlayerThread extends Thread {
 
         }
         // 5 mins might be too long and run into going another trip after?
-        /*if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 1000) * 5) {
+        if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 1000) * 5) {
             Log.debug("Handling teleblock");
             setTeleblocked(true);
-        } else setTeleblocked(false);*/
+        } else setTeleblocked(false);
 
     }
 
@@ -189,6 +191,8 @@ public class DetectPlayerThread extends Thread {
         var pker = getPker();
 
         while (true) {
+            setProjectile();
+            proj();
 
             if (pker == null) {
                 // run away if our target is not nearby
@@ -201,17 +205,36 @@ public class DetectPlayerThread extends Thread {
             if (!isFrozen()) {
                 // Start running
                 Log.debug("Im not frozen. Running!");
-                WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
-                GlobalWalking.walkTo(stairs, () -> {
-                    if (isFrozen()) return WalkState.FAILURE;
-                    // where do we handle eating?
-                    handleEatAndPrayer(pker);
-                    var clickedSteps = Query.gameObjects().idEquals(31558).findBestInteractable()
-                            .map(c -> c.interact("Climb-up")
-                                    && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
-                            .orElse(false);
-                    return clickedSteps ? WalkState.SUCCESS : WalkState.CONTINUE;
-                });
+               if (MyRevsClient.myPlayerIsInCave()) {
+                   WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
+                   GlobalWalking.walkTo(stairs, () -> {
+                       if (isFrozen()){
+                           return WalkState.FAILURE;
+                       }
+                       // where do we handle eating?
+                       handleEatAndPrayer(pker);
+                       var clickedSteps = Query.gameObjects().idEquals(31558).findBestInteractable()
+                               .map(c -> c.interact("Climb-up")
+                                       && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
+                               .orElse(false);
+                       return clickedSteps ? WalkState.SUCCESS : WalkState.CONTINUE;
+                   });
+               }else {
+                   //handleEatAndPrayer(pker);
+                   ensureWalkingPermission();
+                   //MyExchange.walkToGrandExchange();
+                   WorldTile edgevilleDitch = new WorldTile(3104, 3519, 0); // Tile edge ditch
+                   GlobalWalking.walkTo(edgevilleDitch, () -> {
+                       if (isFrozen()){
+                           return WalkState.FAILURE;
+                       }
+                       // where do we handle eating?
+                       handleEatAndPrayer(pker);
+                       return WalkState.CONTINUE;
+
+                   });
+               }
+                continue;
             }
             // Else
             // Do antipk here
@@ -219,7 +242,6 @@ public class DetectPlayerThread extends Thread {
 
 
             PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
-            proj();
             Log.debug("My target is: " + pker.getName());
 
             // 2. Fight back pker if not
@@ -253,16 +275,24 @@ public class DetectPlayerThread extends Thread {
     }
 
     public static void proj(){
-        Log.debug("PROJECTILE: " + Query.projectiles().findFirst().filter(Projectile::isTargetingMe).map(Projectile::getGraphicId));
-        Log.debug("START: " + Query.projectiles().findFirst().filter(Projectile::isTargetingMe).map(Projectile::getStart));
-        Log.debug("DESTINATION: " + Query.projectiles().findFirst().filter(Projectile::isTargetingMe).map(Projectile::getDestination));
-        Log.debug("ORIENTATION: " + Query.projectiles().findFirst().filter(Projectile::isTargetingMe).map(pr -> pr.getOrientation()));
-
+        getProjectile().ifPresent(prj -> Log.debug("PROJECTILE: " + prj.getGraphicId()));
+        getProjectile().ifPresent(p -> Log.debug("START: " + p.getStart()));
+        getProjectile().ifPresent(p -> Log.debug("DESTINATION: " + p.getDestination()));
         Log.debug("MY tile: " + MyPlayer.getTile());
     }
 
+    public static void setProjectile(){
+        getProjectile().ifPresent(proj -> {
+            lastProjectile = proj;
+        });
+    }
+
     public static boolean isFrozen(){
-        return getProjectile().map(entangle -> entangle.getDestination().equals(MyPlayer.getTile())).orElse(false);
+        if (lastProjectile != null) {
+            return lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
+        }
+        return false;
+
     }
 
     private void ensureWalkingPermission() {
@@ -316,9 +346,7 @@ public class DetectPlayerThread extends Thread {
                 }
 
                 danger = inDanger();
-                proj();
                 if (danger) {
-                    proj();
                     Log.warn("[DANGER_LISTENER] HANDLING DANGER");
                     if (Mouse.getSpeed() == 200) {
                         int dangerMouseSpeed = getRandomNumber(1500, 2000);
@@ -334,7 +362,6 @@ public class DetectPlayerThread extends Thread {
                         //MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                         setHasPkerBeenDetected(true);
                     } else {
-                        proj();
                         if (!isAntiPking()) {
                             Log.debug("[DANGER_LISTENER] TELEBLOCKED - Enabling AntiPK");
                             // making it skip the antiPK the thread loop cycle it is set,
@@ -346,7 +373,6 @@ public class DetectPlayerThread extends Thread {
                     }
 
                     if (isAntiPking()) {
-                        proj();
                         Log.debug("[DANGER_LISTENER] We are anti-pking");
                         antiPk();
                     }

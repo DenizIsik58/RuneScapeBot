@@ -80,8 +80,9 @@ public class MyRevsClient {
 
         if (StringsUtility.hasMatches(TELEBLOCK_REGEX, message)) {
             var playerName = StringsUtility.extractFirstMatchGroup(TELEBLOCK_REGEX, message);
-            if (playerName.isEmpty()) Log.warn("Teleblock Regex detected, but got an empty name? I confuse?");
-            else {
+            if (playerName.isEmpty()) {
+                Log.warn("Teleblock Regex detected, but got an empty name? I confuse?");
+            } else {
                 MyScriptVariables.setVariable("lastTeleblockNotification", System.currentTimeMillis());
                 Log.warn("Teleblocked by some cunt named: " + playerName + "!!!");
                 MyScriptVariables.setVariable("pkerName", playerName);
