@@ -229,6 +229,7 @@ public class BankManagerRevenant {
         }
 
         if (!MyRevsClient.myPlayerIsInFerox()){
+            closeBank();
             Log.debug("Trying to teleport to ferox");
             if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
                 Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
