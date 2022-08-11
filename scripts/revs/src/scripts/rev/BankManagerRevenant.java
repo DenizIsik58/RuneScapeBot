@@ -287,7 +287,7 @@ public class BankManagerRevenant {
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
-                    .addEquipmentItem(BankManagerRevenant::getBow)
+                    .addEquipmentItem(getBow())
                     .addEquipmentItem(BankManagerRevenant::getAmulet)
                     .build();
         }

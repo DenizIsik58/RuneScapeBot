@@ -343,6 +343,8 @@ public class Blowpipe{
             }
             var scalesRequired = amount * multiplier;
             Log.debug("Scales Required = " + scalesRequired);
+            Log.debug("Scales count: " + scaleCount);
+            Log.debug("Dart count: " + dartCount);
             return scaleCount >= scalesRequired;
         }
 

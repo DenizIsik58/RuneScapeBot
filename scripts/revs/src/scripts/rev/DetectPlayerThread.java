@@ -279,6 +279,7 @@ public class DetectPlayerThread extends Thread {
         return Query.projectiles()
                 .isTargetingMe()
                 .isMoving()
+                .graphicIdEquals(178)
                 .findFirst();
     }
 
@@ -379,6 +380,12 @@ public class DetectPlayerThread extends Thread {
                         if (isAntiPking()) {
                             setAntiPking(false);
                         }
+                        var danger = Query.players()
+                                .hasSkullIcon()
+                                .withinCombatLevels(Combat.getWildernessLevel())
+                                        .isNotEquipped(PVM_GEAR)
+                                                .findFirst().map()
+
                         /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {
 
                         }*/
