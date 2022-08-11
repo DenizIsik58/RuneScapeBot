@@ -268,7 +268,7 @@ public class BankManagerRevenant {
 
     private static EquipmentReq getBow(){
         if (Skill.RANGED.getActualLevel() >= 75) {
-            Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.MITHRIL);
+            return Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.MITHRIL);
         }
         return EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1));
     }
