@@ -24,7 +24,7 @@ public class GrandExchangeRevManager {
     private static boolean inFirstTrade = false;
 
     public static List<InventoryItem> getAllSellItems() {
-        return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item -> item.getId() != 995 && item.getId() != 22547).distinctById().toList();
+        return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item -> item.getId() != 995).distinctById().toList();
     }
 
 
@@ -61,10 +61,9 @@ public class GrandExchangeRevManager {
                         MyBanker.closeBank();
                         Query.inventory().nameEquals("Craw's bow").findFirst().ifPresent(bow -> {
                             Waiting.waitUntil(() -> bow.click("Uncharge"));
-                            Waiting.waitUntil(ChatScreen::isOpen);
                             Waiting.waitNormal(1250, 125);
                             clickWidget("Yes", 584, 1);
-                            Waiting.waitUntil(() -> Inventory.contains(22547));
+                            Waiting.waitUntil(() -> Inventory.contains(22547) && Inventory.contains(21820));
                             MyBanker.openBank();
                             itemsToSell.getAndIncrement();
                         });
@@ -75,7 +74,7 @@ public class GrandExchangeRevManager {
 
             if (item.equals("Bracelet of ethereum (uncharged)")) {
                 if (!Bank.contains(item)) {
-                    break;
+                    continue;
                 }
                 if (Bank.getCount(item) <= 5 && Bank.contains(item)) {
                     continue;
@@ -92,6 +91,7 @@ public class GrandExchangeRevManager {
                 MyBanker.withdraw(item, 10000000, true);
             }
         }
+        Log.debug("Items to sell: " + itemsToSell.get());
         if (itemsToSell.get() == 0) {
             Log.debug("No items to sell");
             openBank();
