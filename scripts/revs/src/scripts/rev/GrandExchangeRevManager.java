@@ -24,7 +24,7 @@ public class GrandExchangeRevManager {
     private static boolean inFirstTrade = false;
 
     public static List<InventoryItem> getAllSellItems() {
-        return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item -> item.getId() != 995).distinctById().toList();
+        return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item -> item.getId() != 995 && item.getId() != 22547).distinctById().toList();
     }
 
 
@@ -45,7 +45,7 @@ public class GrandExchangeRevManager {
         MyBanker.withdraw("Coins", 2147000000, false);
         AtomicInteger itemsToSell = new AtomicInteger();
         for (var item : LootingManager.getLootToPickUp()) {
-            if (item.equals("Looting bag") || item.equals("Coins")) {
+            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
                 continue;
             }
 
