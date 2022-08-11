@@ -227,6 +227,7 @@ public class DetectPlayerThread extends Thread {
                if (MyRevsClient.myPlayerIsInCave()) {
                    WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
                    GlobalWalking.walkTo(stairs, () -> {
+                       setProjectile();
                        if (isFrozen()){
                            return WalkState.FAILURE;
                        }
@@ -239,11 +240,13 @@ public class DetectPlayerThread extends Thread {
                        return clickedSteps ? WalkState.SUCCESS : WalkState.CONTINUE;
                    });
                }else {
+
                    //handleEatAndPrayer(pker);
                    ensureWalkingPermission();
                    //MyExchange.walkToGrandExchange();
                    WorldTile edgevilleDitch = new WorldTile(3104, 3519, 0); // Tile edge ditch
                    GlobalWalking.walkTo(edgevilleDitch, () -> {
+                       setProjectile();
                        if (isFrozen()){
                            return WalkState.FAILURE;
                        }
@@ -257,7 +260,7 @@ public class DetectPlayerThread extends Thread {
             }
             // Else
             // Do antipk here
-
+            setProjectile();
             PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
             //Log.debug("My target is: " + pker.getName());
 
@@ -302,6 +305,7 @@ public class DetectPlayerThread extends Thread {
 
     public static void setProjectile(){
         getProjectile().ifPresent(proj -> {
+            Log.debug("Setting projectile!");
             lastProjectile = proj;
         });
     }
