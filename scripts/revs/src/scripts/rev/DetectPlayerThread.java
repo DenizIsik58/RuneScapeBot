@@ -45,7 +45,7 @@ public class DetectPlayerThread extends Thread {
     @Getter @Setter
     private static Projectile lastProjectile = null;
     @Getter @Setter
-    private static boolean isTimerStarted = false;
+    private static boolean isEntangleTimerStarted = false;
     private static boolean isEntangled = false;
     private static MagicManager entangleDetecter = null;
 
@@ -172,7 +172,7 @@ public class DetectPlayerThread extends Thread {
                  public void run() {
                      Log.debug("Timer is over we are unfrozen!");
                      lastProjectile = null;
-                     isTimerStarted = false;
+                     isEntangleTimerStarted = false;
                      isEntangled = false;
                  }
              }, 15000);
@@ -267,8 +267,6 @@ public class DetectPlayerThread extends Thread {
                 }
             }
 
-
-
             Waiting.wait(100);
         }
 
@@ -301,13 +299,13 @@ public class DetectPlayerThread extends Thread {
             return true;
         }
 
-        if (lastProjectile != null && !isTimerStarted) {
+        if (lastProjectile != null && !isEntangleTimerStarted) {
             Log.debug("Timer is not started and last entangle is not null");
             var isFrozen =  lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
             if (isFrozen) {
                 Log.debug("Entangle successfully landed");
                 Log.debug("Our player is not moving. We are frozen");
-                isTimerStarted = true;
+                isEntangleTimerStarted = true;
                 isEntangled = true;
                 resetFreezeTimer();
                 return true;
@@ -398,14 +396,14 @@ public class DetectPlayerThread extends Thread {
                                                 // Run west
                                                 Log.debug("Player on east. Running west!");
                                                 MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
-                                                if (!isTimerStarted){
+                                                if (!hasTickCounterStarted){
                                                     Log.debug("Timer for teleport has beenn started");
 
                                                     hasTickCounterStarted = true;
                                                     new java.util.Timer().schedule(new TimerTask() {
                                                         @Override
                                                         public void run() {
-                                                            if (isTimerStarted) {
+                                                            if (hasTickCounterStarted) {
                                                                 Log.debug("Teleporting now");
                                                                 while (!MyRevsClient.myPlayerIsInGE() && !isTeleblocked())
                                                                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
@@ -419,13 +417,13 @@ public class DetectPlayerThread extends Thread {
                                                 // Run east
                                                 Log.debug("Player on west. Running east!");
                                                 MyPlayer.getTile().translate(15, 0).clickOnMinimap();
-                                                if (!isTimerStarted){
+                                                if (!hasTickCounterStarted){
                                                     Log.debug("Timer for teleport has beenn started");
                                                     hasTickCounterStarted = true;
                                                     new java.util.Timer().schedule(new TimerTask() {
                                                         @Override
                                                         public void run() {
-                                                            if (isTimerStarted){
+                                                            if (hasTickCounterStarted){
                                                                 Log.debug("Teleporting now");
                                                                 while (!MyRevsClient.myPlayerIsInGE() && !isTeleblocked())
                                                                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
