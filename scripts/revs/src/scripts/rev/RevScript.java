@@ -14,7 +14,9 @@ import scripts.api.*;
 import scripts.api.concurrency.Debounce;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -178,6 +180,8 @@ public class RevScript extends MyScriptExtension {
         if (Combat.isInWilderness()){
             TeleportManager.teleportOutOfWilderness("Ending script... Teleporting out");
         }
+
+        Objects.requireNonNull(MyClient.findTRiBotFrame()).setState(Frame.NORMAL);
     }
 
     private void updateState() {
