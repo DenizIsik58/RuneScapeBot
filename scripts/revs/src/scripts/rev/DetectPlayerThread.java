@@ -418,11 +418,11 @@ public class DetectPlayerThread extends Thread {
                                         Log.debug("Player on east. Running west!");
                                         //if (!hasTickCounterStarted) {
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(-15, 0).clickOnMinimap());
+                                            Waiting.wait(2000);
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
                                             Log.debug("Timer for teleport has beenn started");
                                             //hasTickCounterStarted = true;
-                                            Waiting.wait(1800);
-                                            Log.debug("1,8 seconds gone Teleporting now");
+                                            Log.debug("2 seconds gone Teleporting now");
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
 
 
@@ -445,11 +445,12 @@ public class DetectPlayerThread extends Thread {
                                         Log.debug("Player on west. Running east!");
                                         //if (!hasTickCounterStarted) {
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(15, 0).clickOnMinimap());
+                                            Waiting.wait(2000);
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
                                             Log.debug("Timer for teleport has beenn started");
                                             //hasTickCounterStarted = true;
-                                            Waiting.wait(1800);
-                                            Log.debug("1,8 seconds gone Teleporting now");
+
+                                            Log.debug("2 seconds gone Teleporting now");
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
 
                                         //TeleportManager.teleportOutOfWilderness("teleporting out after 1,8 seconds");
