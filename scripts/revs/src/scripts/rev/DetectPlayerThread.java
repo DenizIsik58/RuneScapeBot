@@ -407,7 +407,6 @@ public class DetectPlayerThread extends Thread {
                                         Log.debug("Player on east. Running west!");
                                         //if (!hasTickCounterStarted) {
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(-15, 0).clickOnMinimap());
-
                                     } else {
                                         //Player west
                                         // Run east
