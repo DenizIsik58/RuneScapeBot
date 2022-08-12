@@ -397,7 +397,7 @@ public class DetectPlayerThread extends Thread {
                                         // Run west
                                         Log.debug("Player on east. Running west!");
                                         if (!hasTickCounterStarted) {
-                                            MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
+                                            Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(-15, 0).clickOnMinimap());
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
                                             Log.debug("Timer for teleport has beenn started");
                                             hasTickCounterStarted = true;
@@ -416,7 +416,7 @@ public class DetectPlayerThread extends Thread {
                                         // Run east
                                         Log.debug("Player on west. Running east!");
                                         if (!hasTickCounterStarted) {
-                                            MyPlayer.getTile().translate(15, 0).clickOnMinimap();
+                                            Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(15, 0).clickOnMinimap());
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
                                             Log.debug("Timer for teleport has beenn started");
                                             hasTickCounterStarted = true;
