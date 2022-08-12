@@ -410,6 +410,7 @@ public class DetectPlayerThread extends Thread {
                                                         public void run() {
                                                             if (isTimerStarted) {
                                                                 Log.debug("Teleporting now");
+                                                                while (!MyRevsClient.myPlayerIsInGE() && !isTeleblocked())
                                                                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                                                             }
                                                         }
@@ -429,6 +430,7 @@ public class DetectPlayerThread extends Thread {
                                                         public void run() {
                                                             if (isTimerStarted){
                                                                 Log.debug("Teleporting now");
+                                                                while (!MyRevsClient.myPlayerIsInGE() && !isTeleblocked())
                                                                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
 
                                                             }
