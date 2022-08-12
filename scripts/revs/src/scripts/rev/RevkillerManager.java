@@ -202,6 +202,7 @@ public class RevkillerManager {
                 if (!MyRevsClient.myPlayerIsInGE()) {
                     Log.debug("Teleporting to ge after hitting 200k treshold");
                     Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                    MyRevsClient.getScript().setState(State.BANKING);
                 }
             }
         }else {
