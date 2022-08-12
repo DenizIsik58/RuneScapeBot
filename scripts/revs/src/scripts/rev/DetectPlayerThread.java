@@ -403,16 +403,10 @@ public class DetectPlayerThread extends Thread {
                                                         @Override
                                                         public void run() {
                                                             if (hasTickCounterStarted){
-                                                                Log.debug("Teleporting now");
-                                                                while (!MyRevsClient.myPlayerIsInGE()){
+                                                                Log.debug("1,8 seconds gone Teleporting now");
                                                                     Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                                                                    if (isTeleblocked()) {
-                                                                        break;
-                                                                    }
-                                                                    Waiting.wait(50);
                                                                 }
 
-                                                            }
 
                                                         }
                                                     }, 1800);
@@ -430,17 +424,9 @@ public class DetectPlayerThread extends Thread {
                                                         @Override
                                                         public void run() {
                                                             if (hasTickCounterStarted){
-                                                                Log.debug("Teleporting now");
-                                                                while (!MyRevsClient.myPlayerIsInGE()){
-                                                                    Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                                                                    if (isTeleblocked()) {
-                                                                        break;
-                                                                    }
-                                                                    Waiting.wait(50);
-                                                                }
-
+                                                                Log.debug("1,8 seconds gone Teleporting now");
+                                                                Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                                                             }
-
                                                         }
                                                     }, 1800);
                                                 }
