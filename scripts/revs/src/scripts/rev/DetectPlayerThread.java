@@ -402,15 +402,16 @@ public class DetectPlayerThread extends Thread {
                                                 Log.debug("Player on east. Running west!");
                                                 MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
                                                 Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
-                                                hasTickCounterStarted = true;
-                                                new java.util.Timer().schedule(new TimerTask() {
-                                                    @Override
-                                                    public void run() {
-                                                        if (isTimerStarted()) {
-                                                            Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                if (!isTimerStarted){
+                                                    hasTickCounterStarted = true;
+                                                    new java.util.Timer().schedule(new TimerTask() {
+                                                        @Override
+                                                        public void run() {
+                                                            if (isTimerStarted)
+                                                                Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                                                         }
-                                                    }
-                                                }, 1800);
+                                                    }, 1800);
+                                                }
 
                                             } else {
                                                 //Player west
@@ -418,15 +419,16 @@ public class DetectPlayerThread extends Thread {
                                                 Log.debug("Player on west. Running east!");
                                                 MyPlayer.getTile().translate(15, 0).clickOnMinimap();
                                                 Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
-                                                hasTickCounterStarted = true;
-                                                new java.util.Timer().schedule(new TimerTask() {
-                                                    @Override
-                                                    public void run() {
-                                                        if (isTimerStarted()) {
-                                                            Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                if (!isTimerStarted){
+                                                    hasTickCounterStarted = true;
+                                                    new java.util.Timer().schedule(new TimerTask() {
+                                                        @Override
+                                                        public void run() {
+                                                            if (isTimerStarted)
+                                                                Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                                                         }
-                                                    }
-                                                }, 1800);
+                                                    }, 1800);
+                                                }
 
                                             }
                                         });

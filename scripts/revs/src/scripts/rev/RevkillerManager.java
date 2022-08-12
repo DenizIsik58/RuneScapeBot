@@ -61,7 +61,7 @@ public class RevkillerManager {
             iWasFirst = true;
         }
 
-        if (iWasFirst){
+        if (iWasFirst && Combat.isInWilderness()){
             if (!MyRevsClient.getScript().getSelectedMonsterTile().isVisible()){
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
