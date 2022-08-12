@@ -413,7 +413,11 @@ public class DetectPlayerThread extends Thread {
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(15, 0).clickOnMinimap());
                                         }
 
-                                    Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
+                                    Equipment.Slot.RING.getItem().ifPresent(ring -> {
+                                        if (ring.isHovering()) {
+                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
+                                        }
+                                    });
                                     Log.debug("Timer for teleport has been started");
                                     var startTime = GameState.getLoopCycle()/30D;
                                     var stopTime = startTime + 3D;
@@ -423,7 +427,6 @@ public class DetectPlayerThread extends Thread {
                                     Log.debug("After waiting: " + GameState.getLoopCycle());
                                     Log.debug("1,8 seconds gone Teleporting now");
                                     Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-
                                 });
 
                     } else {
