@@ -222,7 +222,7 @@ public class DetectPlayerThread extends Thread {
     public void antiPk() {
         var pker = getPker();
 
-        while (isTeleblocked()) {
+        while (isTeleblocked() && Combat.isInWilderness()) {
             if (entangleDetecter == null) {
                 entangleDetecter = new MagicManager();
                 new Thread(entangleDetecter).start();
