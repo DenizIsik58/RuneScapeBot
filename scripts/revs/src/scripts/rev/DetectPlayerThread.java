@@ -394,32 +394,54 @@ public class DetectPlayerThread extends Thread {
                                     }else {
                                         // Run north
                                     }*/
-                                    Log.debug("Timer has started: " + hasTickCounterStarted());
-                                    if (!hasTickCounterStarted) {
-                                        if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
-                                            // Player is east
-                                            // Run west
-                                            Log.debug("Player on east. Running west!");
-                                            MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
-                                            Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
-                                            hasTickCounterStarted = true;
-                                        }else {
-                                            //Player west
-                                            // Run east
-                                            Log.debug("Player on west. Running east!");
-                                            MyPlayer.getTile().translate(15, 0).clickOnMinimap();
-                                            Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
-                                            hasTickCounterStarted = true;
-                                        }
-                                    }
+                                            Log.debug("Timer has started: " + hasTickCounterStarted());
 
-                                    if (tickCounter() >= 3) {
+                                            if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
+                                                // Player is east
+                                                // Run west
+                                                Log.debug("Player on east. Running west!");
+                                                MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
+                                                Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
+                                                hasTickCounterStarted = true;
+                                                new java.util.Timer().schedule(new TimerTask() {
+                                                    @Override
+                                                    public void run() {
+                                                        if (isTimerStarted()) {
+                                                            Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                        }
+                                                    }
+                                                }, 1800);
+
+                                            } else {
+                                                //Player west
+                                                // Run east
+                                                Log.debug("Player on west. Running east!");
+                                                MyPlayer.getTile().translate(15, 0).clickOnMinimap();
+                                                Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
+                                                hasTickCounterStarted = true;
+                                                new java.util.Timer().schedule(new TimerTask() {
+                                                    @Override
+                                                    public void run() {
+                                                        if (isTimerStarted()) {
+                                                            Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                        }
+                                                    }
+                                                }, 1800);
+
+                                            }
+                                        });
+
+
+
+
+                                    /*if (tickCounter() >= 3) {
                                         Log.debug("Counter greater than 3 teleporting out");
                                         Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                                     }
                                     Log.debug("Ticks: " + tickCounter());
+                                    */
 
-                                });
+
 
 
                         /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {

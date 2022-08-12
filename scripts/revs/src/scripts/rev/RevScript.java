@@ -70,14 +70,17 @@ public class RevScript extends MyScriptExtension {
         onEndWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
         onDeathWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006886106870075443/KgnJFpyL07_92FZ2fk8pxpCSDCxDQ_pIDDU0i2NwhxvRFG8KScu1eLKMz9VfT1xcwI3N");
 
-        GameListening.addGameTickListener(() -> {
-
-            if (DetectPlayerThread.hasTickCounterStarted()) {
-                Log.debug("Ticking: " + DetectPlayerThread.tickCounter());
-                DetectPlayerThread.setTickCounter(DetectPlayerThread.tickCounter() + 1);
-                if (DetectPlayerThread.tickCounter() == 3) {
-                    Log.debug("3 ticks teleporting now");
-                    Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+        GameListening.addGameTickListener(new Runnable() {
+            @Override
+            public void run() {
+                Log.debug("Tick");
+                if (DetectPlayerThread.hasTickCounterStarted()) {
+                    Log.debug("Ticking: " + DetectPlayerThread.tickCounter());
+                    DetectPlayerThread.setTickCounter(DetectPlayerThread.tickCounter() + 1);
+                    if (DetectPlayerThread.tickCounter() == 3) {
+                        Log.debug("3 ticks teleporting now");
+                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                    }
                 }
             }
         });
