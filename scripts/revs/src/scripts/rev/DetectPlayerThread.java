@@ -401,14 +401,17 @@ public class DetectPlayerThread extends Thread {
                                                 // Run west
                                                 Log.debug("Player on east. Running west!");
                                                 MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
-                                                Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
                                                 if (!isTimerStarted){
+                                                    Log.debug("Timer for teleport has beenn started");
+
                                                     hasTickCounterStarted = true;
                                                     new java.util.Timer().schedule(new TimerTask() {
                                                         @Override
                                                         public void run() {
-                                                            if (isTimerStarted)
+                                                            if (isTimerStarted) {
+                                                                Log.debug("Teleporting now");
                                                                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                            }
                                                         }
                                                     }, 1800);
                                                 }
@@ -418,14 +421,18 @@ public class DetectPlayerThread extends Thread {
                                                 // Run east
                                                 Log.debug("Player on west. Running east!");
                                                 MyPlayer.getTile().translate(15, 0).clickOnMinimap();
-                                                Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
                                                 if (!isTimerStarted){
+                                                    Log.debug("Timer for teleport has beenn started");
                                                     hasTickCounterStarted = true;
                                                     new java.util.Timer().schedule(new TimerTask() {
                                                         @Override
                                                         public void run() {
-                                                            if (isTimerStarted)
+                                                            if (isTimerStarted){
+                                                                Log.debug("Teleporting now");
                                                                 Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+
+                                                            }
+
                                                         }
                                                     }, 1800);
                                                 }
