@@ -50,7 +50,6 @@ public class DetectPlayerThread extends Thread {
     private static boolean isEntangleTimerStarted = false;
     private static boolean isEntangled = false;
     private static MagicManager entangleDetecter = null;
-    private AtomicBoolean processing = new AtomicBoolean(false);
 
     public DetectPlayerThread(RevScript revScript) {
         this.script = revScript;
@@ -391,46 +390,39 @@ public class DetectPlayerThread extends Thread {
                                 .ifPresent(pker -> {
                                     setHasPkerBeenDetected(true);
 
-                                    if (!processing.get()) {
-                                        processing.set(true);
-
-                                        // do all the shit thats happening multiple times
-                                        if (RevkillerManager.getTarget() != null){
-                                            if (!RevkillerManager.getTarget().isHealthBarVisible()){
-                                                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                                            }
-                                        }
-
-                                        if (!MyPlayer.isHealthBarVisible()) {
+                                    if (RevkillerManager.getTarget() != null){
+                                        if (!RevkillerManager.getTarget().isHealthBarVisible()){
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         }
+                                    }
 
-                                        if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
-                                            // Player is east
-                                            // Run west
-                                            Log.debug("Player on east. Running west!");
-                                            //if (!hasTickCounterStarted) {
+                                    if (!MyPlayer.isHealthBarVisible()) {
+                                        Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                    }
+
+                                    if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
+                                        // Player is east
+                                        // Run west
+                                        Log.debug("Player on east. Running west!");
+                                        //if (!hasTickCounterStarted) {
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(-15, 0).clickOnMinimap());
-                                        } else {
-                                            //Player west
-                                            // Run east
+                                    } else {
+                                        //Player west
+                                        // Run east
                                             Log.debug("Player on west. Running east!");
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(15, 0).clickOnMinimap());
                                         }
 
-                                        Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
-                                        Log.debug("Timer for teleport has been started");
-                                        var startTime = GameState.getLoopCycle()/30D;
-                                        var stopTime = startTime + 3D;
-                                        Log.debug("Start time: " + startTime);
-                                        Log.debug("Stop time. " + stopTime);
-                                        Waiting.waitUntil(() -> GameState.getLoopCycle()/30D > stopTime);
-                                        Log.debug("After waiting: " + GameState.getLoopCycle());
-                                        Log.debug("1,8 seconds gone Teleporting now");
-                                        Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                                        
-                                        processing.set(false);
-                                    }
+                                    Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
+                                    Log.debug("Timer for teleport has been started");
+                                    var startTime = GameState.getLoopCycle()/30D;
+                                    var stopTime = startTime + 3D;
+                                    Log.debug("Start time: " + startTime);
+                                    Log.debug("Stop time. " + stopTime);
+                                    Waiting.waitUntil(() -> GameState.getLoopCycle()/30D > stopTime);
+                                    Log.debug("After waiting: " + GameState.getLoopCycle());
+                                    Log.debug("1,8 seconds gone Teleporting now");
+                                    Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
 
                                 });
 
