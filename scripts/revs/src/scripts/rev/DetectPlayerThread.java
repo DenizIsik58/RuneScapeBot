@@ -34,7 +34,7 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean danger = new AtomicBoolean(false);
     //    private final AtomicBoolean dangerFlag = new AtomicBoolean(false);
     private final AtomicBoolean isAntiPking = new AtomicBoolean(false);
-    private final static String[] PVM_GEAR = new String[]{"Black d'hide body","Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
+    private final static String[] PVM_GEAR = new String[]{"Black d'hide body", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
     private final SimpleBooleanProperty running = new SimpleBooleanProperty(false);
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
@@ -42,9 +42,11 @@ public class DetectPlayerThread extends Thread {
     private static boolean hasTickCounterStarted = false;
     private static final AtomicBoolean outOfFood = new AtomicBoolean(false);
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private static Projectile lastProjectile = null;
-    @Getter @Setter
+    @Getter
+    @Setter
     private static boolean isEntangleTimerStarted = false;
     private static boolean isEntangled = false;
     private static MagicManager entangleDetecter = null;
@@ -59,7 +61,7 @@ public class DetectPlayerThread extends Thread {
     private void handleTeleblock() {
         var lastTeleblockNotification = MyScriptVariables.getVariable("lastTeleblockNotification", 0L);
 
-        if (MyRevsClient.myPlayerIsDead() || MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInFerox()){
+        if (MyRevsClient.myPlayerIsDead() || MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInFerox()) {
             MyScriptVariables.setVariable("lastTeleblockNotification", 0L);
             lastTeleblockNotification = MyScriptVariables.getVariable("lastTeleblockNotification", 0L);
 
@@ -109,7 +111,7 @@ public class DetectPlayerThread extends Thread {
                 .isAny();
     }
 
-    public static boolean canTargetAttackMe(String name){
+    public static boolean canTargetAttackMe(String name) {
         return Query.players()
                 .withinCombatLevels(getWildernessLevel())
                 .nameEquals(name)
@@ -167,15 +169,15 @@ public class DetectPlayerThread extends Thread {
     }
 
     public static void resetFreezeTimer() {
-             new java.util.Timer().schedule(new TimerTask() {
-                 @Override
-                 public void run() {
-                     Log.debug("Timer is over we are unfrozen!");
-                     lastProjectile = null;
-                     isEntangleTimerStarted = false;
-                     isEntangled = false;
-                 }
-             }, 15000);
+        new java.util.Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Log.debug("Timer is over we are unfrozen!");
+                lastProjectile = null;
+                isEntangleTimerStarted = false;
+                isEntangled = false;
+            }
+        }, 15000);
     }
 
     public static void handleEatAndPrayer(Player pker) {
@@ -204,7 +206,7 @@ public class DetectPlayerThread extends Thread {
                         .nameEquals("Shark")
                         .findClosestToMouse()
                         .map(c -> c.click("Eat")
-                                    && Waiting.waitUntil(1000, () -> Inventory.getCount("Shark") < sharkCount))
+                                && Waiting.waitUntil(1000, () -> Inventory.getCount("Shark") < sharkCount))
                         .orElse(false);
                 if (ate) MyAntiBan.calculateNextEatPercent();
             } else {
@@ -228,12 +230,22 @@ public class DetectPlayerThread extends Thread {
 
             if (pker != null) {
                 if (!canTargetAttackMe(pker.getName())) {
-                    // run away if our target is not nearby
-                    Log.debug("trying to hop worlds... Target is not in sight");
-                    WorldManager.hopToRandomMemberWorldWithRequirements();
-                    TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
-                    return;
+                    new java.util.Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            // run away if our target is not nearby
+                            if (!canTargetAttackMe(pker.getName())) {
+                                Log.debug("trying to hop worlds... Target is not in sight");
+                                WorldManager.hopToRandomMemberWorldWithRequirements();
+                                TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
+                            } else {
+                                Log.debug("Target still in sight. Running!");
+                                MyPlayer.getTile().translate(0, -15).clickOnMinimap();
+                            }
+                        }
+                    }, 3000);
                 }
+
 
                 handleEatAndPrayer(pker);
 
@@ -266,13 +278,11 @@ public class DetectPlayerThread extends Thread {
                     continue;
                 }
             }
-
             Waiting.wait(100);
         }
-
     }
 
-    public static Optional<Projectile> getProjectile(){
+    public static Optional<Projectile> getProjectile() {
         return Query.projectiles()
                 .isTargetingMe()
                 .isMoving()
@@ -280,28 +290,28 @@ public class DetectPlayerThread extends Thread {
                 .findFirst();
     }
 
-    public static void proj(){
+    public static void proj() {
         getProjectile().ifPresent(prj -> Log.debug("PROJECTILE: " + prj.getGraphicId()));
         getProjectile().ifPresent(p -> Log.debug("START: " + p.getStart()));
         getProjectile().ifPresent(p -> Log.debug("DESTINATION: " + p.getDestination()));
         Log.debug("MY tile: " + MyPlayer.getTile());
     }
 
-    public static void setProjectile(){
+    public static void setProjectile() {
         getProjectile().ifPresent(proj -> {
             Log.debug("Setting projectile!");
             lastProjectile = proj;
         });
     }
 
-    public static boolean isFrozen(){
+    public static boolean isFrozen() {
         if (isEntangled) {
             return true;
         }
 
         if (lastProjectile != null && !isEntangleTimerStarted) {
             Log.debug("Timer is not started and last entangle is not null");
-            var isFrozen =  lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
+            var isFrozen = lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
             if (isFrozen) {
                 Log.debug("Entangle successfully landed");
                 Log.debug("Our player is not moving. We are frozen");
@@ -389,50 +399,49 @@ public class DetectPlayerThread extends Thread {
                                     }else {
                                         // Run north
                                     }*/
-                                            Log.debug("Timer has started: " + hasTickCounterStarted());
+                                    Log.debug("Timer has started: " + hasTickCounterStarted());
 
-                                            if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
-                                                // Player is east
-                                                // Run west
-                                                Log.debug("Player on east. Running west!");
-                                                MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
-                                                if (!hasTickCounterStarted){
-                                                    Log.debug("Timer for teleport has beenn started");
-                                                    hasTickCounterStarted = true;
-                                                    new java.util.Timer().schedule(new TimerTask() {
-                                                        @Override
-                                                        public void run() {
-                                                            if (hasTickCounterStarted){
-                                                                Log.debug("1,8 seconds gone Teleporting now");
-                                                                    Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                                                                }
+                                    if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
+                                        // Player is east
+                                        // Run west
+                                        Log.debug("Player on east. Running west!");
+                                        MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
+                                        if (!hasTickCounterStarted) {
+                                            Log.debug("Timer for teleport has beenn started");
+                                            hasTickCounterStarted = true;
+                                            new java.util.Timer().schedule(new TimerTask() {
+                                                @Override
+                                                public void run() {
+                                                    if (hasTickCounterStarted) {
+                                                        Log.debug("1,8 seconds gone Teleporting now");
+                                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                    }
 
 
-                                                        }
-                                                    }, 1800);
                                                 }
+                                            }, 1800);
+                                        }
 
-                                            } else {
-                                                //Player west
-                                                // Run east
-                                                Log.debug("Player on west. Running east!");
-                                                MyPlayer.getTile().translate(15, 0).clickOnMinimap();
-                                                if (!hasTickCounterStarted){
-                                                    Log.debug("Timer for teleport has beenn started");
-                                                    hasTickCounterStarted = true;
-                                                    new java.util.Timer().schedule(new TimerTask() {
-                                                        @Override
-                                                        public void run() {
-                                                            if (hasTickCounterStarted){
-                                                                Log.debug("1,8 seconds gone Teleporting now");
-                                                                Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                                                            }
-                                                        }
-                                                    }, 1800);
+                                    } else {
+                                        //Player west
+                                        // Run east
+                                        Log.debug("Player on west. Running east!");
+                                        MyPlayer.getTile().translate(15, 0).clickOnMinimap();
+                                        if (!hasTickCounterStarted) {
+                                            Log.debug("Timer for teleport has beenn started");
+                                            hasTickCounterStarted = true;
+                                            new java.util.Timer().schedule(new TimerTask() {
+                                                @Override
+                                                public void run() {
+                                                    if (hasTickCounterStarted) {
+                                                        Log.debug("1,8 seconds gone Teleporting now");
+                                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                    }
                                                 }
-
-                                            }
-                                        });
+                                            }, 1800);
+                                        }
+                                    }
+                                });
 
 
 
@@ -450,7 +459,7 @@ public class DetectPlayerThread extends Thread {
                         /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {
 
                         }*/
-                        if (!MyPlayer.isHealthBarVisible()){
+                        if (!MyPlayer.isHealthBarVisible()) {
                             TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
                             MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                         }
@@ -508,7 +517,7 @@ public class DetectPlayerThread extends Thread {
         return hasTickCounterStarted;
     }
 
-    public static int tickCounter(){
+    public static int tickCounter() {
         return tickCounter;
     }
 
