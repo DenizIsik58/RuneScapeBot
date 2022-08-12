@@ -249,7 +249,9 @@ public class DetectPlayerThread extends Thread {
                                 // run away if our target is not nearby
                                 Log.debug("trying to hop worlds... Target is not in sight");
                                 WorldManager.hopToRandomMemberWorldWithRequirements();
-                                TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
+                                //TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
+                                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+
                             }
                             Log.debug("Returning failure");
                             return WalkState.FAILURE;
