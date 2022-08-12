@@ -3,6 +3,7 @@ package scripts.rev;
 import dax.teleports.Teleport;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
@@ -12,7 +13,6 @@ import scripts.api.MyOptions;
 import scripts.api.MyTeleporting;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +28,7 @@ public class TeleportManager {
     public static final WorldTile demons = new WorldTile(3160, 10115,0 );
     private static boolean hasVisitedBeforeTrip = false;
     private static List<WorldTile> monsterTiles = new ArrayList<>(Collections.singletonList(demons)); // South ork removed for now
+    private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
 
     public static WorldTile refill() {
         // Random selection of mobs to kill
@@ -60,7 +61,17 @@ public class TeleportManager {
                 }else {
                     Log.debug("I'm walking to entrance");
                     GlobalWalking.walkTo(caveEntrance, () ->{
+                        if (!GameTab.LOGOUT.isOpen()) {
+                            GameTab.LOGOUT.open();
+                        }
                         MyOptions.setRunOn();
+                        if (Query.players()
+                                .withinCombatLevels(Combat.getWildernessLevel())
+                                .isNotEquipped(DetectPlayerThread.getPvmGear())
+                                .notInArea(FEROX_ENCLAVE)
+                                .findFirst().isPresent()){
+                            WorldManager.hopToRandomMemberWorldWithRequirements();
+                        }
                         return WalkState.CONTINUE;
                     });
                 }
@@ -102,6 +113,13 @@ public class TeleportManager {
                             Log.debug("Pker has been seen, im not in cave or im not in wildy -> Banking");
                             MyRevsClient.getScript().setState(State.BANKING);
                             return WalkState.FAILURE;
+                        }
+                        if (Query.players()
+                                .withinCombatLevels(Combat.getWildernessLevel())
+                                .isNotEquipped(DetectPlayerThread.getPvmGear())
+                                .notInArea(FEROX_ENCLAVE)
+                                .findFirst().isPresent()){
+                            WorldManager.hopToRandomMemberWorldWithRequirements();
                         }
                         return WalkState.CONTINUE;
                     });

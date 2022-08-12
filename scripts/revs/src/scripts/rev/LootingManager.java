@@ -1,24 +1,16 @@
 package scripts.rev;
 
 
-import javafx.stage.Screen;
-import org.tribot.api.util.Screenshots;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GroundItem;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.walking.GlobalWalking;
-import scripts.api.MyScriptExtension;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,7 +35,9 @@ public class LootingManager {
         List<GroundItem> possibleLoot = getAllLoot();
 
         for (int itemIndex = 0; itemIndex < possibleLoot.size(); itemIndex++) {
-            if (hasPkerBeenDetected()) return;
+            if (hasPkerBeenDetected()) {
+                return;
+            }
 
             var item = possibleLoot.get(itemIndex);
             // Open the looting bag once you pick it up
@@ -106,6 +100,7 @@ public class LootingManager {
         if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
 
             if (getTripValue() >= 200000) {
+                Waiting.wait(1000);
                 Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
             }else {
                 if (!RevkillerManager.getTarget().isVisible()) {
