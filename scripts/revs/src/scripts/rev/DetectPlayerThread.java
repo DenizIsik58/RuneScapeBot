@@ -389,29 +389,16 @@ public class DetectPlayerThread extends Thread {
                                 .findFirst()
                                 .ifPresent(pker -> {
                                     setHasPkerBeenDetected(true);
-                                   /* if (pker.getTile().getY() > MyPlayer.getTile().getY()){
-                                        // Player is more north than me
-                                        // Run south
-                                        MyPlayer.getTile().translate(0, -10).clickOnMinimap();
-                                    }else {
-                                        // Run north
-                                    }*/
                                     Log.debug("Timer has started: " + hasTickCounterStarted());
 
                                     if (RevkillerManager.getTarget() != null){
                                         if (!RevkillerManager.getTarget().isHealthBarVisible()){
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-
-                                            //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
-                                           // MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                                         }
                                     }
 
-
                                     if (!MyPlayer.isHealthBarVisible()) {
                                         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                                        //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
-                                        //MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                                     }
 
                                     if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
@@ -420,53 +407,22 @@ public class DetectPlayerThread extends Thread {
                                         Log.debug("Player on east. Running west!");
                                         //if (!hasTickCounterStarted) {
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(-15, 0).clickOnMinimap());
-                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
-                                            Log.debug("Timer for teleport has beenn started");
-                                            //hasTickCounterStarted = true;
-                                            Waiting.wait(1800);
-                                            Log.debug("1,8 seconds gone Teleporting now");
-                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
 
-
-                                        //Query.equipment().nameContains("Ring of wealth (").findFirst().map(c -> c.click("Grand Exchange"));
-                                            //TeleportManager.teleportOutOfWilderness("teleporting out after 1,8 seconds");
-
-                                           /* new java.util.Timer().schedule(new TimerTask() {
-                                                @Override
-                                                public void run() {
-                                                    if (hasTickCounterStarted) {
-                                                        Log.debug("1,8 seconds gone Teleporting now");
-                                                        Query.equipment().nameContains("Ring of wealth (").findFirst().map(c -> c.click("Grand Exchange"));
-                                                    }
-                                                }
-                                            }, 1800);*/
-                                        //}
                                     } else {
                                         //Player west
                                         // Run east
-                                        Log.debug("Player on west. Running east!");
-                                        //if (!hasTickCounterStarted) {
+                                            Log.debug("Player on west. Running east!");
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(15, 0).clickOnMinimap());
-                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
-                                            Log.debug("Timer for teleport has beenn started");
-                                            //hasTickCounterStarted = true;
-                                            Waiting.wait(1800);
-                                            Log.debug("1,8 seconds gone Teleporting now");
-                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-
-                                        //TeleportManager.teleportOutOfWilderness("teleporting out after 1,8 seconds");
-                                           /* new java.util.Timer().schedule(new TimerTask() {
-                                                @Override
-                                                public void run() {
-                                                    if (hasTickCounterStarted) {
-                                                        Log.debug("1,8 seconds gone Teleporting now");
-                                                        Query.equipment().nameContains("Ring of wealth (").findFirst().map(c -> c.click("Grand Exchange"));
-                                                        //Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                                                    }
-                                                }
-                                            }, 1800);*/
                                         }
-                                   // }
+
+                                    Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
+                                    Log.debug("Timer for teleport has beenn started");
+                                    var startTime = GameState.getLoopCycle()/30D;
+                                    var stopTime = startTime + 3D;
+                                    Waiting.waitUntil(() -> GameState.getLoopCycle()/30D > stopTime);
+                                    Log.debug("1,8 seconds gone Teleporting now");
+                                    Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+
                                 });
 
                     } else {
