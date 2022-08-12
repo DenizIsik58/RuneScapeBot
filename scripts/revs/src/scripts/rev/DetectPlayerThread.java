@@ -398,7 +398,7 @@ public class DetectPlayerThread extends Thread {
                                         Log.debug("Player on east. Running west!");
                                         if (!hasTickCounterStarted) {
                                             MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
-                                            Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
+                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
                                             Log.debug("Timer for teleport has beenn started");
                                             hasTickCounterStarted = true;
                                             new java.util.Timer().schedule(new TimerTask() {
@@ -406,10 +406,8 @@ public class DetectPlayerThread extends Thread {
                                                 public void run() {
                                                     if (hasTickCounterStarted) {
                                                         Log.debug("1,8 seconds gone Teleporting now");
-                                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                        Query.equipment().nameContains("Ring of wealth (").findFirst().map(c -> c.click("Grand Exchange"));
                                                     }
-
-
                                                 }
                                             }, 1800);
                                         }
@@ -419,7 +417,7 @@ public class DetectPlayerThread extends Thread {
                                         Log.debug("Player on west. Running east!");
                                         if (!hasTickCounterStarted) {
                                             MyPlayer.getTile().translate(15, 0).clickOnMinimap();
-                                            Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
+                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
                                             Log.debug("Timer for teleport has beenn started");
                                             hasTickCounterStarted = true;
                                             new java.util.Timer().schedule(new TimerTask() {
@@ -427,7 +425,8 @@ public class DetectPlayerThread extends Thread {
                                                 public void run() {
                                                     if (hasTickCounterStarted) {
                                                         Log.debug("1,8 seconds gone Teleporting now");
-                                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                        Query.equipment().nameContains("Ring of wealth (").findFirst().map(c -> c.click("Grand Exchange"));
+                                                        //Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                                                     }
                                                 }
                                             }, 1800);
