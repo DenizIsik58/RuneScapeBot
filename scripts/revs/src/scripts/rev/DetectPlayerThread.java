@@ -190,7 +190,7 @@ public class DetectPlayerThread extends Thread {
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MAGIC);
 
-            } else if (playerWeapon.toLowerCase().contains("bow")) {
+            } else if (playerWeapon.toLowerCase().contains("bow") || (playerWeapon.toLowerCase().contains("ballista"))) {
                 // Handle ranging weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
@@ -198,6 +198,8 @@ public class DetectPlayerThread extends Thread {
                 // Handle melee weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
+            }else {
+                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
             }
         });
 
