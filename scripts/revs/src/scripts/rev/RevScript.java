@@ -73,7 +73,12 @@ public class RevScript extends MyScriptExtension {
         GameListening.addGameTickListener(() -> {
 
             if (DetectPlayerThread.hasTickCounterStarted()) {
+                Log.debug("Ticking: " + DetectPlayerThread.tickCounter());
                 DetectPlayerThread.setTickCounter(DetectPlayerThread.tickCounter() + 1);
+                if (DetectPlayerThread.tickCounter() == 3) {
+                    Log.debug("3 ticks teleporting now");
+                    Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                }
             }
         });
 
