@@ -100,7 +100,6 @@ public class LootingManager {
             }
         }
 
-
         // starts back here with brea
         Log.debug("I'm done looting");
 

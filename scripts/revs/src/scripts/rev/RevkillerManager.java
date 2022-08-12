@@ -228,7 +228,7 @@ public class RevkillerManager {
                     var outputFile = ScreenShotManager.takeScreenShotAndSave();
 
                     MyRevsClient.getScript().getSuccessfullTripHook().setUsername("Revenant Farm")
-                            .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "Successful trip - **" + " - Value = " + LootingManager.getTotalValue() + "**")
+                            .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "Successful trip - **" + " - Value = " + LootingManager.getTripValue() + "**")
                             .addFile(outputFile)
                             .execute();
                 }

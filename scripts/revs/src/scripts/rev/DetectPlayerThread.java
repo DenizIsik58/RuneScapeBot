@@ -70,7 +70,9 @@ public class DetectPlayerThread extends Thread {
         if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 1000) * 5) {
             Log.debug("Handling teleblock");
             setTeleblocked(true);
-        } else setTeleblocked(false);
+        } else {
+            setTeleblocked(false);
+        }
 
     }
 
@@ -373,6 +375,7 @@ public class DetectPlayerThread extends Thread {
                         Mouse.setSpeed(dangerMouseSpeed);
                     }
                     teleblocked = isTeleblocked();
+                    Log.debug("Am I teleblocked? " + teleblocked);
                     if (!teleblocked) {
                         Log.trace("[DANGER_LISTENER] NOT TELEBLOCKED - Teleporting");
                         if (isAntiPking()) {
@@ -383,6 +386,7 @@ public class DetectPlayerThread extends Thread {
                                 .isNotEquipped(PVM_GEAR)
                                 .findFirst()
                                 .ifPresent(pker -> {
+                                    setHasPkerBeenDetected(true);
                                    /* if (pker.getTile().getY() > MyPlayer.getTile().getY()){
                                         // Player is more north than me
                                         // Run south
@@ -394,15 +398,18 @@ public class DetectPlayerThread extends Thread {
 
                                     if (RevkillerManager.getTarget() != null){
                                         if (!RevkillerManager.getTarget().isHealthBarVisible()){
-                                            TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
-                                            MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+
+                                            //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                                           // MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                                         }
                                     }
 
 
                                     if (!MyPlayer.isHealthBarVisible()) {
-                                        TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
-                                        MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+                                        Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                        //TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                                        //MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                                     }
 
                                     if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
@@ -416,8 +423,11 @@ public class DetectPlayerThread extends Thread {
                                             //hasTickCounterStarted = true;
                                             Waiting.wait(1800);
                                             Log.debug("1,8 seconds gone Teleporting now");
-                                            //Query.equipment().nameContains("Ring of wealth (").findFirst().map(c -> c.click("Grand Exchange"));
-                                            TeleportManager.teleportOutOfWilderness("teleporting out after 1,8 seconds");
+                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+
+
+                                        //Query.equipment().nameContains("Ring of wealth (").findFirst().map(c -> c.click("Grand Exchange"));
+                                            //TeleportManager.teleportOutOfWilderness("teleporting out after 1,8 seconds");
 
                                            /* new java.util.Timer().schedule(new TimerTask() {
                                                 @Override
@@ -440,7 +450,9 @@ public class DetectPlayerThread extends Thread {
                                             //hasTickCounterStarted = true;
                                             Waiting.wait(1800);
                                             Log.debug("1,8 seconds gone Teleporting now");
-                                            TeleportManager.teleportOutOfWilderness("teleporting out after 1,8 seconds");
+                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+
+                                        //TeleportManager.teleportOutOfWilderness("teleporting out after 1,8 seconds");
                                            /* new java.util.Timer().schedule(new TimerTask() {
                                                 @Override
                                                 public void run() {
@@ -455,24 +467,6 @@ public class DetectPlayerThread extends Thread {
                                    // }
                                 });
 
-
-
-
-                                    /*if (tickCounter() >= 3) {
-                                        Log.debug("Counter greater than 3 teleporting out");
-                                        Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
-                                    }
-                                    Log.debug("Ticks: " + tickCounter());
-                                    */
-
-
-
-
-                        /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {
-
-                        }*/
-
-                        setHasPkerBeenDetected(true);
                     } else {
                         if (!isAntiPking()) {
                             Log.debug("[DANGER_LISTENER] TELEBLOCKED - Enabling AntiPK");
