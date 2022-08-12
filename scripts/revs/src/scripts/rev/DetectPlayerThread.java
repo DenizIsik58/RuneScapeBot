@@ -389,7 +389,6 @@ public class DetectPlayerThread extends Thread {
                                 .findFirst()
                                 .ifPresent(pker -> {
                                     setHasPkerBeenDetected(true);
-                                    Log.debug("Timer has started: " + hasTickCounterStarted());
 
                                     if (RevkillerManager.getTarget() != null){
                                         if (!RevkillerManager.getTarget().isHealthBarVisible()){
@@ -415,7 +414,7 @@ public class DetectPlayerThread extends Thread {
                                         }
 
                                     Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
-                                    Log.debug("Timer for teleport has beenn started");
+                                    Log.debug("Timer for teleport has been started");
                                     var startTime = GameState.getLoopCycle()/30D;
                                     var stopTime = startTime + 3D;
                                     Waiting.waitUntil(() -> GameState.getLoopCycle()/30D > stopTime);
