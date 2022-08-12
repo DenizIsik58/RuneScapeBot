@@ -63,26 +63,17 @@ public class RevkillerManager {
         }
 
         if (iWasFirst && Combat.isInWilderness()){
-            if (!MyRevsClient.getScript().getSelectedMonsterTile().isVisible()){
-                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
-            }
-            PrayerManager.enableQuickPrayer();
-            MyCamera.setCameraAngle();
-
-            if (hasLevelGained()){
-                MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));
-            }
-
-            if (!Query.equipment().nameContains("Ring of wealth (").isAny()){
-                Log.debug("Cannot find wealth in equipment. Checking inventory");
-                Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
-                    Log.debug("found it! Wearing it now!");
-                    ring.click("Wear");
-                    Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
-                });
-            }
 
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
+                if (target != null) {
+                    if (target.isValid()) {
+                        target.click();
+                        Waiting.waitUntil(() -> !target.isValid());
+                        if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
+                            MyRevsClient.getScript().setState(State.LOOTING);
+                        }
+                    }
+                }
                 TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
                 MyRevsClient.getScript().setState(State.BANKING);
                 return;
@@ -102,6 +93,27 @@ public class RevkillerManager {
                 TeleportManager.teleportOutOfWilderness("We are low on shark. Trying to teleport out...");
                 return;
             }
+            
+            if (!MyRevsClient.getScript().getSelectedMonsterTile().isVisible()){
+                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+            }
+            PrayerManager.enableQuickPrayer();
+            MyCamera.setCameraAngle();
+
+            if (hasLevelGained()){
+                MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));
+            }
+
+            if (!Query.equipment().nameContains("Ring of wealth (").isAny()){
+                Log.debug("Cannot find wealth in equipment. Checking inventory");
+                Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
+                    Log.debug("found it! Wearing it now!");
+                    ring.click("Wear");
+                    Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
+                });
+            }
+
+
 
             // TODO: Should probably have a method to open the looting bag.
             var lootingBag = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
@@ -202,7 +214,15 @@ public class RevkillerManager {
             if (LootingManager.getTripValue() >= 200000) {
                 if (!MyRevsClient.myPlayerIsInGE()) {
                     Log.debug("Teleporting to ge after hitting 200k treshold");
+                    if (target.isValid()) {
+                        target.click();
+                        Waiting.waitUntil(() -> !target.isValid());
+                        if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
+                            MyRevsClient.getScript().setState(State.LOOTING);
+                        }
+                    }
                     Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+
                     MyRevsClient.getScript().setState(State.BANKING);
 
                     var outputFile = ScreenShotManager.takeScreenShotAndSave();
