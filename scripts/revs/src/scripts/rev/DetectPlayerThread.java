@@ -398,16 +398,22 @@ public class DetectPlayerThread extends Thread {
                                                 MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
                                                 if (!hasTickCounterStarted){
                                                     Log.debug("Timer for teleport has beenn started");
-
                                                     hasTickCounterStarted = true;
                                                     new java.util.Timer().schedule(new TimerTask() {
                                                         @Override
                                                         public void run() {
-                                                            if (hasTickCounterStarted) {
+                                                            if (hasTickCounterStarted){
                                                                 Log.debug("Teleporting now");
-                                                                while (!MyRevsClient.myPlayerIsInGE() && !isTeleblocked())
-                                                                Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                                while (!MyRevsClient.myPlayerIsInGE()){
+                                                                    Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                                    if (isTeleblocked()) {
+                                                                        break;
+                                                                    }
+                                                                    Waiting.wait(50);
+                                                                }
+
                                                             }
+
                                                         }
                                                     }, 1800);
                                                 }
@@ -425,8 +431,13 @@ public class DetectPlayerThread extends Thread {
                                                         public void run() {
                                                             if (hasTickCounterStarted){
                                                                 Log.debug("Teleporting now");
-                                                                while (!MyRevsClient.myPlayerIsInGE() && !isTeleblocked())
-                                                                Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                                while (!MyRevsClient.myPlayerIsInGE()){
+                                                                    Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
+                                                                    if (isTeleblocked()) {
+                                                                        break;
+                                                                    }
+                                                                    Waiting.wait(50);
+                                                                }
 
                                                             }
 
