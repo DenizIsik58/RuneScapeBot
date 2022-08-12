@@ -188,14 +188,14 @@ public class DetectPlayerThread extends Thread {
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MAGIC);
 
-            } else if (playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
-                // Handle melee weapon
-                // 1. Set up prayer according to weapon
-                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
-            } else /*if (playerWeapon.toLowerCase().contains("crossbow"))*/ {
+            } else if (playerWeapon.toLowerCase().contains("bow")) {
                 // Handle ranging weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
+            }else if (playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
+                // Handle melee weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
             }
         });
 

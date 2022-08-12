@@ -3,6 +3,7 @@ package scripts.rev;
 import lombok.Getter;
 import lombok.Setter;
 import org.tribot.script.sdk.*;
+import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.PlayerQuery;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
@@ -203,6 +204,13 @@ public class RevkillerManager {
                     Log.debug("Teleporting to ge after hitting 200k treshold");
                     Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
                     MyRevsClient.getScript().setState(State.BANKING);
+
+                    var outputFile = ScreenShotManager.takeScreenShotAndSave();
+
+                    MyRevsClient.getScript().getSuccessfullTripHook().setUsername("Revenant Farm")
+                            .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "Successful trip - **" + " - Value = " + LootingManager.getTotalValue() + "**")
+                            .addFile(outputFile)
+                            .execute();
                 }
             }
         }else {

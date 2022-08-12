@@ -40,6 +40,7 @@ public class RevScript extends MyScriptExtension {
     private DiscordWebhook lootWebhook;
     private DiscordWebhook onEndWebhook;
     private DiscordWebhook onDeathWebhook;
+    private DiscordWebhook successfullTripHook;
 
     @Override
     protected void setupScript(ScriptSetup setup) {
@@ -71,6 +72,7 @@ public class RevScript extends MyScriptExtension {
         lootWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006526256378040390/lBQqh9sKBdmHY3DFI7gKBhAq38gMZr5SsC8CUTICxqYLfrivwA4YI_ODE8iZFjRDuEwm");
         onEndWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
         onDeathWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006886106870075443/KgnJFpyL07_92FZ2fk8pxpCSDCxDQ_pIDDU0i2NwhxvRFG8KScu1eLKMz9VfT1xcwI3N");
+        successfullTripHook = new DiscordWebhook("https://discord.com/api/webhooks/1007597804274847824/0BeuF_rHMu3N1Gqa0Lm1teNGl2-KSDSfCu7A4GmyZIlSx6x0I5KlXAvfnO8UNFSirN5V");
 
         /*
         GameListening.addGameTickListener(new Runnable() {
@@ -360,8 +362,8 @@ public class RevScript extends MyScriptExtension {
         return onEndWebhook;
     }
 
-    public DiscordWebhook getOnDeathWebhook() {
-        return onDeathWebhook;
+    public DiscordWebhook getSuccessfullTripHook() {
+        return successfullTripHook;
     }
 
     public WorldTile getSelectedMonsterTile() {
