@@ -396,8 +396,9 @@ public class DetectPlayerThread extends Thread {
                                         // Player is east
                                         // Run west
                                         Log.debug("Player on east. Running west!");
-                                        MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
                                         if (!hasTickCounterStarted) {
+                                            MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
+                                            Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
                                             Log.debug("Timer for teleport has beenn started");
                                             hasTickCounterStarted = true;
                                             new java.util.Timer().schedule(new TimerTask() {
@@ -412,13 +413,13 @@ public class DetectPlayerThread extends Thread {
                                                 }
                                             }, 1800);
                                         }
-
                                     } else {
                                         //Player west
                                         // Run east
                                         Log.debug("Player on west. Running east!");
-                                        MyPlayer.getTile().translate(15, 0).clickOnMinimap();
                                         if (!hasTickCounterStarted) {
+                                            MyPlayer.getTile().translate(15, 0).clickOnMinimap();
+                                            Equipment.Slot.RING.getItem().map(c -> c.hoverMenu("Grand Exchange"));
                                             Log.debug("Timer for teleport has beenn started");
                                             hasTickCounterStarted = true;
                                             new java.util.Timer().schedule(new TimerTask() {
@@ -450,6 +451,14 @@ public class DetectPlayerThread extends Thread {
                         /*while (!MyRevsClient.myPlayerIsInGE() && !teleblocked) {
 
                         }*/
+                        if (RevkillerManager.getTarget() != null){
+                            if (!RevkillerManager.getTarget().isHealthBarVisible()){
+                                TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
+                                MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+                            }
+                        }
+
+
                         if (!MyPlayer.isHealthBarVisible()) {
                             TeleportManager.teleportOutOfWilderness("PKER DETECTED! Attempting to teleport out!");
                             MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
