@@ -229,23 +229,6 @@ public class DetectPlayerThread extends Thread {
             }
 
             if (pker != null) {
-                if (!canTargetAttackMe(pker.getName())) {
-                    new java.util.Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            // run away if our target is not nearby
-                            if (!canTargetAttackMe(pker.getName())) {
-                                Log.debug("trying to hop worlds... Target is not in sight");
-                                WorldManager.hopToRandomMemberWorldWithRequirements();
-                                TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
-                            } else {
-                                Log.debug("Target still in sight. Running!");
-                                MyPlayer.getTile().translate(0, -15).clickOnMinimap();
-                            }
-                        }
-                    }, 3000);
-                }
-
 
                 handleEatAndPrayer(pker);
 
@@ -258,6 +241,14 @@ public class DetectPlayerThread extends Thread {
 
                         GlobalWalking.walkTo(stairs, () -> {
                             handleEatAndPrayer(pker);
+
+                            if (!canTargetAttackMe(pker.getName())) {
+
+                                // run away if our target is not nearby
+                                Log.debug("trying to hop worlds... Target is not in sight");
+                                WorldManager.hopToRandomMemberWorldWithRequirements();
+                                TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
+                            }
                             Log.debug("Returning failure");
                             return WalkState.FAILURE;
                         });
