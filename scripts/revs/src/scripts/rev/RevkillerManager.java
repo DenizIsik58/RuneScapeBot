@@ -93,7 +93,7 @@ public class RevkillerManager {
                 TeleportManager.teleportOutOfWilderness("We are low on shark. Trying to teleport out...");
                 return;
             }
-            
+
             if (!MyRevsClient.getScript().getSelectedMonsterTile().isVisible()){
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
