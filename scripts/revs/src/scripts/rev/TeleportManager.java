@@ -27,12 +27,12 @@ public class TeleportManager {
     private static final WorldTile north_ork = new WorldTile(3226, 10132,0 );
     public static final WorldTile demons = new WorldTile(3160, 10115,0 );
     private static boolean hasVisitedBeforeTrip = false;
-    private static List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(demons)); // South ork removed for now
+    private static List<WorldTile> monsterTiles = new ArrayList<>(Collections.singletonList(demons)); // South ork removed for now
 
     public static WorldTile refill() {
         // Random selection of mobs to kill
 
-        var chosenMobArea = getRandomMobArea();
+        var chosenMobArea = demons; //getRandomMobArea();
 
         if (!chosenMobArea.isVisible()) {
             Log.debug("[INFO_LISTENER] Started journey towards the cave...");
