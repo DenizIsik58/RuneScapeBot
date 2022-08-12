@@ -22,6 +22,12 @@ public class MagicManager implements Runnable {
                 // Do antipk here
                 PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
 
+                if (Combat.canUseSpecialAttack()) {
+                    if (MyPlayer.getCurrentHealthPercent() < 70) {
+                        Combat.activateSpecialAttack();
+                    }
+                }
+
                 // 2. Fight back pker if not
                 if (pker != null) {
                     if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()) {

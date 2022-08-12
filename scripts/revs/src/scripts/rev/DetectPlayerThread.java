@@ -219,7 +219,6 @@ public class DetectPlayerThread extends Thread {
 
     public void antiPk() {
         var pker = getPker();
-        WorldTile edgevilleDitch = new WorldTile(3104, 3519, 0); // Tile edge ditch
 
         while (isTeleblocked()) {
             if (entangleDetecter == null) {
@@ -227,50 +226,48 @@ public class DetectPlayerThread extends Thread {
                 new Thread(entangleDetecter).start();
             }
 
+            if (pker != null) {
+                if (!canTargetAttackMe(pker.getName())) {
+                    // run away if our target is not nearby
+                    Log.debug("trying to hop worlds... Target is not in sight");
+                    WorldManager.hopToRandomMemberWorldWithRequirements();
+                    TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
+                    return;
+                }
 
-            if (pker == null || !canTargetAttackMe(pker.getName())) {
-                // run away if our target is not nearby
-                Log.debug("trying to hop worlds... Target is not in sight");
-                WorldManager.hopToRandomMemberWorldWithRequirements();
-                TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
-                return;
+                handleEatAndPrayer(pker);
+
+                if (!isFrozen()) {
+                    // Start running
+                    Log.debug("Im not frozen. Running!");
+
+                    if (MyRevsClient.myPlayerIsInCave()) {
+                        WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
+
+                        GlobalWalking.walkTo(stairs, () -> {
+                            handleEatAndPrayer(pker);
+                            Log.debug("Returning failure");
+                            return WalkState.FAILURE;
+                        });
+                        Query.gameObjects().idEquals(31558).findBestInteractable()
+                                .map(c -> c.interact("Climb-up")
+                                        && Waiting.waitUntil(500, () -> !MyRevsClient.myPlayerIsInCave()))
+                                .orElse(false);
+                        handleEatAndPrayer(pker);
+
+                    } else {
+
+                        //handleEatAndPrayer(pker);
+                        ensureWalkingPermission();
+                        //MyExchange.walkToGrandExchange();
+                        MyPlayer.getTile().translate(0, -15).clickOnMinimap();
+                        handleEatAndPrayer(pker);
+                    }
+                    continue;
+                }
             }
 
-            handleEatAndPrayer(pker);
 
-            if (!isFrozen()) {
-                // Start running
-                Log.debug("Im not frozen. Running!");
-
-               if (MyRevsClient.myPlayerIsInCave()) {
-                   WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
-
-                   GlobalWalking.walkTo(stairs, () -> {
-                       handleEatAndPrayer(pker);
-                        Log.debug("Returning failure");
-                       return WalkState.FAILURE;
-                   });
-                   Query.gameObjects().idEquals(31558).findBestInteractable()
-                           .map(c -> c.interact("Climb-up")
-                                   && Waiting.waitUntil(500, () -> !MyRevsClient.myPlayerIsInCave()))
-                           .orElse(false);
-                   handleEatAndPrayer(pker);
-
-               } else {
-
-                   //handleEatAndPrayer(pker);
-                   ensureWalkingPermission();
-                   //MyExchange.walkToGrandExchange();
-                   GlobalWalking.walkTo(edgevilleDitch, () -> {
-
-                       handleEatAndPrayer(pker);
-                       Log.debug("Returning failure");
-                       return WalkState.FAILURE;
-
-                   });
-               }
-                continue;
-            }
 
             Waiting.wait(100);
         }
