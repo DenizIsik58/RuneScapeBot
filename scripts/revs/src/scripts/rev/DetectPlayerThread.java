@@ -417,7 +417,11 @@ public class DetectPlayerThread extends Thread {
                                     Log.debug("Timer for teleport has been started");
                                     var startTime = GameState.getLoopCycle()/30D;
                                     var stopTime = startTime + 3D;
+                                    Log.debug("Start time: " + startTime);
+                                    Log.debug("Stop time. " + stopTime);
                                     Waiting.waitUntil(() -> GameState.getLoopCycle()/30D > stopTime);
+                                    Log.debug("Start time: " + startTime);
+                                    Log.debug("Stop time. " + stopTime);
                                     Log.debug("1,8 seconds gone Teleporting now");
                                     Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
 
