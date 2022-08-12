@@ -105,10 +105,15 @@ public class LootingManager {
 
         if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
 
-            if (!RevkillerManager.getTarget().isVisible()) {
-                RevkillerManager.getTarget().adjustCameraTo();
+            if (getTripValue() >= 200000) {
+                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+            }else {
+                if (!RevkillerManager.getTarget().isVisible()) {
+                    RevkillerManager.getTarget().adjustCameraTo();
+                }
+                RevkillerManager.getTarget().click();
             }
-            RevkillerManager.getTarget().click();
+
 
         }
 
