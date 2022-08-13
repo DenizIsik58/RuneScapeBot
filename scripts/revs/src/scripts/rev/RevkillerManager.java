@@ -79,7 +79,7 @@ public class RevkillerManager {
                 return;
             }
 
-            if (Query.inventory().nameEquals("Shark").count() < 4) {
+            if (Query.inventory().actionEquals("Eat").count() < 6) {
                 if (target != null){
                     if (target.isValid()) {
                         target.interact("Attack");

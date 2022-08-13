@@ -15,6 +15,7 @@ import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.MyAntiBan;
+import scripts.api.MyExchange;
 import scripts.api.MyPrayer;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.StringsUtility;
@@ -267,6 +268,11 @@ public class DetectPlayerThread extends Thread {
             }
 
             if (pker != null) {
+                Equipment.Slot.RING.getItem().ifPresent(ring -> {
+                    if (ring.getId() != 2550) {
+                        Query.inventory().nameEquals("Ring of recoil").findClosestToMouse().ifPresent(recoil -> recoil.click("Wear"));
+                    }
+                });
 
                 if (!isFrozen()) {
                     // Start running
@@ -284,8 +290,8 @@ public class DetectPlayerThread extends Thread {
                                 Log.debug("trying to hop worlds... Target is not in sight");
                                 WorldManager.hopToRandomMemberWorldWithRequirements();
                                 //TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
-                                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-
+                                //Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                MyExchange.walkToGrandExchange();
                             }
 
                             if (isFrozen()) {
@@ -294,7 +300,7 @@ public class DetectPlayerThread extends Thread {
 
                             Query.gameObjects().idEquals(31558).findBestInteractable()
                                     .map(c -> c.interact("Climb-up")
-                                            && Waiting.waitUntil(500, () -> !MyRevsClient.myPlayerIsInCave()))
+                                            && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
                                     .orElse(false);
 
 

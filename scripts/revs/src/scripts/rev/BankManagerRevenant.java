@@ -104,9 +104,19 @@ public class BankManagerRevenant {
             itemsToBuy.add("Shark");
         }
 
-        if (Bank.getCount("Blighted super restore(4)") < 5) {
+        if (Bank.getCount("Blighted super restore(4)") < 4) {
             itemsToBuy.add("Blighted super restore(4)");
         }
+
+        if (Bank.getCount("Saradomin brew(4)") < 3) {
+            itemsToBuy.add("Saradomin brew(4)");
+        }
+
+        if (!Query.bank().nameContains("Ring of recoil").isAny()) {
+            itemsToBuy.add("Ring of recoil");
+        }
+
+
 
         // Buy items if we need
         if (itemsToBuy.size() != 0) {
@@ -492,8 +502,9 @@ public class BankManagerRevenant {
     public static BankTask getInventoryBankTask() {
         return BankTask.builder()
                 .addInvItem(24598, Amount.of(4)) // Blighted super restore
-                .addInvItem(6685, Amount.of(3))
-                .addInvItem(385, Amount.of(15))
+                .addInvItem(6685, Amount.of(3)) // brew
+                .addInvItem(2550, Amount.of(1)) // recoil
+                .addInvItem(385, Amount.of(15)) // shark
                 .addInvItem(() -> {
                     var id = Query.bank().nameContains("Ring of dueling(").findFirst().map(Identifiable::getId).orElse(0);
                     var amount = id == 0 ? Amount.of(0) : Amount.of(1);

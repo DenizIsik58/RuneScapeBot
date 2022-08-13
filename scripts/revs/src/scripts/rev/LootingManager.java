@@ -24,7 +24,7 @@ public class LootingManager {
             "Magic logs", "Uncut dragonstone", "Yew seed", "Magic seed", "Amulet of avarice", "Craw's bow (u)",
             "Thammaron's sceptre (u)", "Viggora's chainmace (u)", "Ancient emblem", "Ancient totem", "Ancient crystal",
             "Ancient statuette", "Ancient medallion", "Ancient effigy", "Ancient relic", "Dragonstone bolt tips",
-            "Death rune", "Blood rune", "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth", "Blighted manta ray", "Blighted anglerfish"
+            "Death rune", "Blood rune", "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth", "Blighted anglerfish", "Blighted manta ray"
     };
     private static int tripValue = 0;
     private static int totalValue = 0;
@@ -49,9 +49,16 @@ public class LootingManager {
 
             var item = possibleLoot.get(itemIndex);
 
+            if (Inventory.isFull() && item.getName().equals("Blighted anglerfish") || item.getName().equals("Blighted manta ray")) {
+                Log.debug("Inventory is full of food. Not looting more");
+                return;
+            }
 
-            openLootingBag();
-
+            if (item.getName().equals("Blighted anglerfish") || item.getName().equals("Blighted manta ray")) {
+                closeLootingBag();
+            }else {
+                openLootingBag();
+            }
 
 
             if (!item.isVisible()) {
@@ -80,7 +87,6 @@ public class LootingManager {
             var changed = Waiting.waitUntil(4000, () -> hasDecreased(countBeforePickingUp));
 
             if (!changed) {
-                // FEELS LIKE THIS ONE PUTS IT BACK. ALWAYS FALSE?
                 Log.debug("Not changed");
                 loot();
             } else {
@@ -139,8 +145,8 @@ public class LootingManager {
                 lootingBag.click("Open");
             }
         });
-        if (Inventory.isFull() && Inventory.contains("Shark")) {
-            Query.inventory().nameEquals("Shark").findClosestToMouse().ifPresent(shark -> shark.click("Eat"));
+        if (Inventory.isFull() && Query.inventory().actionEquals("Eat").isAny()) {
+            Query.inventory().actionEquals("Eat").findClosestToMouse().ifPresent(food -> food.click("Eat"));
         }
     }
 
@@ -163,8 +169,6 @@ public class LootingManager {
     }
 
     public static boolean hasDecreased(int count) {
-        Log.debug("Size of all loot: " + getAllLoot().size());
-        Log.debug("Size of count: " + count);
         return getAllLoot().size() == count - 1 || getAllLoot().size() == 0;
     }
 
@@ -172,6 +176,11 @@ public class LootingManager {
         if (hasPkerBeenDetected()) {
             return false;
         }
+
+        if (!Inventory.isFull() && Inventory.contains("Looting bag") && Query.groundItems().filter(groundItem -> groundItem.getName().equals("Blighted anglerfish") || groundItem.getName().equals("Blighted manta ray")).isAny()) {
+            return true;
+        }
+
 
         return !getAllLoot().isEmpty();
 //         for (var item : lootToPickUp) {

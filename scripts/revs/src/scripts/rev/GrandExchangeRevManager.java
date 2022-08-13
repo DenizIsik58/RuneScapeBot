@@ -325,7 +325,7 @@ public class GrandExchangeRevManager {
         MyExchange.openExchange();
 
         for (var item : itemsTobuy) {
-            if (item.contains("Blighted super restore") || item.contains("Shark") || item.contains("Divine ranging potion")) {
+            if (item.contains("Blighted super restore") || item.contains("Saradomin brew")  || item.contains("Shark") || item.contains("Divine ranging potion") || item.equals("Ring of recoil")) {
                 GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(100).priceAdjustment(2).type(GrandExchangeOffer.Type.BUY).build());
             } else {
                 if (item.equals("Leather boots") || item.equals("Leather body") || item.equals("Coif")) {
