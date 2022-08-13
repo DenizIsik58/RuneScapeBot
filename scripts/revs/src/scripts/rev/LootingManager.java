@@ -24,7 +24,7 @@ public class LootingManager {
             "Magic logs", "Uncut dragonstone", "Yew seed", "Magic seed", "Amulet of avarice", "Craw's bow (u)",
             "Thammaron's sceptre (u)", "Viggora's chainmace (u)", "Ancient emblem", "Ancient totem", "Ancient crystal",
             "Ancient statuette", "Ancient medallion", "Ancient effigy", "Ancient relic", "Dragonstone bolt tips",
-            "Death rune", "Blood rune", "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth"
+            "Death rune", "Blood rune", "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth", "Blighted manta ray", "Blighted anglerfish"
     };
     private static int tripValue = 0;
     private static int totalValue = 0;
@@ -39,26 +39,34 @@ public class LootingManager {
                 return;
             }
 
+            Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> {
+                if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
+                    TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
+                    MyRevsClient.getScript().setState(State.BANKING);
+                }
+            });
+
+
             var item = possibleLoot.get(itemIndex);
             // Open the looting bag once you pick it up
+            if (Query.inventory().filter(food -> food.getActions().contains("Eat")).count() < 14 && (item.getName().contains("anglerfish") || item.getName().contains("manta ray"))) {
+                closeLootingBag();
+            }else {
+                openLootingBag();
+            }
 
-            openLootingBag();
 
             if (!item.isVisible()) {
                 item.adjustCameraTo();
             }
 
-            //STOPS HERE
-            Log.debug("Picking up item: " + item.getName());
             var countBeforePickingUp = getAllLoot().size();
-            Log.debug("Count before picking up: " + countBeforePickingUp);
 
 
             // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
             item.interact("Take", LootingManager::hasPkerBeenDetected);
 
             if (itemIndex == 0) {
-                // HOVERS HERE AND DOESN'T FINISH THE LOOP
                 Log.debug("First item to pick up. Hovering over teleport in case pker is waiting.");
                 Equipment.Slot.RING.getItem().ifPresent(ring -> {
                     ring.hoverMenu("Grand Exchange");
@@ -119,6 +127,14 @@ public class LootingManager {
         RevkillerManager.setHasClickedSpot(false);
 
         Log.debug("Ended looting process. Switching back to killing");
+    }
+
+    private static void closeLootingBag(){
+        getLootingBag().ifPresent(lootingBag -> {
+            if (lootingBag.getId() == 22586) {
+                lootingBag.click("Open");
+            }
+        });
     }
 
     private static void openLootingBag() {

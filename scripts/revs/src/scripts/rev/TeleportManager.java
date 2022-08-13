@@ -2,15 +2,13 @@ package scripts.rev;
 
 import dax.teleports.Teleport;
 import org.tribot.script.sdk.*;
+import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
-import scripts.api.MyBanker;
-import scripts.api.MyExchange;
-import scripts.api.MyOptions;
-import scripts.api.MyTeleporting;
+import scripts.api.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,9 +35,7 @@ public class TeleportManager {
 
         if (!chosenMobArea.isVisible()) {
             Log.debug("[INFO_LISTENER] Started journey towards the cave...");
-            if (Combat.getWildernessLevel() > 20){
-                GlobalWalking.walkTo(enclaveDoor);
-            }
+
 
             if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars()){
                 if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
@@ -47,12 +43,23 @@ public class TeleportManager {
                 }
             }
 
+            if (MyRevsClient.myPlayerIsInCave()){
+                Log.debug("i'm in cave. walking to mob area..");
+                GlobalWalking.walkTo(demons, () -> {
+                    setWalkingState();
+                    return WalkState.CONTINUE;
+                });
+            }
+
             if (MyRevsClient.myPlayerIsInFerox()) {
                 setHasVisitedBeforeTrip(true);
                 Log.debug("[INFO_LISTENER] I'm in ferox");
                 if (MyRevsClient.myPlayerNeedsToRefresh()){
                     Log.debug("I'm walking to pool");
-                    GlobalWalking.walkTo(enclavePool);
+                    GlobalWalking.walkTo(enclavePool, () -> {
+                        setWalkingState();
+                        return WalkState.CONTINUE;
+                    });
 
                     Query.gameObjects().idEquals(39651).findClosest().map(c -> c.interact("Drink"));
                     Log.debug("I'm trying to drink from the pool");
@@ -61,17 +68,7 @@ public class TeleportManager {
                 }else {
                     Log.debug("I'm walking to entrance");
                     GlobalWalking.walkTo(caveEntrance, () ->{
-                        if (!GameTab.LOGOUT.isOpen()) {
-                            GameTab.LOGOUT.open();
-                        }
-                        MyOptions.setRunOn();
-                        if (Query.players()
-                                .withinCombatLevels(Combat.getWildernessLevel())
-                                .isNotEquipped(DetectPlayerThread.getPvmGear())
-                                .notInArea(FEROX_ENCLAVE)
-                                .findFirst().isPresent()){
-                            WorldManager.hopToRandomMemberWorldWithRequirements();
-                        }
+                        setWalkingState();
                         return WalkState.CONTINUE;
                     });
                 }
@@ -105,32 +102,34 @@ public class TeleportManager {
                 }
             }
 
-
-            if (MyRevsClient.myPlayerIsInCave()){
-                Log.debug("i'm in cave. walking to mob area..");
-                    GlobalWalking.walkTo(chosenMobArea, () -> {
-                        if (LootingManager.hasPkerBeenDetected() && !MyRevsClient.myPlayerIsInCave() && !Combat.isInWilderness()){
-                            Log.debug("Pker has been seen, im not in cave or im not in wildy -> Banking");
-                            MyRevsClient.getScript().setState(State.BANKING);
-                            return WalkState.FAILURE;
-                        }
-                        if (Query.players()
-                                .withinCombatLevels(Combat.getWildernessLevel())
-                                .isNotEquipped(DetectPlayerThread.getPvmGear())
-                                .notInArea(FEROX_ENCLAVE)
-                                .findFirst().isPresent()){
-                            WorldManager.hopToRandomMemberWorldWithRequirements();
-                        }
-                        return WalkState.CONTINUE;
-                    });
-            }
-
-        return chosenMobArea;
+        Mouse.setSpeed(300);
+        return demons;
     }
 
     private static WorldTile getRandomMobArea() {
         Collections.shuffle(monsterTiles);
         return monsterTiles.get(0);
+    }
+
+    private static void setWalkingState(){
+        Mouse.setSpeed(700);
+        MyOptions.setRunOn();
+
+        if (!GameTab.LOGOUT.isOpen()) {
+            GameTab.LOGOUT.open();
+        }
+
+        if (MyClient.isWidgetVisible(182, 3)) {
+            MyClient.clickWidget("World Switcher", 182, 3);
+        }
+
+        /*if (Query.players()
+                .withinCombatLevels(Combat.getWildernessLevel())
+                .isNotEquipped(DetectPlayerThread.getPvmGear())
+                .notInArea(FEROX_ENCLAVE)
+                .findFirst().isPresent()){
+            WorldManager.hopToRandomMemberWorldWithRequirements();
+        }*/
     }
 
     public static boolean monsterTileIsDetected(WorldTile tile){

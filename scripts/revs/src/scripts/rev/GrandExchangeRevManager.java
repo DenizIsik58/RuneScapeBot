@@ -24,7 +24,11 @@ public class GrandExchangeRevManager {
     private static boolean inFirstTrade = false;
 
     public static List<InventoryItem> getAllSellItems() {
-        return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item -> item.getId() != 995 && item.getId() != 22547).distinctById().toList();
+        return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item ->
+                        item.getId() != 995 &&
+                        item.getId() != 22547 &&
+                        !item.getName().contains("anglerfish") &&
+                        !item.getName().contains("manta")).distinctById().toList();
     }
 
 

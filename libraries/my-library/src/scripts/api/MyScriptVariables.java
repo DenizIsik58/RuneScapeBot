@@ -102,7 +102,7 @@ public class MyScriptVariables {
     private static final String MOUSE_SPEED = "mouseSpeed";
 
     public static int mouseSpeed() {
-        return getVariable(MOUSE_SPEED, 200);
+        return getVariable(MOUSE_SPEED, 300);
     }
 
     public static void setMouseSpeed(int value) {

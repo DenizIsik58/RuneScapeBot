@@ -3,7 +3,6 @@ package scripts.rev;
 import lombok.Getter;
 import lombok.Setter;
 import org.tribot.script.sdk.*;
-import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.PlayerQuery;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
@@ -34,16 +33,12 @@ public class RevkillerManager {
         }
 
 
-        var boss = Query.npcs().nameEquals("Revenant maledictus").findFirst().orElse(null);
-
-        if (boss != null){
+        Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> {
             if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
                 TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
                 MyRevsClient.getScript().setState(State.BANKING);
-                return;
-
             }
-        }
+        });
 
         if (Combat.isAutoRetaliateOn()){
             Combat.setAutoRetaliate(false);
@@ -64,6 +59,11 @@ public class RevkillerManager {
 
         if (iWasFirst && Combat.isInWilderness()){
 
+            if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
+                MyRevsClient.getScript().setState(State.LOOTING);
+                return;
+            }
+
             if (Query.inventory().nameContains("Prayer potion").count() == 0) {
                 if (target != null) {
                     if (target.isValid()) {
@@ -81,12 +81,12 @@ public class RevkillerManager {
 
             if (Query.inventory().nameEquals("Shark").count() < 4) {
                 if (target != null){
-                    if (target.isValid()){
+                    if (target.isValid()) {
                         target.interact("Attack");
                         Waiting.waitUntil(15000, () -> !target.isValid());
-                        Waiting.waitNormal(5000, 500);
-                        if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
+                        if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()) {
                             MyRevsClient.getScript().setState(State.LOOTING);
+                            return;
                         }
                     }
                 }
@@ -206,21 +206,11 @@ public class RevkillerManager {
                 }
 
             }
-            if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
-                MyRevsClient.getScript().setState(State.LOOTING);
-                return;
-            }
+
 
             if (LootingManager.getTripValue() >= 200000) {
                 if (!MyRevsClient.myPlayerIsInGE()) {
-                    Log.debug("Teleporting to ge after hitting 200k treshold");
-                    if (target.isValid()) {
-                        target.click();
-                        Waiting.waitUntil(() -> !target.isValid());
-                        if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
-                            MyRevsClient.getScript().setState(State.LOOTING);
-                        }
-                    }
+
                     Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
 
                     MyRevsClient.getScript().setState(State.BANKING);
@@ -234,6 +224,10 @@ public class RevkillerManager {
                 }
             }
         }else {
+            if (!Combat.isInWilderness()) {
+                MyRevsClient.getScript().setState(State.BANKING);
+                return;
+            }
             WorldManager.hopToRandomMemberWorldWithRequirements();
         }
 

@@ -14,7 +14,9 @@ import org.tribot.script.sdk.types.Projectile;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
-import scripts.api.*;
+import scripts.api.MyAntiBan;
+import scripts.api.MyPrayer;
+import scripts.api.MyScriptVariables;
 import scripts.api.utility.StringsUtility;
 
 import java.util.Optional;
@@ -50,6 +52,7 @@ public class DetectPlayerThread extends Thread {
     private static boolean isEntangleTimerStarted = false;
     private static boolean isEntangled = false;
     private static MagicManager entangleDetecter = null;
+    private AtomicBoolean processing = new AtomicBoolean(false);
 
     public DetectPlayerThread(RevScript revScript) {
         this.script = revScript;
@@ -255,14 +258,22 @@ public class DetectPlayerThread extends Thread {
                                 Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
 
                             }
-                            Log.debug("Returning failure");
-                            return WalkState.FAILURE;
+
+                            if (isFrozen()) {
+                                return WalkState.FAILURE;
+                            }
+
+                            Query.gameObjects().idEquals(31558).findBestInteractable()
+                                    .map(c -> c.interact("Climb-up")
+                                            && Waiting.waitUntil(500, () -> !MyRevsClient.myPlayerIsInCave()))
+                                    .orElse(false);
+                            handleEatAndPrayer(pker);
+
+
+
+                            Log.debug("Done checking walking condition");
+                            return WalkState.CONTINUE;
                         });
-                        Query.gameObjects().idEquals(31558).findBestInteractable()
-                                .map(c -> c.interact("Climb-up")
-                                        && Waiting.waitUntil(500, () -> !MyRevsClient.myPlayerIsInCave()))
-                                .orElse(false);
-                        handleEatAndPrayer(pker);
 
                     } else {
 
@@ -270,6 +281,7 @@ public class DetectPlayerThread extends Thread {
                         ensureWalkingPermission();
                         //MyExchange.walkToGrandExchange();
                         MyPlayer.getTile().translate(0, -15).clickOnMinimap();
+
                         handleEatAndPrayer(pker);
                     }
                     continue;
@@ -374,7 +386,7 @@ public class DetectPlayerThread extends Thread {
                 danger = inDanger();
                 if (danger) {
                     Log.warn("[DANGER_LISTENER] HANDLING DANGER");
-                    if (Mouse.getSpeed() == 200) {
+                    if (Mouse.getSpeed() == 300) {
                         int dangerMouseSpeed = getRandomNumber(1500, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
                     }
@@ -385,51 +397,72 @@ public class DetectPlayerThread extends Thread {
                         if (isAntiPking()) {
                             setAntiPking(false);
                         }
-                        Query.players()
-                                .withinCombatLevels(Combat.getWildernessLevel())
-                                .isNotEquipped(PVM_GEAR)
-                                .findFirst()
-                                .ifPresent(pker -> {
-                                    setHasPkerBeenDetected(true);
 
-                                    if (RevkillerManager.getTarget() != null){
-                                        if (!RevkillerManager.getTarget().isHealthBarVisible()){
+                        if (MyRevsClient.getScript().isState(scripts.rev.State.WALKING) && !MyPlayer.isHealthBarVisible()){
+                            if (WorldManager.hopToRandomMemberWorldWithRequirements()){
+                                setInDanger(false);
+                                setHasPkerBeenDetected(false);
+                                continue;
+                            }
+
+                        }
+                        if (!processing.get()) {
+                            processing.set(true);
+                            Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
+                            // do all the shit thats happening multiple times
+                            Query.players()
+                                    .withinCombatLevels(Combat.getWildernessLevel())
+                                    .isNotEquipped(PVM_GEAR)
+                                    .findFirst()
+                                    .ifPresent(pker -> {
+                                        setHasPkerBeenDetected(true);
+
+                                        if (RevkillerManager.getTarget() != null){
+                                            if (!RevkillerManager.getTarget().isHealthBarVisible()){
+                                                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                            }
+                                        }
+
+                                        if (!MyPlayer.isHealthBarVisible()) {
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         }
-                                    }
 
-                                    if (!MyPlayer.isHealthBarVisible()) {
-                                        Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                                    }
-
-                                    if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
-                                        // Player is east
-                                        // Run west
-                                        Log.debug("Player on east. Running west!");
-                                        //if (!hasTickCounterStarted) {
+                                        if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
+                                            // Player is east
+                                            // Run west
+                                            Log.debug("Player on east. Running west!");
+                                            //if (!hasTickCounterStarted) {
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(-15, 0).clickOnMinimap());
-                                    } else {
-                                        //Player west
-                                        // Run east
+                                        } else {
+                                            //Player west
+                                            // Run east
                                             Log.debug("Player on west. Running east!");
                                             Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(15, 0).clickOnMinimap());
                                         }
 
-                                    Equipment.Slot.RING.getItem().ifPresent(ring -> {
-                                        if (ring.isHovering()) {
-                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
-                                        }
+                                        Equipment.Slot.RING.getItem().ifPresent(ring -> {
+                                            if (ring.isHovering()) {
+                                                Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
+                                            }
+                                        });
+                                        Log.debug("Timer for teleport has been started");
+                                        var startTime = GameState.getLoopCycle()/30D;
+                                        var stopTime = startTime + 3D;
+                                        Log.debug("Start time: " + startTime);
+                                        Log.debug("Stop time. " + stopTime);
+                                        Waiting.wait(2000);
+                                        //Waiting.waitUntil(() -> GameState.getLoopCycle()/30D > stopTime);
+                                        Log.debug("After waiting: " + GameState.getLoopCycle());
+                                        Log.debug("1,8 seconds gone Teleporting now");
+                                        Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                     });
-                                    Log.debug("Timer for teleport has been started");
-                                    var startTime = GameState.getLoopCycle()/30D;
-                                    var stopTime = startTime + 3D;
-                                    Log.debug("Start time: " + startTime);
-                                    Log.debug("Stop time. " + stopTime);
-                                    Waiting.waitUntil(() -> GameState.getLoopCycle()/30D > stopTime);
-                                    Log.debug("After waiting: " + GameState.getLoopCycle());
-                                    Log.debug("1,8 seconds gone Teleporting now");
-                                    Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                                });
+
+
+                            processing.set(false);
+                        }
+
+
+
 
                     } else {
                         if (!isAntiPking()) {
@@ -453,7 +486,7 @@ public class DetectPlayerThread extends Thread {
                 if (isTeleblocked()) setTeleblocked(false);
                 if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
                 if (inDanger()) setInDanger(false);
-                if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
+                if (Mouse.getSpeed() != 300) Mouse.setSpeed(300);
                 if (entangleDetecter != null) entangleDetecter = null;
                 hasTickCounterStarted = false;
             }
@@ -462,7 +495,7 @@ public class DetectPlayerThread extends Thread {
         if (isTeleblocked()) setTeleblocked(false);
         if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
         if (inDanger()) setInDanger(false);
-        if (Mouse.getSpeed() != 200) Mouse.setSpeed(200);
+        if (Mouse.getSpeed() != 300) Mouse.setSpeed(300);
         if (entangleDetecter != null) entangleDetecter = null;
         hasTickCounterStarted = false;
     }

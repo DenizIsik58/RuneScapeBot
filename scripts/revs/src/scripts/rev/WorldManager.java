@@ -5,8 +5,8 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.World;
 
 public class WorldManager {
-    public static void hopToRandomMemberWorldWithRequirements(){
-        Query
+    public static boolean hopToRandomMemberWorldWithRequirements(){
+        return Query
                 .worlds()
                 .isMembers().isNotDangerous()
                 .isRequirementsMet()
@@ -18,6 +18,7 @@ public class WorldManager {
                 .isNotAnyType(World.Type.LAST_MAN_STANDING)
                 .isNotAnyType(World.Type.LEAGUE)
                 .isNotAnyType(World.Type.PVP)
+                .locationEquals(World.Location.UNITED_STATES)
                 .isNotAnyType(World.Type.DEADMAN)
                 .isNotAnyType(World.Type.DEADMAN_TOURNAMENT)
                 .isNotCurrentWorld()

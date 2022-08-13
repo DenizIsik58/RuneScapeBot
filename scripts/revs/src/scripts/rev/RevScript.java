@@ -137,7 +137,7 @@ public class RevScript extends MyScriptExtension {
         }
 
 
-        Mouse.setSpeed(200);
+        Mouse.setSpeed(300);
 
         MyOptions.setRunOn();
 
@@ -230,7 +230,9 @@ public class RevScript extends MyScriptExtension {
 
     private void killPkThread() {
         if (playerDetectionThread != null) {
-            if (playerDetectionThread.isRunning()) playerDetectionThread.stopDetection();
+            if (playerDetectionThread.isRunning()){
+                playerDetectionThread.stopDetection();
+            }
             playerDetectionThread = null;
         }
     }
@@ -256,8 +258,11 @@ public class RevScript extends MyScriptExtension {
         var isInWild = Combat.isInWilderness();
 
         if (wasInWild != isInWild) {
-            if (isInWild) startPkThread();
-            else killPkThread();
+            if (isInWild) {
+                startPkThread();
+            } else {
+                killPkThread();
+            }
             inWilderness.set(isInWild);
         }
     }
@@ -301,9 +306,12 @@ public class RevScript extends MyScriptExtension {
 
     private void handleBanking() {
         Log.debug(state);
+        PrayerManager.turnOffAllPrayer();
+
         Log.info("Total amount made this trip: " + LootingManager.getTripValue());
         Log.info("Total amount made since script start: " + LootingManager.getTotalValue());
         Log.info("Total times died so far: " + DeathManger.totalDeaths());
+
         LootingManager.resetTripValue();
         if (playerDetectionThread != null){
             playerDetectionThread.setHasPkerBeenDetected(false);
@@ -318,6 +326,7 @@ public class RevScript extends MyScriptExtension {
 
     private void handleDeath() {
         Log.debug("Dead");
+        PrayerManager.turnOffAllPrayer();
         TeleportManager.setHasVisitedBeforeTrip(false);
         DeathManger.incrementTotalDeaths();
         LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue() - 200000);
