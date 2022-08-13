@@ -18,7 +18,6 @@ public class WorldManager {
                 .isNotAnyType(World.Type.LAST_MAN_STANDING)
                 .isNotAnyType(World.Type.LEAGUE)
                 .isNotAnyType(World.Type.PVP)
-                .locationEquals(World.Location.UNITED_STATES)
                 .isNotAnyType(World.Type.DEADMAN)
                 .isNotAnyType(World.Type.DEADMAN_TOURNAMENT)
                 .isNotCurrentWorld()
