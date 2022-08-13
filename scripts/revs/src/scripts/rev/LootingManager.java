@@ -25,7 +25,6 @@ public class LootingManager {
             "Thammaron's sceptre (u)", "Viggora's chainmace (u)", "Ancient emblem", "Ancient totem", "Ancient crystal",
             "Ancient statuette", "Ancient medallion", "Ancient effigy", "Ancient relic", "Dragonstone bolt tips",
             "Death rune", "Blood rune", "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth",
-            "Blighted anglerfish", "Blighted manta ray"
     };
     private static int tripValue = 0;
     private static int totalValue = 0;
