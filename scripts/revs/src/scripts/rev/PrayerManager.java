@@ -45,7 +45,7 @@ public class PrayerManager {
     }
 
     public static void maintainPrayerPotion(){
-        var drankPotion = Query.inventory().nameContains("Prayer potion")
+        var drankPotion = Query.inventory().nameContains("Blighted super restore")
                 .findClosestToMouse()
                 .map(potion -> {
                     var currentPrayer = MyPrayer.getCurrentPrayerPercent();

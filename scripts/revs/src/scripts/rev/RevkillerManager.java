@@ -64,7 +64,7 @@ public class RevkillerManager {
                 return;
             }
 
-            if (Query.inventory().nameContains("Prayer potion").count() == 0) {
+            if (Query.inventory().nameContains("Blighted super restore").count() == 0) {
                 if (target != null) {
                     if (target.isValid()) {
                         target.click();

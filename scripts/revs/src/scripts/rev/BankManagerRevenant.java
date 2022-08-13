@@ -104,8 +104,8 @@ public class BankManagerRevenant {
             itemsToBuy.add("Shark");
         }
 
-        if (Bank.getCount("Prayer potion(4)") < 5) {
-            itemsToBuy.add("Prayer potion(4)");
+        if (Bank.getCount("Blighted super restore(4)") < 5) {
+            itemsToBuy.add("Blighted super restore(4)");
         }
 
         // Buy items if we need
@@ -491,7 +491,8 @@ public class BankManagerRevenant {
 
     public static BankTask getInventoryBankTask() {
         return BankTask.builder()
-                .addInvItem(2434, Amount.of(5)) // Prayer pot
+                .addInvItem(24598, Amount.of(4)) // Blighted super restore
+                .addInvItem(6685, Amount.of(3))
                 .addInvItem(385, Amount.of(15))
                 .addInvItem(() -> {
                     var id = Query.bank().nameContains("Ring of dueling(").findFirst().map(Identifiable::getId).orElse(0);

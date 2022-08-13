@@ -1,6 +1,5 @@
 package scripts.rev;
 
-import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Widget;
@@ -18,7 +17,7 @@ public class DecantManager {
     private static final List<String> potions = new ArrayList<>(Arrays.asList(
             "Divine ranging potion(1)","Divine ranging potion(2)","Divine ranging potion(3)","Divine ranging potion(4)",
             "Stamina potion(1)","Stamina potion(2)","Stamina potion(3)","Stamina potion(4)",
-            "Prayer potion(1)","Prayer potion(2)","Prayer potion(3)","Prayer potion(4)"
+            "Blighted super restore(1)","Blighted super restore(2)","Blighted super restore(3)","Blighted super restore(4)"
     ));
 
 

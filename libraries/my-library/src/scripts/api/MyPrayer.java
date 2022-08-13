@@ -30,7 +30,6 @@ public class MyPrayer {
 
     public static boolean shouldDrinkPrayerPotion() {
         int prayerPercent = getCurrentPrayerPercent();
-        Log.trace("Current prayer percent = " + prayerPercent);
         return getNextPrayerDrinkPercent() >= prayerPercent;
     }
 

@@ -27,8 +27,7 @@ public class GrandExchangeRevManager {
         return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item ->
                         item.getId() != 995 &&
                         item.getId() != 22547 &&
-                        !item.getName().contains("anglerfish") &&
-                        !item.getName().contains("manta")).distinctById().toList();
+                        !item.getName().contains("Blighted")).distinctById().toList();
     }
 
 
@@ -49,7 +48,7 @@ public class GrandExchangeRevManager {
         MyBanker.withdraw("Coins", 2147000000, false);
         AtomicInteger itemsToSell = new AtomicInteger();
         for (var item : LootingManager.getLootToPickUp()) {
-            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)")) {
+            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)") || item.contains("Blighted")) {
                 continue;
             }
 
@@ -326,7 +325,7 @@ public class GrandExchangeRevManager {
         MyExchange.openExchange();
 
         for (var item : itemsTobuy) {
-            if (item.contains("Prayer pot") || item.contains("Shark") || item.contains("Divine ranging potion")) {
+            if (item.contains("Blighted super restore") || item.contains("Shark") || item.contains("Divine ranging potion")) {
                 GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(100).priceAdjustment(2).type(GrandExchangeOffer.Type.BUY).build());
             } else {
                 if (item.equals("Leather boots") || item.equals("Leather body") || item.equals("Coif")) {
