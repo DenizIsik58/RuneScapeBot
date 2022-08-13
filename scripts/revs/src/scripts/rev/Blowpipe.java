@@ -8,12 +8,9 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.tasks.Amount;
 import org.tribot.script.sdk.tasks.EquipmentReq;
 import org.tribot.script.sdk.types.EquipmentItem;
-import org.tribot.script.sdk.types.GrandExchangeOffer;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.util.Retry;
-import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
-import scripts.api.MyExchange;
 import scripts.api.utility.MathUtility;
 import scripts.api.utility.StringsUtility;
 
@@ -26,8 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-
-import static scripts.api.MyClient.clickWidget;
 
 public class Blowpipe{
 
@@ -224,7 +219,7 @@ public class Blowpipe{
                 var withdrawAmount = MathUtility.roundUpToNearest(scalesNeeded, 100);
                 if (Bank.getCount(zulrahScaleId) < scalesNeeded) {
                     Log.error("Not enough scales in bank.");
-                    GrandExchangeRevManager.buyFromBank(zulrahScaleId, scalesNeeded);
+                    GrandExchangeRevManager.buyFromBank(zulrahScaleId, scalesNeeded * 3);
 
                 }
                 Log.debug("Scales withdraw amount: " + scalesNeeded);

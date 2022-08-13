@@ -132,7 +132,7 @@ public class LootingManager {
     private static void closeLootingBag(){
         getLootingBag().ifPresent(lootingBag -> {
             if (lootingBag.getId() == 22586) {
-                lootingBag.click("Open");
+                lootingBag.click("Close");
             }
         });
     }
@@ -173,7 +173,12 @@ public class LootingManager {
     }
 
     public static boolean hasLootBeenDetected() {
-        if (hasPkerBeenDetected()) return false;
+        if (hasPkerBeenDetected()) {
+            return false;
+        }
+        if (Query.inventory().filter(inventoryItem -> inventoryItem.getActions().contains("Eat")).count() >= 14) {
+            return false;
+        }
         return !getAllLoot().isEmpty();
 //         for (var item : lootToPickUp) {
 //             if (Query.groundItems().nameEquals(item).isAny()) {
