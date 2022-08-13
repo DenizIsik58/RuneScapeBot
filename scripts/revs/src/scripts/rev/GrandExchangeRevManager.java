@@ -103,7 +103,7 @@ public class GrandExchangeRevManager {
                     MyExchange.openExchange();
                 }
                 attempts++;
-                successfullyPosted = MyExchange.createGrandExchangeOffer(item);
+                successfullyPosted = MyExchange.createGrandExchangeSellOrder(item);
                 // Check if GE is full
                 if (MyExchange.isGrandExchangeSlotsFull()) {
                     // GE IS FULL. COLLECT ITEMS
@@ -282,7 +282,7 @@ public class GrandExchangeRevManager {
                     MyExchange.openExchange();
                 }
                 attempts++;
-                successfullyPosted = MyExchange.createGrandExchangeOffer(item);
+                successfullyPosted = MyExchange.createGrandExchangeSellOrder(item);
                 // Check if GE is full
                 if (MyExchange.isGrandExchangeSlotsFull()) {
                     // GE IS FULL. COLLECT ITEMS
@@ -326,17 +326,15 @@ public class GrandExchangeRevManager {
 
         for (var item : itemsTobuy) {
             if (item.contains("Blighted super restore") || item.contains("Saradomin brew")  || item.contains("Shark") || item.contains("Divine ranging potion") || item.equals("Ring of recoil")) {
-                GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(100).priceAdjustment(2).type(GrandExchangeOffer.Type.BUY).build());
-            } else {
-                if (item.equals("Leather boots") || item.equals("Leather body") || item.equals("Coif")) {
-                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).price(1000).type(GrandExchangeOffer.Type.BUY).build());
+                MyExchange.createGrandExchangeBuyOrder(item, 100, 0, true);
+            } else if (item.equals("Leather boots") || item.equals("Leather body") || item.equals("Coif") || item.contains("Snakeskin")) {
+                    MyExchange.createGrandExchangeBuyOrder(item, 20, 3000, false);
                 } else if (item.equals("Bandos cloak")) {
-                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(1).priceAdjustment(6).type(GrandExchangeOffer.Type.BUY).build());
-
+                MyExchange.createGrandExchangeBuyOrder(item, 1, 0, true);
                 } else {
-                    GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(10).priceAdjustment(5).type(GrandExchangeOffer.Type.BUY).build());
+                MyExchange.createGrandExchangeBuyOrder(item, 10, 0, true);
                 }
-            }
+
             Waiting.wait(3000);
         }
         if (itemsTobuy.contains("Revenant ether")) {

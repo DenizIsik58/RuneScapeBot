@@ -14,10 +14,7 @@ import org.tribot.script.sdk.types.Projectile;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
-import scripts.api.MyAntiBan;
-import scripts.api.MyExchange;
-import scripts.api.MyPrayer;
-import scripts.api.MyScriptVariables;
+import scripts.api.*;
 import scripts.api.utility.StringsUtility;
 
 import java.util.Optional;
@@ -208,16 +205,16 @@ public class DetectPlayerThread extends Thread {
         });
 
         if (MyAntiBan.shouldEat()) {
-            var sharkCount = Inventory.getCount("Shark");
+            var foodCount = Query.inventory().actionEquals("Eat").count();
             var brewCount = Query.inventory().nameContains("Saradomin brew").count();
-            if (sharkCount > 0 && brewCount > 0) {
-                var comboEat = comboEat(sharkCount, true);
+            if (foodCount > 0 && brewCount > 0) {
+                var comboEat = comboEat(foodCount, true);
                 if (comboEat) {
                     MyAntiBan.calculateNextEatPercent();
                 }
-            } else if (brewCount == 0 && sharkCount > 0 || brewCount > 0 && sharkCount == 0){
+            } else if (brewCount == 0 && foodCount > 0 || brewCount > 0 && foodCount == 0){
                 if (brewCount == 0) {
-                    if (comboEat(sharkCount, false)) {
+                    if (comboEat(foodCount, false)) {
                         MyAntiBan.calculateNextEatPercent();
                     }
                 }else {
@@ -238,10 +235,10 @@ public class DetectPlayerThread extends Thread {
     private static boolean comboEat(int sharkCount, boolean comboEat) {
 
         return comboEat ? Query.inventory()
-                .nameEquals("Shark")
+                .actionEquals("Eat")
                 .findClosestToMouse()
                 .map(c -> c.click("Eat")
-                        && Waiting.waitUntil(1000, () -> Inventory.getCount("Shark") < sharkCount))
+                        && Waiting.waitUntil(1000, () -> Query.inventory().actionEquals("Eat").count() < sharkCount))
                 .orElse(false) && Query.inventory().nameContains("Saradomin brew").findClosestToMouse().map(brew -> brew.click("Drink")).orElse(false)
 
                 :
@@ -283,7 +280,7 @@ public class DetectPlayerThread extends Thread {
 
                         GlobalWalking.walkTo(stairs, () -> {
                             handleEatAndPrayer(pker);
-
+                            MyOptions.setRunOn();
                             if (!canTargetAttackMe(pker.getName())) {
 
                                 // run away if our target is not nearby
@@ -297,17 +294,14 @@ public class DetectPlayerThread extends Thread {
                             if (isFrozen()) {
                                 return WalkState.FAILURE;
                             }
-
-                            Query.gameObjects().idEquals(31558).findBestInteractable()
-                                    .map(c -> c.interact("Climb-up")
-                                            && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
-                                    .orElse(false);
-
-
-
                             Log.debug("Done checking walking condition");
                             return WalkState.CONTINUE;
                         });
+                        handleEatAndPrayer(pker);
+                        Query.gameObjects().idEquals(31558).findBestInteractable()
+                                .map(c -> c.interact("Climb-up")
+                                        && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
+                                .orElse(false);
 
                     } else {
 
@@ -315,7 +309,7 @@ public class DetectPlayerThread extends Thread {
                         ensureWalkingPermission();
                         //MyExchange.walkToGrandExchange();
                         MyPlayer.getTile().translate(0, -15).clickOnMinimap();
-
+                        MyOptions.setRunOn();
                         handleEatAndPrayer(pker);
                     }
                     continue;
@@ -353,11 +347,8 @@ public class DetectPlayerThread extends Thread {
         }
 
         if (lastProjectile != null && !isEntangleTimerStarted) {
-            Log.debug("Timer is not started and last entangle is not null");
             var isFrozen = lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
             if (isFrozen) {
-                Log.debug("Entangle successfully landed");
-                Log.debug("Our player is not moving. We are frozen");
                 isEntangleTimerStarted = true;
                 isEntangled = true;
                 resetFreezeTimer();
@@ -457,21 +448,31 @@ public class DetectPlayerThread extends Thread {
                                             }
                                         }
 
-                                        if (!MyPlayer.isHealthBarVisible()) {
-                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                                        }
+                                        /*if (!MyPlayer.isHealthBarVisible()) {
 
-                                        if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
-                                            // Player is east
-                                            // Run west
-                                            Log.debug("Player on east. Running west!");
+                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                        }*/
+                                        var yCoordDifference =  pker.getTile().getY() - MyPlayer.getTile().getY();
+                                        var xCoordDifference =  pker.getTile().getX() - MyPlayer.getTile().getX();
+                                        if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
+                                            // Player is north east
+                                            // Run south west
+                                            Log.debug("Player on north east. Running west!");
                                             //if (!hasTickCounterStarted) {
-                                            Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(-15, 0).clickOnMinimap());
-                                        } else {
-                                            //Player west
+                                            Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+                                        } else if (pker.getTile().getX() < MyPlayer.getTile().getX() && (pker.getTile().getY() - MyPlayer.getTile().getY()) >= 5) {
+                                            //Player north-west
                                             // Run east
-                                            Log.debug("Player on west. Running east!");
-                                            Waiting.waitUntil(250, () -> MyPlayer.getTile().translate(15, 0).clickOnMinimap());
+                                            Log.debug("Player on north west. Running south east!");
+                                            Waiting.waitUntil(250, () -> new WorldTile(3229, 10095, 0).clickOnMinimap());
+                                        }else if ((MyPlayer.getTile().getY() - pker.getTile().getY()) >= 3 && pker.getTile().getX() < MyPlayer.getTile().getX()) {
+                                            // Player south west
+                                            // Run north
+                                            Waiting.waitUntil(250, () -> new WorldTile(3226, 10105, 0).clickOnMinimap());
+
+                                        }else {
+                                            Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+
                                         }
 
                                         Equipment.Slot.RING.getItem().ifPresent(ring -> {
@@ -489,6 +490,7 @@ public class DetectPlayerThread extends Thread {
                                         Log.debug("After waiting: " + GameState.getLoopCycle());
                                         Log.debug("1,8 seconds gone Teleporting now");
                                         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                        MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                                     });
 
 

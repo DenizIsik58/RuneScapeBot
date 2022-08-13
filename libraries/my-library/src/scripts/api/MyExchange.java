@@ -53,9 +53,19 @@ public class MyExchange {
         return !Query.grandExchangeOffers().statusEquals(GrandExchangeOffer.Status.EMPTY).isAny();
     }
 
-    public static boolean createGrandExchangeOffer(InventoryItem item){
+    public static boolean createGrandExchangeSellOrder(InventoryItem item){
         GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-3).type(GrandExchangeOffer.Type.SELL).build());
         return Waiting.waitUntil(2000, () -> Query.grandExchangeOffers().itemNameEquals(item.getName()).isAny());
+    }
+
+    public static boolean createGrandExchangeBuyOrder(String item, int quantity,  int price, boolean adjustment){
+        if (adjustment) {
+            GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(quantity).priceAdjustment(6).type(GrandExchangeOffer.Type.BUY).build());
+        } else {
+            GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(quantity).price(price).type(GrandExchangeOffer.Type.BUY).build());
+        }
+
+        return Waiting.waitUntil(2000, () -> Query.grandExchangeOffers().itemNameEquals(item).isAny());
     }
 
 

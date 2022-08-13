@@ -16,7 +16,7 @@ public class PrayerManager {
 
     public static void enableQuickPrayer(){
         if (!Prayer.isQuickPrayerEnabled()) {
-            Prayer.enableQuickPrayer();
+            Waiting.waitUntil(Prayer::enableQuickPrayer);
         }
     }
 
@@ -52,7 +52,9 @@ public class PrayerManager {
                     return potion.click("Drink")
                             && Waiting.waitUntil(1000, () -> MyPrayer.getCurrentPrayerPercent() > currentPrayer || isFullPrayer());
                 }).orElse(false);
-        if (drankPotion) MyPrayer.calculateNextPrayerDrinkPercent();
+        if (drankPotion) {
+            MyPrayer.calculateNextPrayerDrinkPercent();
+        }
     }
 
     public static void init(){

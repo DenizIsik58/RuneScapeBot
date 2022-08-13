@@ -10,6 +10,7 @@ import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,7 @@ public class LootingManager {
 
         List<GroundItem> possibleLoot = getAllLoot();
 
+
         for (int itemIndex = 0; itemIndex < possibleLoot.size(); itemIndex++) {
             if (hasPkerBeenDetected()) {
                 return;
@@ -49,18 +51,7 @@ public class LootingManager {
 
             var item = possibleLoot.get(itemIndex);
 
-            if (Inventory.getAll().size() == 28 && (item.getName().equals("Blighted anglerfish") || item.getName().equals("Blighted manta ray"))) {
-                Log.debug("Inventory is full of food. Not looting more");
-                MyRevsClient.getScript().setState(State.KILLING);
-                return;
-            }
-
-            if (item.getName().equals("Blighted anglerfish") || item.getName().equals("Blighted manta ray")) {
-                closeLootingBag();
-            }else {
                 openLootingBag();
-            }
-
 
             if (!item.isVisible()) {
                 item.adjustCameraTo();
@@ -108,6 +99,25 @@ public class LootingManager {
         }
 
         // starts back here with brea
+        var allPossibleFood = getAllFood();
+        var countBeforeLoot = getAllFood().size();
+        Log.debug("Count of food: " + countBeforeLoot);
+        Log.debug("all Food: " + Arrays.toString(allPossibleFood.toArray()));
+
+        for (int itemIndex = 0; itemIndex < allPossibleFood.size(); itemIndex++) {
+            if (!Inventory.isFull() && Inventory.contains("Looting bag") && !allPossibleFood.isEmpty()) {
+                closeLootingBag();
+                Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
+                allPossibleFood.get(itemIndex).interact("Take", LootingManager::hasPkerBeenDetected);
+                var changed = Waiting.waitUntil(4000, () -> hasDecreased(countBeforeLoot));
+
+                if (!changed) {
+                    loot();
+                }
+            }
+        }
+
+
         Log.debug("I'm done looting");
 
         if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
@@ -115,6 +125,8 @@ public class LootingManager {
             if (getTripValue() >= 200000) {
                 Waiting.wait(1000);
                 Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                MyRevsClient.getScript().setState(State.BANKING);
+                return;
             }else {
                 if (!RevkillerManager.getTarget().isVisible()) {
                     RevkillerManager.getTarget().adjustCameraTo();
@@ -133,11 +145,11 @@ public class LootingManager {
     }
 
     private static void closeLootingBag(){
-        getLootingBag().ifPresent(lootingBag -> {
-            if (lootingBag.getId() == 22586) {
-                lootingBag.click("Close");
-            }
+        getLootingBag().filter(lootingBag -> lootingBag.getId() == 22586).ifPresent(lb -> {
+            Log.debug("Closing looting bag");
+            Waiting.waitUntil(() -> lb.click("Close"));
         });
+
     }
 
     private static void openLootingBag() {
@@ -162,6 +174,13 @@ public class LootingManager {
                 .toList();
     }
 
+    private static List<GroundItem> getAllFood(){
+            return Query.groundItems()
+                    .nameEquals("Blighted manta ray", "Blighted anglerfish")
+                    .toList();
+
+    }
+
     public static boolean hasPkerBeenDetected() {
         if (MyRevsClient.getScript().getPlayerDetectionThread() != null){
             return MyRevsClient.getScript().getPlayerDetectionThread().hasPkerBeenDetected();
@@ -176,11 +195,6 @@ public class LootingManager {
     public static boolean hasLootBeenDetected() {
         if (hasPkerBeenDetected()) {
             return false;
-        }
-
-        if (!Inventory.isFull() && Inventory.contains("Looting bag") && Query.groundItems().nameEquals("Blighted anglerfish", "Blighted manta ray").isAny()) {
-            Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
-            return true;
         }
 
 

@@ -31,7 +31,7 @@ public class TeleportManager {
     public static WorldTile refill() {
         // Random selection of mobs to kill
 
-        var chosenMobArea = demons; //getRandomMobArea();
+        var chosenMobArea = south_ork; //getRandomMobArea();
 
         if (!chosenMobArea.isVisible()) {
             Log.debug("[INFO_LISTENER] Started journey towards the cave...");
@@ -45,7 +45,7 @@ public class TeleportManager {
 
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");
-                GlobalWalking.walkTo(demons, () -> {
+                GlobalWalking.walkTo(south_ork, () -> {
                     setWalkingState();
                     return WalkState.CONTINUE;
                 });
@@ -103,7 +103,7 @@ public class TeleportManager {
             }
 
         Mouse.setSpeed(300);
-        return demons;
+        return south_ork;
     }
 
     private static WorldTile getRandomMobArea() {

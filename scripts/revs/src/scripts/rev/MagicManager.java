@@ -19,14 +19,13 @@ public class MagicManager implements Runnable {
 
                 if (Combat.canUseSpecialAttack()) {
                     if (MyPlayer.getCurrentHealthPercent() < 70) {
-                        Combat.activateSpecialAttack();
+                        Waiting.waitUntil(250, Combat::activateSpecialAttack);
                     }
                 }
 
                 // 2. Fight back pker if not
                 if (pker != null) {
                     if (Query.players().nameEquals(pker.getName()).isMyPlayerNotInteractingWith().isAny()) {
-                        Log.debug("Not fighting pker");
                         pker.click();
                     }
 
@@ -42,8 +41,6 @@ public class MagicManager implements Runnable {
                 ensureWalkingPermission();
                 MyExchange.walkToGrandExchange();
             }*/
-
-                    Log.debug("We are frozen!");
                 }
                 }
 

@@ -5,10 +5,11 @@ import lombok.Setter;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.PlayerQuery;
 import org.tribot.script.sdk.query.Query;
-import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.Npc;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
+import scripts.api.FoodManager;
+import scripts.api.MyAntiBan;
 import scripts.api.MyCamera;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
@@ -71,6 +72,7 @@ public class RevkillerManager {
                         Waiting.waitUntil(() -> !target.isValid());
                         if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
                             MyRevsClient.getScript().setState(State.LOOTING);
+                            return;
                         }
                     }
                 }
@@ -83,7 +85,7 @@ public class RevkillerManager {
                 if (target != null){
                     if (target.isValid()) {
                         target.interact("Attack");
-                        Waiting.waitUntil(15000, () -> !target.isValid());
+                        Waiting.waitUntil(25000, () -> !target.isValid());
                         if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()) {
                             MyRevsClient.getScript().setState(State.LOOTING);
                             return;
@@ -120,17 +122,19 @@ public class RevkillerManager {
 
             if (lootingBag != null) {
                 if (lootingBag.getId() == 11941) {
-                    lootingBag.click("Open");
+                    Waiting.waitUntil(() -> lootingBag.click("Open"));
+                    if (target != null) {
+                        target.click();
+                    }
                 }
             }
 
 
-            if (Prayer.getPrayerPoints() < 15) {
+            if (Prayer.getPrayerPoints() < 20) {
                 PrayerManager.maintainPrayerPotion();
                 if (target != null){
                     target.click();
                 }
-                Waiting.wait(1500);
             }
 
             if (!BoostingManager.isBoosted()){
@@ -138,19 +142,17 @@ public class RevkillerManager {
                 if (target != null){
                     target.click();
                 }
-                Waiting.wait(2000);
             }
 
             if (!Combat.isAttackStyleSet(Combat.AttackStyle.RAPID)) {
                 Combat.setAttackStyle(Combat.AttackStyle.RAPID);
             }
 
-            if (MyPlayer.getCurrentHealthPercent() < 70) {
-                Query.inventory().nameEquals("Shark").findClosestToMouse().map(InventoryItem::click);
+            if (MyAntiBan.shouldEat()) {
+                FoodManager.eatFood();
                 if (target != null){
                     target.click();
                 }
-                Waiting.wait(1500);
             }
 
             if (target == null){
@@ -185,7 +187,7 @@ public class RevkillerManager {
 
                 if (!target.isHealthBarVisible()){
                     target.click();
-                    Waiting.waitUntil(500, () -> target.isHealthBarVisible());
+                    Waiting.waitUntil(2000, () -> target.isHealthBarVisible());
                 }
 
 

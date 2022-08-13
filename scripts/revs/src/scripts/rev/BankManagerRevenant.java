@@ -28,7 +28,6 @@ public class BankManagerRevenant {
 
     private static AtomicInteger withdrawGearAttempts = new AtomicInteger(0);
     private static BankTask equipmentBankTask = null;
-    private static BankTask inventoryBankTask = null;
     private static boolean isUsingGlory = true;
 
     public static void init() {
@@ -54,7 +53,7 @@ public class BankManagerRevenant {
 
     public static void returnFromTrip() {
         //EquipmentManager.checkCharges();
-
+        MyBanker.openBank();
         equipAndChargeItems();
         equipNewWealthIfNeeded();
         checkIfWeHaveEmblemDrop();
@@ -288,18 +287,34 @@ public class BankManagerRevenant {
             Log.debug("equipment task");
             openBank();
             setPlaceHolder();
-            Waiting.waitUntil(5000, Bank::isOpen);
+
+
+            if (!MyRevsClient.myPlayerHas40Defence()) {
+                equipmentBankTask = BankTask.builder()
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(1169, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
+                        .addEquipmentItem(getBow())
+                        .addEquipmentItem(BankManagerRevenant::getAmulet)
+                        .build();
+            }
+
             equipmentBankTask = BankTask.builder()
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(1169, Amount.of(1)))
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)))
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1)))
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
+                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
+                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(2503, Amount.of(1))) // black d hide body
+                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1))) // black d hide chaps
+                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(6328, Amount.of(1))) // snakeskin boots
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
                     .addEquipmentItem(getBow())
                     .addEquipmentItem(BankManagerRevenant::getAmulet)
                     .build();
+
         }
 
         return equipmentBankTask;
@@ -336,7 +351,7 @@ public class BankManagerRevenant {
     }
 
     public static boolean hasEnoughEther(int amount) {
-        return Query.bank().nameEquals("Revenant ether").findFirst().map(Stackable::getStack).orElse(0) >= amount;
+        return Query.bank().idEquals(21820).findFirst().map(Stackable::getStack).orElse(0) >= amount;
     }
 
 
@@ -351,7 +366,7 @@ public class BankManagerRevenant {
         } else {
             if (!hasEnoughEther(amount)) {
                 GrandExchangeRevManager.sellLoot();
-                GrandExchangeRevManager.buyFromBank(21820, 1000);
+                GrandExchangeRevManager.buyFromBank(21820, 4000);
             }
             if (Inventory.isFull()){
                 if (!MyBanker.openBank()){
@@ -542,7 +557,7 @@ public class BankManagerRevenant {
         List<String> itemsToBuy = new ArrayList<>();
 
 
-        for (var item : EquipmentManager.getBasicGear()) {
+        for (var item : MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getBasicGear() : EquipmentManager.getDefenceGear()) {
 
             if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
                 continue;

@@ -1,9 +1,6 @@
 package scripts.rev;
 
-import org.tribot.script.sdk.Bank;
-import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.MyPlayer;
-import org.tribot.script.sdk.Prayer;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
 import scripts.api.MyScriptVariables;
@@ -55,6 +52,10 @@ public class MyRevsClient {
     public static boolean myPlayerNeedsToRefresh(){
         // Should probably do 100
         return MyPlayer.getCurrentHealthPercent() < 100 || Prayer.getPrayerPoints() < 43 || MyPlayer.getRunEnergy() <= 80 || MyPlayer.isPoisoned();
+    }
+
+    public static boolean myPlayerHas40Defence(){
+        return Skill.DEFENCE.getActualLevel() >= 40;
     }
 
     private static boolean isInLocation(boolean resetTeleBlockIfTrue, Area area) {
