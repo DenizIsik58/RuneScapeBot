@@ -35,7 +35,7 @@ public class LootingManager {
         List<GroundItem> possibleLoot = getAllLoot();
 
         for (int itemIndex = 0; itemIndex < possibleLoot.size(); itemIndex++) {
-            if (hasPkerBeenDetected()) {
+            if (hasPkerBeenDetected() || Query.inventory().filter(food -> food.getActions().contains("Eat")).count() < 14) {
                 return;
             }
 
@@ -176,7 +176,7 @@ public class LootingManager {
         if (hasPkerBeenDetected()) {
             return false;
         }
-        if (Query.inventory().filter(inventoryItem -> inventoryItem.getActions().contains("Eat")).count() >= 14) {
+        if (Query.inventory().filter(inventoryItem -> inventoryItem.getActions().contains("Eat")).count() >= 15) {
             return false;
         }
         return !getAllLoot().isEmpty();
