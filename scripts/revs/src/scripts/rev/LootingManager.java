@@ -35,7 +35,7 @@ public class LootingManager {
         List<GroundItem> possibleLoot = getAllLoot();
 
         for (int itemIndex = 0; itemIndex < possibleLoot.size(); itemIndex++) {
-            if (hasPkerBeenDetected() || Query.inventory().filter(food -> food.getActions().contains("Eat")).count() >= 15) {
+            if (hasPkerBeenDetected()) {
                 return;
             }
 
@@ -48,6 +48,16 @@ public class LootingManager {
 
 
             var item = possibleLoot.get(itemIndex);
+
+            if (item.getName().contains("anglerfish") || item.getName().contains("manta ray") && Query.inventory().filter(food -> food.getActions().contains("Eat")).count() >= 15) {
+                Log.debug("I already have 15 food");
+                return;
+            }
+
+            if (Inventory.contains("Looting bag") && Inventory.isFull() && (item.getName().contains("anglerfish") || item.getName().contains("manta ray"))) {
+               Log.debug("I have a full inventory to pick up more food");
+                return;
+            }
             // Open the looting bag once you pick it up
             if (Query.inventory().filter(food -> food.getActions().contains("Eat")).count() < 14 && (item.getName().contains("anglerfish") || item.getName().contains("manta ray"))) {
                 closeLootingBag();
@@ -116,8 +126,6 @@ public class LootingManager {
                 }
                 RevkillerManager.getTarget().click();
             }
-
-
         }
 
         if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
@@ -176,9 +184,7 @@ public class LootingManager {
         if (hasPkerBeenDetected()) {
             return false;
         }
-        if (Query.inventory().filter(inventoryItem -> inventoryItem.getActions().contains("Eat")).count() >= 15) {
-            return false;
-        }
+
         return !getAllLoot().isEmpty();
 //         for (var item : lootToPickUp) {
 //             if (Query.groundItems().nameEquals(item).isAny()) {
