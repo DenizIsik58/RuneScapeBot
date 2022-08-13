@@ -208,15 +208,23 @@ public class DetectPlayerThread extends Thread {
 
         if (MyAntiBan.shouldEat()) {
             var sharkCount = Inventory.getCount("Shark");
-            if (sharkCount > 0) {
-                var ate = Query.inventory()
-                        .nameEquals("Shark")
-                        .findClosestToMouse()
-                        .map(c -> c.click("Eat")
-                                && Waiting.waitUntil(1000, () -> Inventory.getCount("Shark") < sharkCount))
-                        .orElse(false);
-                if (ate) MyAntiBan.calculateNextEatPercent();
-            } else {
+            var brewCount = Query.inventory().nameContains("Saradomin brew").count();
+            if (sharkCount > 0 && brewCount > 0) {
+                var comboEat = comboEat(sharkCount, true);
+                if (comboEat) {
+                    MyAntiBan.calculateNextEatPercent();
+                }
+            } else if (brewCount == 0 && sharkCount > 0 || brewCount > 0 && sharkCount == 0){
+                if (brewCount == 0) {
+                    if (comboEat(sharkCount, false)) {
+                        MyAntiBan.calculateNextEatPercent();
+                    }
+                }else {
+                    if (eatBrew()) {
+                        MyAntiBan.calculateNextEatPercent();
+                    }
+                }
+            }else {
                 outOfFood.set(true);
                 Log.warn("Out of food under eat percent");
             }
@@ -224,6 +232,29 @@ public class DetectPlayerThread extends Thread {
         if (MyPrayer.shouldDrinkPrayerPotion()) {
             PrayerManager.maintainPrayerPotion();
         }
+    }
+
+    private static boolean comboEat(int sharkCount, boolean comboEat) {
+
+        return comboEat ? Query.inventory()
+                .nameEquals("Shark")
+                .findClosestToMouse()
+                .map(c -> c.click("Eat")
+                        && Waiting.waitUntil(1000, () -> Inventory.getCount("Shark") < sharkCount))
+                .orElse(false) && Query.inventory().nameContains("Saradomin brew").findClosestToMouse().map(brew -> brew.click("Drink")).orElse(false)
+
+                :
+
+                Query.inventory()
+                .nameEquals("Shark")
+                .findClosestToMouse()
+                .map(c -> c.click("Eat")
+                        && Waiting.waitUntil(1000, () -> Inventory.getCount("Shark") < sharkCount))
+                .orElse(false);
+    }
+
+    private static boolean eatBrew() {
+        return Query.inventory().nameContains("Saradomin brew").findClosestToMouse().map(brew -> brew.click("Drink")).orElse(false);
     }
 
     public void antiPk() {
@@ -236,8 +267,6 @@ public class DetectPlayerThread extends Thread {
             }
 
             if (pker != null) {
-
-                handleEatAndPrayer(pker);
 
                 if (!isFrozen()) {
                     // Start running
@@ -267,7 +296,6 @@ public class DetectPlayerThread extends Thread {
                                     .map(c -> c.interact("Climb-up")
                                             && Waiting.waitUntil(500, () -> !MyRevsClient.myPlayerIsInCave()))
                                     .orElse(false);
-                            handleEatAndPrayer(pker);
 
 
 

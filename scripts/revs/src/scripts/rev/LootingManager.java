@@ -49,21 +49,9 @@ public class LootingManager {
 
             var item = possibleLoot.get(itemIndex);
 
-            if (item.getName().contains("anglerfish") || item.getName().contains("manta ray") && Query.inventory().filter(food -> food.getActions().contains("Eat")).count() >= 15) {
-                Log.debug("I already have 15 food");
-                return;
-            }
 
-            if (Inventory.contains("Looting bag") && Inventory.isFull() && (item.getName().contains("anglerfish") || item.getName().contains("manta ray"))) {
-               Log.debug("I have a full inventory to pick up more food");
-                return;
-            }
-            // Open the looting bag once you pick it up
-            if (Query.inventory().filter(food -> food.getActions().contains("Eat")).count() < 14 && (item.getName().contains("anglerfish") || item.getName().contains("manta ray"))) {
-                closeLootingBag();
-            }else {
-                openLootingBag();
-            }
+            openLootingBag();
+
 
 
             if (!item.isVisible()) {
