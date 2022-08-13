@@ -351,7 +351,7 @@ public class BankManagerRevenant {
         } else {
             if (!hasEnoughEther(amount)) {
                 GrandExchangeRevManager.sellLoot();
-                GrandExchangeRevManager.buyFromBank(21820, 4000);
+                GrandExchangeRevManager.buyFromBank(21820, 1000);
             }
             if (Inventory.isFull()){
                 if (!MyBanker.openBank()){

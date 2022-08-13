@@ -90,7 +90,7 @@ public class RevkillerManager {
                         }
                     }
                 }
-                TeleportManager.teleportOutOfWilderness("We are low on shark. Trying to teleport out...");
+                TeleportManager.teleportOutOfWilderness("We are low on food. Trying to teleport out...");
                 return;
             }
 

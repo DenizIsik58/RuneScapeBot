@@ -24,7 +24,8 @@ public class LootingManager {
             "Magic logs", "Uncut dragonstone", "Yew seed", "Magic seed", "Amulet of avarice", "Craw's bow (u)",
             "Thammaron's sceptre (u)", "Viggora's chainmace (u)", "Ancient emblem", "Ancient totem", "Ancient crystal",
             "Ancient statuette", "Ancient medallion", "Ancient effigy", "Ancient relic", "Dragonstone bolt tips",
-            "Death rune", "Blood rune", "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth", "Blighted anglerfish", "Blighted manta ray"
+            "Death rune", "Blood rune", "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth",
+            "Blighted anglerfish", "Blighted manta ray"
     };
     private static int tripValue = 0;
     private static int totalValue = 0;
@@ -49,8 +50,9 @@ public class LootingManager {
 
             var item = possibleLoot.get(itemIndex);
 
-            if (Inventory.isFull() && item.getName().equals("Blighted anglerfish") || item.getName().equals("Blighted manta ray")) {
+            if (Inventory.getAll().size() == 28 && (item.getName().equals("Blighted anglerfish") || item.getName().equals("Blighted manta ray"))) {
                 Log.debug("Inventory is full of food. Not looting more");
+                MyRevsClient.getScript().setState(State.KILLING);
                 return;
             }
 
@@ -145,7 +147,7 @@ public class LootingManager {
                 lootingBag.click("Open");
             }
         });
-        if (Inventory.isFull() && Query.inventory().actionEquals("Eat").isAny()) {
+        if (Inventory.isFull() && !Inventory.contains("Looting bag") && Query.inventory().actionEquals("Eat").isAny()) {
             Query.inventory().actionEquals("Eat").findClosestToMouse().ifPresent(food -> food.click("Eat"));
         }
     }
@@ -177,7 +179,8 @@ public class LootingManager {
             return false;
         }
 
-        if (!Inventory.isFull() && Inventory.contains("Looting bag") && Query.groundItems().filter(groundItem -> groundItem.getName().equals("Blighted anglerfish") || groundItem.getName().equals("Blighted manta ray")).isAny()) {
+        if (!Inventory.isFull() && Inventory.contains("Looting bag") && Query.groundItems().nameEquals("Blighted anglerfish", "Blighted manta ray").isAny()) {
+            Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
             return true;
         }
 

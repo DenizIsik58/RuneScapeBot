@@ -241,6 +241,10 @@ public class Blowpipe{
                 }
                 else {
                     Log.debug("Trying to withdraw: " + dartType.name);
+                    if (Inventory.getAll().size() >= 24) {
+                        MyBanker.depositInventory();
+                        Query.bank().nameContains("blowpipe").findFirst().map(c -> MyBanker.withdraw(c.getName(), 1, false));
+                    }
                     MyBanker.withdraw(dartType.id, bankDartCount.get(), true);
                 }
             }
@@ -248,6 +252,10 @@ public class Blowpipe{
                 if (depositScales) {
                     MyBanker.deposit(zulrahScaleId, bankScaleCount.get(), true);
                 } else {
+                    if (Inventory.getAll().size() >= 24) {
+                        MyBanker.depositInventory();
+                        Query.bank().nameContains("blowpipe").findFirst().map(c -> MyBanker.withdraw(c.getName(), 1, false));
+                    }
                     MyBanker.withdraw(zulrahScaleId, bankScaleCount.get(), true);
                 }
             }
