@@ -485,8 +485,7 @@ public class DetectPlayerThread extends Thread {
                                         var stopTime = startTime + 3D;
                                         Log.debug("Start time: " + startTime);
                                         Log.debug("Stop time. " + stopTime);
-                                        Waiting.wait(2000);
-                                        //Waiting.waitUntil(() -> GameState.getLoopCycle()/30D > stopTime);
+                                        Waiting.waitUntil(() -> GameState.getLoopCycle()/30D > stopTime);
                                         Log.debug("After waiting: " + GameState.getLoopCycle());
                                         Log.debug("1,8 seconds gone Teleporting now");
                                         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));

@@ -369,12 +369,9 @@ public class BankManagerRevenant {
                 GrandExchangeRevManager.sellLoot();
                 GrandExchangeRevManager.buyFromBank(21820, 4000);
             }
-            if (Inventory.isFull()){
-                if (!MyBanker.openBank()){
-                    MyBanker.openBank();
-                }
-                Bank.depositInventory();
-                Waiting.waitUntil(Inventory::isEmpty);
+            if (Inventory.getAll().size() > 25){
+                MyBanker.openBank();
+                MyBanker.depositInventory();
             }
             return MyBanker.withdraw(21820, amount, false);
         }
