@@ -490,6 +490,10 @@ public class DetectPlayerThread extends Thread {
                                         Log.debug("1,8 seconds gone Teleporting now");
                                         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         //MyExchange.walkToGrandExchange();
+                                        var inGE = Waiting.waitUntil(3000, MyRevsClient::myPlayerIsInGE);
+                                        if (!inGE) {
+                                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                        }
                                         MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                                     });
 
