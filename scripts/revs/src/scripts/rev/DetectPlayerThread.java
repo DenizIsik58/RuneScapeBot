@@ -41,16 +41,18 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean paused = new AtomicBoolean(false);
     private static boolean hasTickCounterStarted = false;
     private static final AtomicBoolean outOfFood = new AtomicBoolean(false);
+    private static AtomicBoolean canLogOut = new AtomicBoolean(false);
 
     @Getter
     @Setter
-    private static Projectile lastProjectile = null;
+    private static Projectile lastEntangle = null;
     @Getter
     @Setter
     private static boolean isEntangleTimerStarted = false;
     private static boolean isEntangled = false;
     private static MagicManager entangleDetecter = null;
     private AtomicBoolean processing = new AtomicBoolean(false);
+    private AtomicBoolean inCombatTimer = new AtomicBoolean(false);
 
     public DetectPlayerThread(RevScript revScript) {
         this.script = revScript;
@@ -176,11 +178,11 @@ public class DetectPlayerThread extends Thread {
             @Override
             public void run() {
                 Log.debug("Timer is over we are unfrozen!");
-                lastProjectile = null;
+                lastEntangle = null;
                 isEntangleTimerStarted = false;
                 isEntangled = false;
             }
-        }, 15000);
+        }, 14000);
     }
 
     public static void handleEatAndPrayer(Player pker) {
@@ -259,10 +261,7 @@ public class DetectPlayerThread extends Thread {
         var pker = getPker();
 
         while (isTeleblocked() && Combat.isInWilderness()) {
-            if (entangleDetecter == null) {
-                entangleDetecter = new MagicManager();
-                new Thread(entangleDetecter).start();
-            }
+
 
             if (pker != null) {
                 Equipment.Slot.RING.getItem().ifPresent(ring -> {
@@ -273,7 +272,6 @@ public class DetectPlayerThread extends Thread {
 
                 if (!isFrozen()) {
                     // Start running
-                    Log.debug("Im not frozen. Running!");
 
                     if (MyRevsClient.myPlayerIsInCave()) {
                         WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
@@ -286,6 +284,7 @@ public class DetectPlayerThread extends Thread {
                                 // run away if our target is not nearby
                                 Log.debug("trying to hop worlds... Target is not in sight");
                                 WorldManager.hopToRandomMemberWorldWithRequirements();
+                                Waiting.waitUntil(() -> !GameState.isLoading());
                                 //TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
                                 //Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                 MyExchange.walkToGrandExchange();
@@ -294,7 +293,6 @@ public class DetectPlayerThread extends Thread {
                             if (isFrozen()) {
                                 return WalkState.FAILURE;
                             }
-                            Log.debug("Done checking walking condition");
                             return WalkState.CONTINUE;
                         });
                         handleEatAndPrayer(pker);
@@ -304,12 +302,30 @@ public class DetectPlayerThread extends Thread {
                                 .orElse(false);
 
                     } else {
-
-                        //handleEatAndPrayer(pker);
                         ensureWalkingPermission();
                         //MyExchange.walkToGrandExchange();
                         MyPlayer.getTile().translate(0, -15).clickOnMinimap();
                         MyOptions.setRunOn();
+                        if (!inCombatTimerHasStarted()){
+                            Log.debug("Timer has been started for pker");
+                            setInCombatTimer(true);
+                            new java.util.Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if (!canTargetAttackMe(pker.getName())) {
+                                        // run away if our target is not nearby
+                                        Log.debug("trying to hop worlds... Target is not in sight");
+                                        WorldManager.hopToRandomMemberWorldWithRequirements();
+                                        Waiting.wait(6000);
+                                        //TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
+                                        //Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                        MyExchange.walkToGrandExchange();
+                                    }
+                                    Log.debug("Pker can still attack me");
+                                    setInCombatTimer(false);
+                                }
+                            }, 8000);
+                        }
                         handleEatAndPrayer(pker);
                     }
                     continue;
@@ -317,6 +333,14 @@ public class DetectPlayerThread extends Thread {
             }
             Waiting.wait(100);
         }
+    }
+
+    private boolean inCombatTimerHasStarted() {
+        return inCombatTimer.get();
+    }
+
+    private void setInCombatTimer(boolean timerStarted) {
+        inCombatTimer.set(timerStarted);
     }
 
     public static Optional<Projectile> getProjectile() {
@@ -334,10 +358,10 @@ public class DetectPlayerThread extends Thread {
         Log.debug("MY tile: " + MyPlayer.getTile());
     }
 
-    public static void setProjectile() {
+    public static void setEntangle() {
         getProjectile().ifPresent(proj -> {
             Log.debug("Setting projectile!");
-            lastProjectile = proj;
+            lastEntangle = proj;
         });
     }
 
@@ -346,8 +370,8 @@ public class DetectPlayerThread extends Thread {
             return true;
         }
 
-        if (lastProjectile != null && !isEntangleTimerStarted) {
-            var isFrozen = lastProjectile.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
+        if (lastEntangle != null && !isEntangleTimerStarted) {
+            var isFrozen = lastEntangle.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
             if (isFrozen) {
                 isEntangleTimerStarted = true;
                 isEntangled = true;
@@ -410,6 +434,11 @@ public class DetectPlayerThread extends Thread {
 
                 danger = inDanger();
                 if (danger) {
+                    if (entangleDetecter == null) {
+                        entangleDetecter = new MagicManager();
+                        new Thread(entangleDetecter).start();
+                    }
+
                     Log.warn("[DANGER_LISTENER] HANDLING DANGER");
                     if (Mouse.getSpeed() == 300) {
                         int dangerMouseSpeed = getRandomNumber(1500, 2000);
@@ -453,7 +482,6 @@ public class DetectPlayerThread extends Thread {
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         }*/
                                         var yCoordDifference =  pker.getTile().getY() - MyPlayer.getTile().getY();
-                                        var xCoordDifference =  pker.getTile().getX() - MyPlayer.getTile().getX();
                                         if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
                                             // Player is north east
                                             // Run south west
@@ -471,7 +499,7 @@ public class DetectPlayerThread extends Thread {
                                             Waiting.waitUntil(250, () -> new WorldTile(3226, 10105, 0).clickOnMinimap());
 
                                         }else {
-                                            Waiting.waitUntil(250, () -> new WorldTile(3205, 10075, 0).clickOnMinimap());
+                                            Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
 
                                         }
 
@@ -501,9 +529,6 @@ public class DetectPlayerThread extends Thread {
                             processing.set(false);
 
                         }
-
-
-
 
                     } else {
                         if (!isAntiPking()) {
@@ -552,14 +577,6 @@ public class DetectPlayerThread extends Thread {
 
     public static String[] getPvmGear() {
         return PVM_GEAR;
-    }
-
-    public static boolean hasTickCounterStarted() {
-        return hasTickCounterStarted;
-    }
-
-    public static int tickCounter() {
-        return tickCounter;
     }
 
 

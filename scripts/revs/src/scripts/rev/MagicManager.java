@@ -1,7 +1,10 @@
 package scripts.rev;
 
 
-import org.tribot.script.sdk.*;
+import org.tribot.script.sdk.Combat;
+import org.tribot.script.sdk.MyPlayer;
+import org.tribot.script.sdk.Prayer;
+import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
 
 public class MagicManager implements Runnable {
@@ -11,7 +14,8 @@ public class MagicManager implements Runnable {
     public void run() {
         while (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
             var pker = DetectPlayerThread.getPker();
-            DetectPlayerThread.setProjectile();
+            DetectPlayerThread.setEntangle();
+
             if (DetectPlayerThread.isFrozen()) {
                 // Else
                 // Do antipk here
@@ -30,17 +34,6 @@ public class MagicManager implements Runnable {
                     }
 
                     DetectPlayerThread.handleEatAndPrayer(pker);
-
-                    // 3. try to run away if we are not frozen
-                    // TODO: Currently only runs no matter what. We need to figure out how we are frozen.
-            /*if (MyRevsClient.myPlayerIsInCave()) {
-                ensureWalkingPermission();
-
-            } else {
-                handleEatAndPrayer(pker);
-                ensureWalkingPermission();
-                MyExchange.walkToGrandExchange();
-            }*/
                 }
                 }
 

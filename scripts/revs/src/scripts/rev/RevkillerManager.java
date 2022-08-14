@@ -225,7 +225,8 @@ public class RevkillerManager {
 
             if (LootingManager.getTripValue() >= 200000) {
                 if (!MyRevsClient.myPlayerIsInGE()) {
-
+                    Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+                    Waiting.wait(2000);
                     Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
 
                     MyRevsClient.getScript().setState(State.BANKING);

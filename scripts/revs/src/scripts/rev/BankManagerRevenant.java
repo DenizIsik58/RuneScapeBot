@@ -53,6 +53,7 @@ public class BankManagerRevenant {
 
     public static void returnFromTrip() {
         //EquipmentManager.checkCharges();
+        Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
         MyBanker.openBank();
         equipAndChargeItems();
         equipNewWealthIfNeeded();
@@ -385,7 +386,7 @@ public class BankManagerRevenant {
     }
 
     private static boolean equipAndCharge(boolean bow) {
-        int etherGoal = bow ? 500 : 250;
+        int etherGoal = bow ? 300 : 100;
         if (!isChargedItemWithdrawn(bow)) {
             if (!withdrawCharged(bow)) {
                 Log.warn("Failed to withdraw bow, may need to buy?");
@@ -393,9 +394,9 @@ public class BankManagerRevenant {
             }
             if (bow && equipmentContainsCharged(true) || inventoryContainsCharged(true)){
                 Log.debug("I have a charged bow equip or in invy");
-                etherGoal = bow ? 500 : 250;
+                etherGoal = bow ? 300 : 100;
             }else {
-                etherGoal = bow ? 1500 : 250;
+                etherGoal = bow ? 1300 : 100;
             }
 
         }

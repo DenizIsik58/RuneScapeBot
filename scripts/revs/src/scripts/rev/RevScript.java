@@ -326,6 +326,7 @@ public class RevScript extends MyScriptExtension {
 
     private void handleDeath() {
         Log.debug("Dead");
+        Waiting.wait(2000);
         PrayerManager.turnOffAllPrayer();
         TeleportManager.setHasVisitedBeforeTrip(false);
         DeathManger.incrementTotalDeaths();
