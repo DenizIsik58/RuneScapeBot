@@ -302,19 +302,21 @@ public class BankManagerRevenant {
                         .addEquipmentItem(getBow())
                         .addEquipmentItem(BankManagerRevenant::getAmulet)
                         .build();
+            }else {
+                equipmentBankTask = BankTask.builder()
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(2503, Amount.of(1))) // black d hide body
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1))) // black d hide chaps
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(6328, Amount.of(1))) // snakeskin boots
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
+                        .addEquipmentItem(getBow())
+                        .addEquipmentItem(BankManagerRevenant::getAmulet)
+                        .build();
             }
 
-            equipmentBankTask = BankTask.builder()
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(2503, Amount.of(1))) // black d hide body
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1))) // black d hide chaps
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(6328, Amount.of(1))) // snakeskin boots
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
-                    .addEquipmentItem(getBow())
-                    .addEquipmentItem(BankManagerRevenant::getAmulet)
-                    .build();
+
 
         }
 
