@@ -6,6 +6,7 @@ import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.PlayerQuery;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Npc;
+import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.FoodManager;
@@ -36,7 +37,10 @@ public class RevkillerManager {
 
         Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> {
             if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
-                TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
+                //TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
+                new WorldTile(3205, 10082, 0).clickOnMinimap();
+                Waiting.wait(2000);
+                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                 MyRevsClient.getScript().setState(State.BANKING);
             }
         });
@@ -123,6 +127,7 @@ public class RevkillerManager {
             if (lootingBag != null) {
                 if (lootingBag.getId() == 11941) {
                     Waiting.waitUntil(() -> lootingBag.click("Open"));
+                    Waiting.waitUntil(() -> Inventory.contains(22586));
                     if (target != null) {
                         target.click();
                     }
@@ -143,10 +148,14 @@ public class RevkillerManager {
                     target.click();
                 }
             }
-
-            if (!Combat.isAttackStyleSet(Combat.AttackStyle.RAPID)) {
-                Combat.setAttackStyle(Combat.AttackStyle.RAPID);
+            if (!MyRevsClient.myPlayerHas40Defence() && !Combat.isAttackStyleSet(Combat.AttackStyle.LONGRANGE)) {
+                Combat.setAttackStyle(Combat.AttackStyle.LONGRANGE);
+            }else {
+                if (!Combat.isAttackStyleSet(Combat.AttackStyle.RAPID)) {
+                    Combat.setAttackStyle(Combat.AttackStyle.RAPID);
+                }
             }
+
 
             if (MyAntiBan.shouldEat()) {
                 FoodManager.eatFood();

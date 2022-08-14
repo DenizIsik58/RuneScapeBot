@@ -36,6 +36,10 @@ public class TeleportManager {
         if (!chosenMobArea.isVisible()) {
             Log.debug("[INFO_LISTENER] Started journey towards the cave...");
 
+            if (GameState.isLoading()) {
+                Log.debug("Game is loading");
+                Waiting.waitUntil(10000, () -> !GameState.isLoading());
+            }
 
             if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars()){
                 if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {

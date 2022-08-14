@@ -34,7 +34,7 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean danger = new AtomicBoolean(false);
     //    private final AtomicBoolean dangerFlag = new AtomicBoolean(false);
     private final AtomicBoolean isAntiPking = new AtomicBoolean(false);
-    private final static String[] PVM_GEAR = new String[]{"Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
+    private final static String[] PVM_GEAR = new String[]{"Rune scimitar", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
     private final SimpleBooleanProperty running = new SimpleBooleanProperty(false);
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
@@ -195,7 +195,7 @@ public class DetectPlayerThread extends Thread {
                 // Handle ranging weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
-            }else if (playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
+            }else if (playerWeapon.toLowerCase().contains("bludgeon") || playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
                 // Handle melee weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
@@ -471,7 +471,7 @@ public class DetectPlayerThread extends Thread {
                                             Waiting.waitUntil(250, () -> new WorldTile(3226, 10105, 0).clickOnMinimap());
 
                                         }else {
-                                            Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+                                            Waiting.waitUntil(250, () -> new WorldTile(3205, 10075, 0).clickOnMinimap());
 
                                         }
 
@@ -490,11 +490,13 @@ public class DetectPlayerThread extends Thread {
                                         Log.debug("After waiting: " + GameState.getLoopCycle());
                                         Log.debug("1,8 seconds gone Teleporting now");
                                         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                        //MyExchange.walkToGrandExchange();
                                         MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                                     });
 
 
                             processing.set(false);
+
                         }
 
 

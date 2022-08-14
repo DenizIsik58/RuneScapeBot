@@ -63,9 +63,10 @@ public class BankManagerRevenant {
     }
 
     public static void equipAndChargeItems() {
-        if (Skill.RANGED.getActualLevel() < 75) {
+        /*if (Skill.RANGED.getActualLevel() < 75) {
             equipAndCharge(true);
-        }
+        }*/
+        equipAndCharge(true);
         equipAndCharge(false);
     }
 
@@ -276,9 +277,9 @@ public class BankManagerRevenant {
     }
 
     private static EquipmentReq getBow(){
-        if (Skill.RANGED.getActualLevel() >= 75) {
+        /*if (Skill.RANGED.getActualLevel() >= 75) {
             return Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.MITHRIL);
-        }
+        }*/
         return EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1));
     }
 
@@ -557,7 +558,7 @@ public class BankManagerRevenant {
         List<String> itemsToBuy = new ArrayList<>();
 
 
-        for (var item : MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getBasicGear() : EquipmentManager.getDefenceGear()) {
+        for (var item : MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getDefenceGear() : EquipmentManager.getBasicGear()) {
 
             if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
                 continue;

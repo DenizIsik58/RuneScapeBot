@@ -337,10 +337,6 @@ public class GrandExchangeRevManager {
 
             Waiting.wait(3000);
         }
-        if (itemsTobuy.contains("Revenant ether")) {
-            GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName("Revenant ether").quantity(4000).priceAdjustment(2).type(GrandExchangeOffer.Type.BUY).build());
-            Waiting.wait(3000);
-        }
 
         GrandExchange.collectAll();
         GrandExchange.close();

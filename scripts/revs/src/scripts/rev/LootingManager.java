@@ -6,11 +6,11 @@ import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GroundItem;
 import org.tribot.script.sdk.types.InventoryItem;
+import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -53,23 +53,19 @@ public class LootingManager {
 
                 openLootingBag();
 
-            if (!item.isVisible()) {
-                item.adjustCameraTo();
-            }
-
             var countBeforePickingUp = getAllLoot().size();
 
 
             // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
             item.interact("Take", LootingManager::hasPkerBeenDetected);
 
-            if (itemIndex == 0) {
+            /*if (itemIndex == 0) {
                 Log.debug("First item to pick up. Hovering over teleport in case pker is waiting.");
                 Equipment.Slot.RING.getItem().ifPresent(ring -> {
                     ring.hoverMenu("Grand Exchange");
 
                 });
-            }
+            }*/
 
             if (hasPkerBeenDetected()) {
                 Log.debug("Pker has been detected. Cancelled further looting");
@@ -100,18 +96,25 @@ public class LootingManager {
 
         // starts back here with brea
         var allPossibleFood = getAllFood();
-        var countBeforeLoot = getAllFood().size();
-        Log.debug("Count of food: " + countBeforeLoot);
-        Log.debug("all Food: " + Arrays.toString(allPossibleFood.toArray()));
 
         for (int itemIndex = 0; itemIndex < allPossibleFood.size(); itemIndex++) {
-            if (!Inventory.isFull() && Inventory.contains("Looting bag") && !allPossibleFood.isEmpty()) {
+            if (!Inventory.isFull() && Inventory.contains("Looting bag") && !getAllFood().isEmpty()) {
+                var foodCount = Query.inventory().actionEquals("Eat").count();
                 closeLootingBag();
                 Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
-                allPossibleFood.get(itemIndex).interact("Take", LootingManager::hasPkerBeenDetected);
-                var changed = Waiting.waitUntil(4000, () -> hasDecreased(countBeforeLoot));
+                var food = allPossibleFood.get(itemIndex);
+                food.interact("Take", LootingManager::hasPkerBeenDetected);
+                Log.debug("Count before pick: " + allPossibleFood.size());
 
-                if (!changed) {
+                var pickedUp = Waiting.waitUntil(4000, () -> foodCount == Query.inventory().actionEquals("Eat").count() + 1);
+
+                Log.debug("After picking up: " + getAllFood().size());
+                if (hasPkerBeenDetected()) {
+                    Log.debug("Pker has been detected. Cancelled further looting");
+                    return;
+                }
+
+                if (!pickedUp) {
                     loot();
                 }
             }
@@ -123,7 +126,8 @@ public class LootingManager {
         if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
 
             if (getTripValue() >= 200000) {
-                Waiting.wait(1000);
+                new WorldTile(3205, 10082, 0).clickOnMinimap();
+                Waiting.wait(2000);
                 Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                 MyRevsClient.getScript().setState(State.BANKING);
                 return;
@@ -148,6 +152,7 @@ public class LootingManager {
         getLootingBag().filter(lootingBag -> lootingBag.getId() == 22586).ifPresent(lb -> {
             Log.debug("Closing looting bag");
             Waiting.waitUntil(() -> lb.click("Close"));
+            Waiting.waitUntil(500, () -> Inventory.contains(11941));
         });
 
     }
@@ -156,6 +161,7 @@ public class LootingManager {
         getLootingBag().ifPresent(lootingBag -> {
             if (lootingBag.getId() == 11941) {
                 lootingBag.click("Open");
+                Waiting.waitUntil(500, () -> Inventory.contains(22586));
             }
         });
         if (Inventory.isFull() && !Inventory.contains("Looting bag") && Query.inventory().actionEquals("Eat").isAny()) {

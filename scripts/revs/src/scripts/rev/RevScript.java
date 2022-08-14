@@ -31,8 +31,8 @@ public class RevScript extends MyScriptExtension {
     private DetectPlayerThread playerDetectionThread = null;
 
     private MulingClient muleClient;
-    public AtomicReference<State> state = new AtomicReference<>(State.STARTING);
-    private WorldTile selectedMonsterTile = new WorldTile(3160, 10115,0 ); // West demons by default
+    public AtomicReference<State> state = new AtomicReference<>(State.KILLING);
+    private WorldTile selectedMonsterTile = new WorldTile(3216, 10091, 0); // South ork by default
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
 
