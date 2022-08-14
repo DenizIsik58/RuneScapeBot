@@ -35,7 +35,9 @@ public class GrandExchangeRevManager {
         Log.debug("Trying to sell loot");
         closeBank();
         MyExchange.walkToGrandExchange();
-        openBank();
+        if(!openBank()){
+            openBank();
+        }
         if (!BankSettings.isNoteEnabled()) {
             BankSettings.setNoteEnabled(true);
         }
