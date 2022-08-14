@@ -117,6 +117,8 @@ public class LootingManager {
                 if (!pickedUp) {
                     loot();
                 }
+            }else {
+                break;
             }
         }
 

@@ -148,9 +148,12 @@ public class RevkillerManager {
                     target.click();
                 }
             }
-            if (!MyRevsClient.myPlayerHas40Defence() && !Combat.isAttackStyleSet(Combat.AttackStyle.LONGRANGE)) {
-                Combat.setAttackStyle(Combat.AttackStyle.LONGRANGE);
-                Waiting.waitUntil(() -> Combat.isAttackStyleSet(Combat.AttackStyle.LONGRANGE));
+
+            if (!MyRevsClient.myPlayerHas40Defence()) {
+                if (!Combat.isAttackStyleSet(Combat.AttackStyle.LONGRANGE)) {
+                    Combat.setAttackStyle(Combat.AttackStyle.LONGRANGE);
+                    Waiting.waitUntil(() -> Combat.isAttackStyleSet(Combat.AttackStyle.LONGRANGE));
+                }
             }else {
                 if (!Combat.isAttackStyleSet(Combat.AttackStyle.RAPID)) {
                     Combat.setAttackStyle(Combat.AttackStyle.RAPID);
