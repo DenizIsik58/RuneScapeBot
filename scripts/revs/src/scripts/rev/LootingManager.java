@@ -46,8 +46,10 @@ public class LootingManager {
 
             Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> {
                 if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
+                    Waiting.wait(2000);
                     TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
                     MyRevsClient.getScript().setState(State.BANKING);
+                    return;
                 }
             });
 
@@ -83,12 +85,16 @@ public class LootingManager {
             } else {
 
                 if (Pricing.lookupPrice(item.getId()).orElse(0) >= 450000) {
-                    var outputFile = ScreenShotManager.takeScreenShotAndSave("drops");
+                    try {
+                        var outputFile = ScreenShotManager.takeScreenShotAndSave("drops");
 
-                    MyRevsClient.getScript().getLootWebhook().setUsername("Revenant Farm")
-                            .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "You have received a drop - **" + item.getName() + " - Value = " + Pricing.lookupPrice(item.getId()).orElse(0) + "**")
-                            .addFile(outputFile)
-                            .execute();
+                        MyRevsClient.getScript().getLootWebhook().setUsername("Revenant Farm")
+                                .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "You have received a drop - **" + item.getName() + " - Value = " + Pricing.lookupPrice(item.getId()).orElse(0) + "**")
+                                .addFile(outputFile)
+                                .execute();
+                    }catch (Exception e) {
+                        Log.error(e);
+                    }
                 }
                 tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
                 totalValue += Pricing.lookupPrice(item.getId()).orElse(0);

@@ -420,6 +420,10 @@ public class DetectPlayerThread extends Thread {
 
     private void escape(Player pker) {
         setHasPkerBeenDetected(true);
+        if (isTeleblocked()) {
+            Log.debug("We are teleblocked. Running instead of teleporting");
+            return;
+        }
 
         /*if (RevkillerManager.getTarget() != null) {
             if (!RevkillerManager.getTarget().isHealthBarVisible()) {
@@ -428,46 +432,38 @@ public class DetectPlayerThread extends Thread {
             }
         }*/
 
-        if (isTeleblocked()) {
-            Log.debug("teleblocked antipking now");
-            antiPk();
-            return;
-        }
-
 
                                         /*if (!MyPlayer.isHealthBarVisible()) {
 
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         }*/
+        double startTime;
         var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
         if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
             // Player is north east
             // Run south west
             Log.debug("Player on north east. Running west!");
             //if (!hasTickCounterStarted) {
-            WorldTile stairs = new WorldTile(3205, 10070, 0); // Tile to climb up at
-            GlobalWalking.walkTo(stairs,  () -> {
-                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || isTeleblocked()) {
+            startTime = GameState.getLoopCycle() / 30D;
+            WorldTile location = new WorldTile(3202, 10060, 0); // Tile to climb up at
+            GlobalWalking.walkTo(location,  () -> {
+                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isVisible()) {
                     return WalkState.FAILURE;
                 }
                 return WalkState.CONTINUE;
             });
-            var up = Query.gameObjects().idEquals(31558).findBestInteractable()
-                    .map(c -> c.interact("Climb-up")
-                            && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
-                    .orElse(false);
-            if (up){
-                Log.debug("I'm up resetting freeze timers");
-                resetFreezeSigns();
-            }
+
+            location.clickOnMinimap();
+
             //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
         } else if (pker.getTile().getX() < MyPlayer.getTile().getX() && (yCoordDifference) >= 5) {
             //Player north-west
             // Run east
             Log.debug("Player on north west. Running south east!");
+            startTime = GameState.getLoopCycle() / 30D;
             var location = new WorldTile(3229, 10095, 0);
             GlobalWalking.walkTo(location,  () -> {
-                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || isTeleblocked()) {
+                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
                     return WalkState.FAILURE;
                 }
                 return WalkState.CONTINUE;
@@ -477,9 +473,10 @@ public class DetectPlayerThread extends Thread {
         } else if ((MyPlayer.getTile().getY() - pker.getTile().getY()) >= 3 && pker.getTile().getX() < MyPlayer.getTile().getX()) {
             // Player south west
             // Run north
+            startTime = GameState.getLoopCycle() / 30D;
             var location = new WorldTile(3226, 10105, 0);
             GlobalWalking.walkTo(location, () -> {
-                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) ) {
+                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
                     return WalkState.FAILURE;
                 }
                 return WalkState.CONTINUE;
@@ -487,9 +484,10 @@ public class DetectPlayerThread extends Thread {
             location.clickOnMinimap();
 
         } else {
+            startTime = GameState.getLoopCycle() / 30D;
             var location = new WorldTile(3205, 10082, 0);
             GlobalWalking.walkTo(location,  () -> {
-                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness())) {
+                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
                     return WalkState.FAILURE;
                 }
                 return WalkState.CONTINUE;
@@ -500,9 +498,8 @@ public class DetectPlayerThread extends Thread {
 
         }
 
-        if (isTeleblocked()) {
-            Log.debug("teleblocked antipking now");
-            antiPk();
+        if (!Combat.isInWilderness()) {
+            Log.debug("We are not in wilderness");
             return;
         }
 
@@ -512,11 +509,13 @@ public class DetectPlayerThread extends Thread {
             }
         });
 
-
-
+        if (isTeleblocked()) {
+            Log.debug("We are teleblocked. Running instead of teleporting");
+            return;
+        }
 
         Log.debug("Timer for teleport has been started");
-        var startTime = GameState.getLoopCycle() / 30D;
+
         var stopTime = startTime + 4D;
         Waiting.waitUntil(() -> GameState.getLoopCycle() / 30D > stopTime);
         //Waiting.wait(2000);
@@ -524,18 +523,9 @@ public class DetectPlayerThread extends Thread {
         Log.debug("1,8 seconds gone Teleporting now");
         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
         //MyExchange.walkToGrandExchange();
-        if (isTeleblocked()) {
-            Log.debug("teleblocked antipking now");
-            antiPk();
-            return;
-        }
+
         var inGE = Waiting.waitUntil(3000, MyRevsClient::myPlayerIsInGE);
         if (!inGE) {
-            if (isTeleblocked()) {
-                Log.debug("teleblocked antipking now");
-                antiPk();
-                return;
-            }
             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
         }
         MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
