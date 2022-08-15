@@ -169,7 +169,7 @@ public class RevScript extends MyScriptExtension {
     @Override
     protected void onEnding() {
         // Send a SS to discord
-        var outputFile = ScreenShotManager.takeScreenShotAndSave();
+        var outputFile = ScreenShotManager.takeScreenShotAndSave("onend");
 
         getOnEndWebhook().setUsername("Revenant Farm")
                 .setContent("Reventant script ended! User " + MyPlayer.getUsername() + " managed to farm a total of **" + LootingManager.getTotalValue() + " Gold**")
@@ -189,6 +189,11 @@ public class RevScript extends MyScriptExtension {
     private void updateState() {
         if (Query.npcs().nameEquals("Death").isAny()){
             Query.gameObjects().idEquals(39549).findFirst().ifPresent(portal -> portal.click("Use"));
+        }
+
+        if (Query.worlds().worldNumberEquals(WorldHopper.getCurrentWorld()).isNonMembers().isAny()) {
+            Log.debug("We are not in a members world. Hopping");
+            WorldManager.hopToRandomMemberWorldWithRequirements();
         }
 
         if (isState(State.STARTING) || isState(State.SELLLOOT)) {
@@ -331,12 +336,16 @@ public class RevScript extends MyScriptExtension {
         TeleportManager.setHasVisitedBeforeTrip(false);
         DeathManger.incrementTotalDeaths();
         LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue() - 200000);
-        var outputFile = ScreenShotManager.takeScreenShotAndSave();
+        try {
+            var outputFile = ScreenShotManager.takeScreenShotAndSave("ondeath");
 
-        onDeathWebhook.setUsername("Revenant Farm")
-                .setContent("**" + MyPlayer.getUsername() + "** has just died with: " + LootingManager.getTripValue() + " Gold - profit so far: **" + LootingManager.getTotalValue() + "** - Total times dies: " + DeathManger.totalDeaths())
-                .addFile(outputFile)
-                .execute();
+            onDeathWebhook.setUsername("Revenant Farm")
+                    .setContent("**" + MyPlayer.getUsername() + "** has just died with: " + LootingManager.getTripValue() + " Gold - profit so far: **" + LootingManager.getTotalValue() + "** - Total times dies: " + DeathManger.totalDeaths())
+                    .addFile(outputFile)
+                    .execute();
+        }catch (Exception e) {
+            Log.error(e);
+        }
         // in the future we should implement logging the pker names... for hate and for lookout lol
         MyScriptVariables.setDeath(String.valueOf(DeathManger.totalDeaths()));
         LootingManager.resetTripValue();

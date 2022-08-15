@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MyPrayer {
 
-    private final AtomicReference<IntRange> drinkPrayerPotionRange = new AtomicReference<>(new IntRange(15, 25));
+    private final AtomicReference<IntRange> drinkPrayerPotionRange = new AtomicReference<>(new IntRange(20, 25));
     private final AtomicInteger nextDrinkPrayerPotionPercent = new AtomicInteger(0);
     private static MyPrayer instance = null;
 
@@ -44,7 +44,6 @@ public class MyPrayer {
         var min = range.getStart();
         var max = range.getEndInclusive();
         var next = TribotRandom.uniform(min, max);
-        Log.trace("Generated next prayer potion drink percent: " + next);
         getInstance().nextDrinkPrayerPotionPercent.set(next);
         return next;
     }

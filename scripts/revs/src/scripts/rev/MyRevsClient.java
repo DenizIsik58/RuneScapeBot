@@ -87,6 +87,9 @@ public class MyRevsClient {
                 MyScriptVariables.setVariable("lastTeleblockNotification", System.currentTimeMillis());
                 Log.warn("Teleblocked by some cunt named: " + playerName + "!!!");
                 MyScriptVariables.setVariable("pkerName", playerName);
+                if (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
+                    MyRevsClient.getScript().getPlayerDetectionThread().setTeleblocked(true);
+                }
             }
         }
 

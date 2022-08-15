@@ -41,18 +41,25 @@ public class TeleportManager {
                 Waiting.waitUntil(10000, () -> !GameState.isLoading());
             }
 
-            if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars()){
-                if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
-                    Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
-                }
-            }
-
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");
                 GlobalWalking.walkTo(south_ork, () -> {
+                    if (!MyRevsClient.myPlayerIsInCave()) {
+                        refill();
+                        return WalkState.SUCCESS;
+                    }
                     setWalkingState();
                     return WalkState.CONTINUE;
                 });
+            }
+
+            if (!MyRevsClient.myPlayerIsInFerox()) {
+                    if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
+                        if (!Query.inventory().nameContains("Ring of dueling(").isAny()){
+                            BankManagerRevenant.withdrawFoodAndPots();
+                        }
+                        Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
+                    }
             }
 
             if (MyRevsClient.myPlayerIsInFerox()) {
@@ -68,7 +75,7 @@ public class TeleportManager {
                     Query.gameObjects().idEquals(39651).findClosest().map(c -> c.interact("Drink"));
                     Log.debug("I'm trying to drink from the pool");
                     waitUntil(() -> MyPlayer.getAnimation() == 7305);
-                    Waiting.wait(3000);
+                    Waiting.wait(2000);
                 }else {
                     Log.debug("I'm walking to entrance");
                     GlobalWalking.walkTo(caveEntrance, () ->{
@@ -118,6 +125,7 @@ public class TeleportManager {
     private static void setWalkingState(){
         Mouse.setSpeed(700);
         MyOptions.setRunOn();
+        MyCamera.init();
 
         if (!GameTab.LOGOUT.isOpen()) {
             GameTab.LOGOUT.open();

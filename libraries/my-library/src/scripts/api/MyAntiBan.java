@@ -14,7 +14,7 @@ public class MyAntiBan {
     private final Random random = new Random();
 
     // you can pick a default min max? idk i guessed. 50-65 is fine
-    private final AtomicReference<IntRange> eatPercentRange = new AtomicReference<>(new IntRange(50, 65));
+    private final AtomicReference<IntRange> eatPercentRange = new AtomicReference<>(new IntRange(60, 75));
     private final AtomicInteger nextEatPercent = new AtomicInteger(0);
 
 
@@ -37,7 +37,6 @@ public class MyAntiBan {
         var min = range.getStart();
         var max = range.getEndInclusive();
         var next = TribotRandom.uniform(min, max);
-        Log.trace("Generated next eat percent: " + next);
         getInstance().nextEatPercent.set(next);
         return next;
     }

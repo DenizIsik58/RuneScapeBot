@@ -4,6 +4,7 @@ package scripts.rev;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.GroundItem;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.WorldTile;
@@ -27,6 +28,8 @@ public class LootingManager {
             "Ancient statuette", "Ancient medallion", "Ancient effigy", "Ancient relic", "Dragonstone bolt tips",
             "Death rune", "Blood rune", "Blighted super restore(4)", "Onyx bolt tips", "Law rune", "Ring of wealth",
     };
+
+    private static final Area southOrk = Area.fromRectangle(new WorldTile(3200, 10106, 0), new WorldTile(3232, 10086, 0));
     private static int tripValue = 0;
     private static int totalValue = 0;
 
@@ -79,8 +82,8 @@ public class LootingManager {
                 loot();
             } else {
 
-                if (Pricing.lookupPrice(item.getId()).orElse(0) >= 3800000) {
-                    var outputFile = ScreenShotManager.takeScreenShotAndSave();
+                if (Pricing.lookupPrice(item.getId()).orElse(0) >= 450000) {
+                    var outputFile = ScreenShotManager.takeScreenShotAndSave("drops");
 
                     MyRevsClient.getScript().getLootWebhook().setUsername("Revenant Farm")
                             .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "You have received a drop - **" + item.getName() + " - Value = " + Pricing.lookupPrice(item.getId()).orElse(0) + "**")
@@ -92,6 +95,24 @@ public class LootingManager {
                 var totalString = MathUtility.getProfitPerHourString(totalValue);
                 MyScriptVariables.setProfit(totalString);
             }
+        }
+
+        if (getTripValue() >= 200000) {
+            new WorldTile(3205, 10082, 0).clickOnMinimap();
+            Waiting.wait(2000);
+            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+            MyRevsClient.getScript().setState(State.BANKING);
+            var outputFile = ScreenShotManager.takeScreenShotAndSave("success");
+            try {
+                MyRevsClient.getScript().getSuccessfullTripHook().setUsername("Revenant Farm")
+                        .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "Successful trip - **" + " - Value = " + LootingManager.getTripValue() + "**")
+                        .addFile(outputFile)
+                        .execute();
+            }catch (Exception e) {
+                Log.error(e);
+            }
+
+            return;
         }
 
         // starts back here with brea
@@ -122,25 +143,15 @@ public class LootingManager {
             }
         }
 
-
-        Log.debug("I'm done looting");
-
         if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
 
-            if (getTripValue() >= 200000) {
-                new WorldTile(3205, 10082, 0).clickOnMinimap();
-                Waiting.wait(2000);
-                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                MyRevsClient.getScript().setState(State.BANKING);
-                return;
-            }else {
-                if (!RevkillerManager.getTarget().isVisible()) {
-                    RevkillerManager.getTarget().adjustCameraTo();
-                }
-                RevkillerManager.getTarget().click();
+            if (!RevkillerManager.getTarget().isVisible()) {
+                RevkillerManager.getTarget().adjustCameraTo();
             }
+            RevkillerManager.getTarget().click();
         }
 
+        Log.debug("I'm done looting");
         if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
             GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             MyRevsClient.getScript().setState(State.KILLING);
@@ -178,12 +189,14 @@ public class LootingManager {
     private static List<GroundItem> getAllLoot() {
         return Query.groundItems()
                 .nameEquals(lootToPickUp)
+                .inArea(southOrk)
                 .sorted(Comparator.comparingInt(item -> Pricing.lookupPrice(item.getId()).orElse(0)))
                 .toList();
     }
 
     private static List<GroundItem> getAllFood(){
             return Query.groundItems()
+                    .inArea(southOrk)
                     .nameEquals("Blighted manta ray", "Blighted anglerfish")
                     .toList();
 

@@ -64,6 +64,10 @@ public class RevkillerManager {
 
         if (iWasFirst && Combat.isInWilderness()){
 
+            if (LootingManager.hasPkerBeenDetected()) {
+                return;
+            }
+
             if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
                 MyRevsClient.getScript().setState(State.LOOTING);
                 return;
@@ -231,12 +235,16 @@ public class RevkillerManager {
 
                     MyRevsClient.getScript().setState(State.BANKING);
 
-                    var outputFile = ScreenShotManager.takeScreenShotAndSave();
+                    var outputFile = ScreenShotManager.takeScreenShotAndSave("success");
+                    try {
+                        MyRevsClient.getScript().getSuccessfullTripHook().setUsername("Revenant Farm")
+                                .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "Successful trip - **" + " - Value = " + LootingManager.getTripValue() + "**")
+                                .addFile(outputFile)
+                                .execute();
+                    }catch (Exception e) {
+                        Log.error(e);
+                    }
 
-                    MyRevsClient.getScript().getSuccessfullTripHook().setUsername("Revenant Farm")
-                            .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "Successful trip - **" + " - Value = " + LootingManager.getTripValue() + "**")
-                            .addFile(outputFile)
-                            .execute();
                 }
             }
         }else {

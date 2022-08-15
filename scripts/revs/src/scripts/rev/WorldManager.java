@@ -8,7 +8,8 @@ public class WorldManager {
     public static boolean hopToRandomMemberWorldWithRequirements(){
         return Query
                 .worlds()
-                .isMembers().isNotDangerous()
+                .isMembers()
+                .isNotDangerous()
                 .isRequirementsMet()
                 .isRequirementsMet()
                 .isNotAnyType(World.Type.PVP_ARENA)
