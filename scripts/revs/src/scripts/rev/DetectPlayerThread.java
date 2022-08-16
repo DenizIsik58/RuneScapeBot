@@ -438,7 +438,7 @@ public class DetectPlayerThread extends Thread {
                                         }*/
         double startTime;
         var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
-        handleEatAndPrayer(pker);
+
         if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
             // Player is north east
             // Run south west
