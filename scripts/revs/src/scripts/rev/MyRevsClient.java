@@ -3,6 +3,8 @@ package scripts.rev;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
+import org.tribot.script.sdk.walking.GlobalWalking;
+import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.StringsUtility;
 
@@ -100,7 +102,16 @@ public class MyRevsClient {
         }
 
         if (message.equals("<col=ef1020>Your weapon has run out of revenant ether.</col>")){
-            TeleportManager.teleportOutOfWilderness("Teleporting out. We are out of ether.");
+            var location = new WorldTile(3205, 10082, 0);
+            GlobalWalking.walkTo(location,  () -> {
+                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
+                    return WalkState.FAILURE;
+                }
+                return WalkState.CONTINUE;
+            });
+
+            Waiting.wait(2000);
+            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
 
             return;
         }
