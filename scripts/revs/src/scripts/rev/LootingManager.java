@@ -108,8 +108,9 @@ public class LootingManager {
             Waiting.wait(2000);
             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
             MyRevsClient.getScript().setState(State.BANKING);
-            var outputFile = ScreenShotManager.takeScreenShotAndSave("success");
             try {
+                var outputFile = ScreenShotManager.takeScreenShotAndSave("success");
+
                 MyRevsClient.getScript().getSuccessfullTripHook().setUsername("Revenant Farm")
                         .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "Successful trip - **" + " - Value = " + LootingManager.getTripValue() + "**")
                         .addFile(outputFile)
@@ -165,6 +166,10 @@ public class LootingManager {
         RevkillerManager.setHasClickedSpot(false);
 
         Log.debug("Ended looting process. Switching back to killing");
+        if (!Combat.isInWilderness()) {
+            MyRevsClient.getScript().setState(State.BANKING);
+            return;
+        }
     }
 
     private static void closeLootingBag(){

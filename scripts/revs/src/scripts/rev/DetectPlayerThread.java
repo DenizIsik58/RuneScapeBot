@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 
 import static org.tribot.script.sdk.Combat.getWildernessLevel;
 
@@ -577,7 +576,7 @@ public class DetectPlayerThread extends Thread {
 
                     Log.warn("[DANGER_LISTENER] HANDLING DANGER");
                     if (Mouse.getSpeed() == 300) {
-                        int dangerMouseSpeed = getRandomNumber(600, 1000);
+                        int dangerMouseSpeed = getRandomNumber(1500, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
                     }
                     teleblocked = isTeleblocked();
