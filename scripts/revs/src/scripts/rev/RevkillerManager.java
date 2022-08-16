@@ -109,7 +109,7 @@ public class RevkillerManager {
             }
             PrayerManager.enableQuickPrayer();
             MyCamera.init();
-            Camera.setAngle(0);
+
 
             if (hasLevelGained()){
                 MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));
