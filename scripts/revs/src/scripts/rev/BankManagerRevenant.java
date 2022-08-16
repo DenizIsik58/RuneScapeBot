@@ -31,6 +31,7 @@ public class BankManagerRevenant {
     private static boolean isUsingGlory = true;
 
     public static void init() {
+        PrayerManager.turnOffAllPrayer();
         drinkAntiVenom();
         withdrawGear();
     }
@@ -69,6 +70,7 @@ public class BankManagerRevenant {
         //EquipmentManager.checkCharges();
         Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
         MyBanker.openBank();
+        PrayerManager.turnOffAllPrayer();
         drinkAntiVenom();
         equipAndChargeItems();
         equipNewWealthIfNeeded();
