@@ -33,6 +33,7 @@ public class PrayerManager {
 
     public static boolean enablePrayer(Prayer prayer){
         if (!prayer.isEnabled()){
+            if (Prayer.getPrayerPoints() == 0) return false;
             return Waiting.waitUntil(prayer::enable);
         }
         return false;
