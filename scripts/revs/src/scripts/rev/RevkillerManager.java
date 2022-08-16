@@ -108,7 +108,8 @@ public class RevkillerManager {
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
             PrayerManager.enableQuickPrayer();
-            MyCamera.setCameraAngle();
+            MyCamera.init();
+            Camera.setAngle(0);
 
             if (hasLevelGained()){
                 MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));
@@ -188,13 +189,12 @@ public class RevkillerManager {
             }
 
             if (target != null) {
-                var monster = Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).findRandom().orElse(null);
-                if (monster != null){
+                Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).findRandom().ifPresent(monster -> {
                     if (monster.isInteractingWithMe() && !monster.isHealthBarVisible()){
-                        monster.adjustCameraTo();
                         monster.click();
                     }
-                }
+                });
+
 
                 if (!target.isVisible()){
                     GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
@@ -202,19 +202,9 @@ public class RevkillerManager {
                     target.click();
                 }
 
-                if (!target.isHealthBarVisible()){
+                if (!target.isHealthBarVisible() || (target.getHealthBarPercent() != 0 && !target.isAnimating() && !target.isHealthBarVisible())){
                     target.click();
                     Waiting.waitUntil(2000, () -> target.isHealthBarVisible());
-                }
-
-
-                if (target.isValid()){
-                    if (target.getHealthBarPercent() != 0 && !target.isAnimating() && !target.isHealthBarVisible()) {
-                        if (!target.isVisible()){
-                            target.adjustCameraTo();
-                        }
-                        target.click();
-                    }
                 }
 
                 if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).isAny()) || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
