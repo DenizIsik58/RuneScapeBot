@@ -51,10 +51,24 @@ public class BankManagerRevenant {
         }
     }
 
+    private static void drinkAntiVenom(){
+        if (MyPlayer.isPoisoned()) {
+            MyBanker.openBank();
+            Query.bank().nameContains("Anti-venom(").findFirst().map(anti -> MyBanker.withdraw(anti.getName(), 1, false));
+            Query.inventory().nameContains("Anti-venom(").findClosestToMouse().map(anti -> anti.click("Drink"));
+            var drink = Waiting.waitUntil(2000, () -> !MyPlayer.isPoisoned());
+            if (!drink) {
+                drinkAntiVenom();
+            }
+            Query.inventory().nameContains("Anti-venom(").findClosestToMouse().map(anti -> MyBanker.deposit(anti.getId(), 1, false));
+        }
+    }
+
     public static void returnFromTrip() {
         //EquipmentManager.checkCharges();
         Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
         MyBanker.openBank();
+
         equipAndChargeItems();
         equipNewWealthIfNeeded();
         checkIfWeHaveEmblemDrop();
@@ -91,6 +105,11 @@ public class BankManagerRevenant {
         if (!Query.bank().nameContains("divine ranging").isAny()) {
 
             itemsToBuy.add("Divine ranging potion(4)");
+        }
+
+        if (!Query.bank().nameContains("Anti-venom(").isAny()) {
+
+            itemsToBuy.add("Anti-venom(4)");
         }
 
         if (!Query.bank().nameContains("Stamina potion").isAny()) {
