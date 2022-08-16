@@ -17,7 +17,8 @@ public class DecantManager {
     private static final List<String> potions = new ArrayList<>(Arrays.asList(
             "Divine ranging potion(1)","Divine ranging potion(2)","Divine ranging potion(3)","Divine ranging potion(4)",
             "Stamina potion(1)","Stamina potion(2)","Stamina potion(3)","Stamina potion(4)",
-            "Blighted super restore(1)","Blighted super restore(2)","Blighted super restore(3)","Blighted super restore(4)"
+            "Blighted super restore(1)","Blighted super restore(2)","Blighted super restore(3)","Blighted super restore(4)",
+            "Saradomin brew(1)","Saradomin brew(2)","Saradomin brew(3)","Saradomin brew(4)"
     ));
 
 
