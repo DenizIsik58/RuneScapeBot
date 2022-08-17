@@ -103,6 +103,9 @@ public class TeleportManager {
                 if (Query.gameObjects().idEquals(31555).findBestInteractable().isPresent()){
                     Log.debug("I'm entering cave");
                     Query.gameObjects().idEquals(31555).findBestInteractable().map(c -> c.interact("Enter"));
+                    if (MyClient.isWidgetVisible(193, 0)) {
+                        Waiting.waitUntil( () -> MyClient.clickWidget("Continue", 193, 0, 2));
+                    }
                     if (ChatScreen.isOpen()){
                         Waiting.waitUntil(ChatScreen::clickContinue);
                         Waiting.waitUntil(() -> ChatScreen.containsOption("Yes, don't ask again."));
