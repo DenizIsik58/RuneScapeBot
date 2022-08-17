@@ -34,6 +34,9 @@ public class TeleportManager {
         var chosenMobArea = south_ork; //getRandomMobArea();
 
         if (!chosenMobArea.isVisible()) {
+            if (MyRevsClient.myPlayerIsInWhitePortal()) {
+                Query.gameObjects().idEquals(26646).findFirst().ifPresent(c -> c.click("Exit"));
+            }
             Log.debug("[INFO_LISTENER] Started journey towards the cave...");
 
             if (GameState.isLoading()) {

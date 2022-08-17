@@ -35,6 +35,10 @@ public class MyRevsClient {
         return Area.fromRectangle(new WorldTile(2435, 3103, 0), new WorldTile(2456, 3073, 0)).containsMyPlayer();
     }
 
+    public static boolean myPlayerIsInWhitePortal(){
+        return Area.fromRectangle(new WorldTile(3316, 4761, 0), new WorldTile(3341, 4746, 0)).containsMyPlayer();
+    }
+
     public static boolean myPlayerIsInGE(){
         return isInLocation(true, Area.fromRectangle(new WorldTile(3131, 3518, 0), new WorldTile(3201, 3457, 0)));
     }
