@@ -32,7 +32,7 @@ public class MulerScript extends MyScriptExtension {
         var slaves = MultiServerSocket.getNames();
 
         while (slaves.size() != 0) {
-            for (int i = 0; i <= slaves.size() - 1; i++) {
+            for (int i = 0; i < slaves.size(); i++) {
                 if (hasFinishedCurrentTrade()) {
                     if (getTargetSlave() == null) {
                         if (StringsUtility.runescapeStringsMatch(slaves.get(i), traders.get(0))) {

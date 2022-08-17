@@ -147,6 +147,14 @@ public class LootingManager {
             }
         }
 
+        Log.debug("I'm done looting");
+        if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
+            GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+            MyRevsClient.getScript().setState(State.KILLING);
+        }
+
+        RevkillerManager.setHasClickedSpot(false);
+
         if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
 
             if (!RevkillerManager.getTarget().isVisible()) {
@@ -154,13 +162,6 @@ public class LootingManager {
             }
             RevkillerManager.getTarget().click();
         }
-
-        Log.debug("I'm done looting");
-        if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
-            GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
-            MyRevsClient.getScript().setState(State.KILLING);
-        }
-        RevkillerManager.setHasClickedSpot(false);
 
         Log.debug("Ended looting process. Switching back to killing");
         if (!Combat.isInWilderness()) {
