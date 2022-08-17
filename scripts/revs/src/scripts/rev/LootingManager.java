@@ -188,7 +188,7 @@ public class LootingManager {
             }
         });
 
-        if (Inventory.isFull() && !Inventory.contains("Looting bag") && Query.inventory().actionEquals("Eat").isAny()) {
+        if (Inventory.isFull() && Query.inventory().actionEquals("Eat").isAny()) {
             Query.inventory().actionEquals("Eat").findClosestToMouse().ifPresent(food -> food.click("Eat"));
             Waiting.waitNormal(1000,150);
         }
