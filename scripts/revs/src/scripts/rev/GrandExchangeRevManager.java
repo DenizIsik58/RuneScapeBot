@@ -144,7 +144,6 @@ public class GrandExchangeRevManager {
         mule();
     }
 
-
     public static void mule() {
         if (MuleManager.hasEnoughToMule()) {
             MuleManager.takeOutGp();

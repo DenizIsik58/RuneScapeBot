@@ -115,14 +115,14 @@ public class MultiServerSocket implements Runnable {
                             if (content.length == 5) {
                                 name = content[4];
                             } else {
-                                var matcher = StringsUtility.getMatcher(tradingRegex, inputLine);
-                                name = matcher.group(1);
+                                name = StringsUtility.extractFirstMatchGroup(tradingRegex, inputLine);
                             }
                             names.add(name);
                             MulerScript.setState(MulerState.MULING);
                             out.println(MyPlayer.getTile().getX() + " " + MyPlayer.getTile().getY() + " " + MyPlayer.getTile().getPlane() + " " + MyPlayer.get().get().getName() + " " + WorldHopper.getCurrentWorld());
                             out.println();
                         } catch (Exception e) {
+                            Log.error(e);
                             Log.debug("Couldn't mule");
                         }
                     }

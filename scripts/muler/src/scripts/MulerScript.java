@@ -120,7 +120,7 @@ public class MulerScript extends MyScriptExtension {
 
         if (getTargetSlave() != null) {
             Log.debug("Target slave: " + getTargetSlave());
-            Waiting.waitUntil(100000, () -> Chatbox.acceptTradeRequest(getTargetSlave()));
+            Waiting.waitUntil(10000, () -> Chatbox.acceptTradeRequest(getTargetSlave()));
             Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
             Waiting.waitUntil(() -> {
                 TradeScreen.getStage().map(screen -> {
