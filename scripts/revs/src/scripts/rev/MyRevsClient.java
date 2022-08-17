@@ -12,7 +12,6 @@ public class MyRevsClient {
 
     private static final String TELEBLOCK_REGEX ="A Tele Block spell has been cast on you by (.*?)\\.";
     private static final String TELEBLOCK_MESSAGE_REGEX = "A teleport block has been cast on you\\. It should wear off in ";
-
     private static RevScript script = null;
 
     public static boolean myPlayerHasEnoughChargesInBow(){

@@ -5,6 +5,8 @@ import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.MyPlayer;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.WorldHopper;
+import scripts.api.MyClient;
+import scripts.api.utility.StringsUtility;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,6 +66,8 @@ import java.util.List;
 public class MultiServerSocket implements Runnable {
     private ServerSocket serverSocket;
     private static List<String> names = new ArrayList<>();
+    private static final String tradingRegex = "I want to mule! ([a-zA-Z]+( [a-zA-Z]+)+)";
+
 
     @SneakyThrows
     @Override
@@ -110,12 +114,9 @@ public class MultiServerSocket implements Runnable {
                             String name = null;
                             if (content.length == 5) {
                                 name = content[4];
-                            } else if (content.length == 6) {
-                                name = content[4] + " " + content[5];
-                            } else if (content.length == 7) {
-                                name = content[4] + " " + content[5] + " " + content[6];
-                            } else if (content.length == 8) {
-                                name = content[4] + " " + content[5] + " " + content[6] + " " + content[7];
+                            } else {
+                                var matcher = StringsUtility.getMatcher(tradingRegex, inputLine);
+                                name = matcher.group(1);
                             }
                             names.add(name);
                             MulerScript.setState(MulerState.MULING);

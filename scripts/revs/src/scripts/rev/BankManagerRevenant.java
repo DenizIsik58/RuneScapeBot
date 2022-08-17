@@ -69,8 +69,8 @@ public class BankManagerRevenant {
     public static void returnFromTrip() {
         //EquipmentManager.checkCharges();
         Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
-        MyBanker.openBank();
         PrayerManager.turnOffAllPrayer();
+        MyBanker.openBank();
         drinkAntiVenom();
         equipAndChargeItems();
         equipNewWealthIfNeeded();
