@@ -347,8 +347,11 @@ public class DetectPlayerThread extends Thread {
 
                                         // run away if our target is not nearby
                                         Log.debug("trying to hop worlds... Target is not in sight");
-                                        WorldManager.hopToRandomMemberWorldWithRequirements();
-                                        Waiting.wait(6000);
+                                        var hopped = WorldManager.hopToRandomMemberWorldWithRequirements();
+                                        if (!hopped) {
+                                            Log.debug("Couldn't log out for some unknown reason");
+                                            return;
+                                        }
                                         //TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
                                         //Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         Query.inventory().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> ring.click("Wear"));
@@ -356,6 +359,7 @@ public class DetectPlayerThread extends Thread {
                                         MyExchange.walkToGrandExchange();
                                         resetDangerSigns();
                                     }
+                                    setInCombatTimer(false);
                                     Log.debug("Pker can still attack me");
                                 }
                             }, 13000);

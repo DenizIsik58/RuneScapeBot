@@ -245,6 +245,14 @@ public class BankManagerRevenant {
         Log.debug("Withdrawing supplies process started");
         setPlaceHolder();
 
+        if (!isEquipmentBankTaskSatisfied()){
+            Log.debug("[ERROR_LISTENER] We did not satisfy the gear setup. Trying again..");
+            //withdrawGear();
+            MyBanker.depositInventory();
+            equipAndChargeItems();
+            checkIfNeedToBuyGear();
+            getEquipmentBankTask().execute();
+        }
 
         if (!isInventoryBankTaskSatisfied()){
             Log.debug("Inventory Bank Task not satisfied..");
@@ -257,19 +265,17 @@ public class BankManagerRevenant {
         // Take out our stuff
         emptyLootingBag();
 
-        if (!isEquipmentBankTaskSatisfied()){
-            Log.debug("[ERROR_LISTENER] We did not satisfy the gear setup. Trying again..");
-            //withdrawGear();
-            equipAndChargeItems();
-            getEquipmentBankTask().execute();
-        }
 
-        if (!MyRevsClient.myPlayerIsInFerox()){
+
             closeBank();
             Log.debug("Trying to teleport to ferox");
             if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
+                if (!Query.inventory().nameContains("Ring of dueling(").isAny()){
+                    BankManagerRevenant.withdrawFoodAndPots();
+                }
                 Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
             }
+
             var inFerox = Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
             if (inFerox){
                 Log.debug("I'm in ferox now");
@@ -278,10 +284,6 @@ public class BankManagerRevenant {
                 Log.debug("Trying to teleport to ferox again..");
                 MyTeleporting.Dueling.FeroxEnclave.useTeleport();
             }
-
-        }else {
-            MyRevsClient.getScript().setState(State.WALKING);
-        }
     }
 
     private static EquipmentReq getAmulet() {
