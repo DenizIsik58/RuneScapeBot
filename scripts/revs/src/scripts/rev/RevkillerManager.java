@@ -61,6 +61,7 @@ public class RevkillerManager {
 
         if (iWasFirst && Combat.isInWilderness()){
 
+
             if (LootingManager.hasPkerBeenDetected()) {
                 return;
             }
@@ -101,12 +102,12 @@ public class RevkillerManager {
                 return;
             }
 
-            if (!MyRevsClient.getScript().getSelectedMonsterTile().isVisible()){
+            if (!MyRevsClient.myPlayerIsAtSouthOrk()){
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
+
             PrayerManager.enableQuickPrayer();
             MyCamera.init();
-
 
             if (hasLevelGained()){
                 MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));

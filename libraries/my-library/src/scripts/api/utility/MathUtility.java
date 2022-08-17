@@ -102,7 +102,7 @@ public class MathUtility {
 
     public static String getRangeLevelRate(int startLevel, int newLevel){
         var difference = newLevel - startLevel;
-        return "[" + startLevel + " (" + difference + " gained)]";
+        return "[" + newLevel + " (" + difference + " gained)]";
     }
 
     public static float round(float input, float step) {
