@@ -72,7 +72,7 @@ public class DetectPlayerThread extends Thread {
 
         }
         // 5 mins might be too long and run into going another trip after?
-        if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 1000) * 5) {
+        if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 100) * 25) {
             Log.debug("Handling teleblock");
             setTeleblocked(true);
         } else {
@@ -263,9 +263,23 @@ public class DetectPlayerThread extends Thread {
     public void antiPk() {
         var pker = getPker();
 
+
+
         while (isTeleblocked() && Combat.isInWilderness()) {
             MyCamera.init();
+            handleTeleblock();
+            if (!isTeleblocked()) {
+                Log.debug("Teleblock timer is over");
+                if (Query.inventory().nameContains("Ring of wealth (").isAny() && !Query.equipment().nameContains("Ring of wealth (").isAny()) {
+                    Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().map(c -> c.click("Wear"));
+                    Waiting.waitUntil(() -> Query.equipment().nameContains("Ring of wealth (").isAny());
+                    Equipment.Slot.RING.getItem().ifPresent(ring -> ring.click("Grand Exchange"));
+                }
 
+                if (Query.equipment().nameContains("Ring of wealth (").isAny()) {
+                    Equipment.Slot.RING.getItem().ifPresent(ring -> ring.click("Grand Exchange"));
+                }
+            }
             if (pker != null) {
                 Equipment.Slot.RING.getItem().ifPresent(ring -> {
                     if (ring.getId() != 2550) {
