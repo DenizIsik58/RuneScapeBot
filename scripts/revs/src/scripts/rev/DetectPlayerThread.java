@@ -610,7 +610,9 @@ public class DetectPlayerThread extends Thread {
                                 continue;
                             }
 
-                        }if (!processing.get()) {
+                        }
+
+                        if (!processing.get()) {
                             processing.set(true);
                             Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
                             Query.players()

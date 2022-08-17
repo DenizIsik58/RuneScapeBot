@@ -123,7 +123,7 @@ public class LootingManager {
         var allPossibleFood = getAllFood();
 
         for (int itemIndex = 0; itemIndex < allPossibleFood.size(); itemIndex++) {
-            if (!Inventory.isFull() && Inventory.contains("Looting bag") && !getAllFood().isEmpty()) {
+            if (Inventory.getAll().size() < 27 && Inventory.contains("Looting bag") && !getAllFood().isEmpty()) {
                 var foodCount = Query.inventory().actionEquals("Eat").count();
                 closeLootingBag();
                 Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
@@ -186,8 +186,10 @@ public class LootingManager {
                 Waiting.waitUntil(500, () -> Inventory.contains(22586));
             }
         });
+
         if (Inventory.isFull() && !Inventory.contains("Looting bag") && Query.inventory().actionEquals("Eat").isAny()) {
             Query.inventory().actionEquals("Eat").findClosestToMouse().ifPresent(food -> food.click("Eat"));
+            Waiting.waitNormal(1000,150);
         }
     }
 
