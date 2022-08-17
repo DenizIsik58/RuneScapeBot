@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static scripts.api.MyBanker.*;
-import static scripts.api.MyClient.*;
+import static scripts.api.MyClient.clickWidget;
+import static scripts.api.MyClient.isWidgetVisible;
 
 
 public class BankManagerRevenant {
@@ -490,10 +491,10 @@ public class BankManagerRevenant {
 
 
     public static void withdrawGear() {
-        if (withdrawGearAttempts.incrementAndGet() > 3) {
+        /*if (withdrawGearAttempts.incrementAndGet() > 3) {
             Log.error("Failed withdrawing gear three times");
             throw new RuntimeException("Failed withdrawing gear three times");
-        }
+        }*/
 
         Log.debug("Started withdrawing gear process");
         if (MyRevsClient.myPlayerIsInFerox()){
@@ -528,8 +529,6 @@ public class BankManagerRevenant {
             equipAndChargeItems();
             getEquipmentBankTask().execute();
 
-        } else {
-            withdrawGearAttempts.set(0);
         }
 
         withdrawFoodAndPots();
