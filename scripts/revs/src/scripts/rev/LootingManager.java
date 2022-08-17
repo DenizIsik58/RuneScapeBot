@@ -46,10 +46,7 @@ public class LootingManager {
 
             Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> {
                 if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
-                    Waiting.wait(2000);
-                    TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
-                    MyRevsClient.getScript().setState(State.BANKING);
-                    return;
+                    TeleportManager.teleportOut();
                 }
             });
 

@@ -38,10 +38,7 @@ public class RevkillerManager {
         Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> {
             if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
                 //TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
-                new WorldTile(3205, 10082, 0).clickOnMinimap();
-                Waiting.wait(2000);
-                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                MyRevsClient.getScript().setState(State.BANKING);
+                TeleportManager.teleportOut();
             }
         });
 
