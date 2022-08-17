@@ -34,6 +34,10 @@ public class LootingManager {
     private static int totalValue = 0;
 
     public static void loot() {
+        if (!Combat.isInWilderness()) {
+            Log.debug("Not in wilderness. Cancelling looting");
+            return;
+        }
         Log.debug("Started looting process");
 
         List<GroundItem> possibleLoot = getAllLoot();
@@ -101,10 +105,7 @@ public class LootingManager {
         }
 
         if (getTripValue() >= 200000) {
-            new WorldTile(3205, 10082, 0).clickOnMinimap();
-            Waiting.wait(2000);
-            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-            MyRevsClient.getScript().setState(State.BANKING);
+            TeleportManager.teleportOut();
             try {
                 var outputFile = ScreenShotManager.takeScreenShotAndSave("success");
 

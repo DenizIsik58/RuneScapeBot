@@ -263,8 +263,6 @@ public class DetectPlayerThread extends Thread {
     public void antiPk() {
         var pker = getPker();
 
-
-
         while (isTeleblocked() && Combat.isInWilderness()) {
             MyCamera.init();
             handleTeleblock();
