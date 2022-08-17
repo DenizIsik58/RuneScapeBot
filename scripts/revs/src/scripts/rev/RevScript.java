@@ -335,7 +335,7 @@ public class RevScript extends MyScriptExtension {
         PrayerManager.turnOffAllPrayer();
         TeleportManager.setHasVisitedBeforeTrip(false);
         DeathManger.incrementTotalDeaths();
-        LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue() - 200000);
+        LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue() - 500000);
         try {
             var outputFile = ScreenShotManager.takeScreenShotAndSave("ondeath");
 
