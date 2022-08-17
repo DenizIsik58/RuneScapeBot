@@ -103,6 +103,11 @@ public class MyRevsClient {
             Log.info("CHARGES: " + chargeString);
             if (!chargeString.isEmpty()) EquipmentManager.setBowCharges(Integer.parseInt(chargeString));
         }
+        if (message.equals("There is not enough revenant ether left powering your bow.")) {
+            Log.debug("out of ether teleporting out");
+            TeleportManager.teleportOut();
+            return;
+        }
 
         if (message.equals("<col=ef1020>Your weapon has run out of revenant ether.</col>")){
             var location = new WorldTile(3205, 10082, 0);
