@@ -341,6 +341,11 @@ public class DetectPlayerThread extends Thread {
                             new Timer().schedule(new TimerTask() {
                                 @Override
                                 public void run() {
+                                    if (!Combat.isInWilderness()) {
+                                        Log.debug("Not in wildy. Stopping timer for hop");
+                                        this.cancel();
+                                        return;
+                                    }
                                     if (!canTargetAttackMe(pker.getName())) {
 
                                         // run away if our target is not nearby
