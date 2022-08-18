@@ -290,7 +290,7 @@ public class BankManagerRevenant {
         int id = 0;
 
         if (Bank.contains("Salve amulet(ei)") || Equipment.contains("Salve amulet(ei)") || Inventory.contains("Salve amulet(ei)")) {
-            id = 25278;
+            id = 12018;
         } else if (Bank.contains("Salve amulet(i)") || Equipment.contains("Salve amulet(i)") || Inventory.contains("Salve amulet(i)")) {
             id = 12017;
         }
