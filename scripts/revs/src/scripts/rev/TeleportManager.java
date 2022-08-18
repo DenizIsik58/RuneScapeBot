@@ -56,7 +56,7 @@ public class TeleportManager {
                 });
             }
 
-            if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars()){
+            if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars() || MyRevsClient.myPlayerIsAtEdge()){
                     if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
                         if (!Query.inventory().nameContains("Ring of dueling(").isAny()){
                             BankManagerRevenant.withdrawFoodAndPots();

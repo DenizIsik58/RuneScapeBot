@@ -68,7 +68,7 @@ public class LootingManager {
 
 
             // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
-            item.interact("Take", LootingManager::hasPkerBeenDetected);
+            item.interact("Take", () -> hasPkerBeenDetected()  || !Combat.isInWilderness());
 
             /*if (itemIndex == 0) {
                 Log.debug("First item to pick up. Hovering over teleport in case pker is waiting.");
@@ -133,7 +133,7 @@ public class LootingManager {
                 closeLootingBag();
                 Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
                 var food = allPossibleFood.get(itemIndex);
-                food.interact("Take", LootingManager::hasPkerBeenDetected);
+                food.interact("Take", () -> hasPkerBeenDetected() || !Combat.isInWilderness());
                 Log.debug("Count before pick: " + allPossibleFood.size());
 
                 var pickedUp = Waiting.waitUntil(4000, () -> foodCount == Query.inventory().actionEquals("Eat").count() + 1);

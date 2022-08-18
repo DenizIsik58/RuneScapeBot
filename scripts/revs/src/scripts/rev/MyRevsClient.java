@@ -46,6 +46,10 @@ public class MyRevsClient {
         return isInLocation(true, Area.fromRectangle(new WorldTile(3217, 3226, 0), new WorldTile(3226, 3211, 0)));
     }
 
+    public static boolean myPlayerIsAtEdge(){
+        return Area.fromRectangle(new WorldTile(3066, 3519, 0), new WorldTile(3116, 3462, 0)).containsMyPlayer();
+    }
+
     public static boolean myPlayerIsAtSouthOrk(){
         return Area.fromRectangle(new WorldTile(3200, 10105, 0), new WorldTile(3231, 10085, 0)).containsMyPlayer();
     }

@@ -222,17 +222,6 @@ public class RevkillerManager {
                     Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
 
                     MyRevsClient.getScript().setState(State.BANKING);
-
-                    var outputFile = ScreenShotManager.takeScreenShotAndSave("success");
-                    try {
-                        MyRevsClient.getScript().getSuccessfullTripHook().setUsername("Revenant Farm")
-                                .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "Successful trip - **" + " - Value = " + LootingManager.getTripValue() + "**")
-                                .addFile(outputFile)
-                                .execute();
-                    }catch (Exception e) {
-                        Log.error(e);
-                    }
-
                 }
             }
         }else {
