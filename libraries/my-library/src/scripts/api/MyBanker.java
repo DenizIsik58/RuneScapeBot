@@ -146,6 +146,12 @@ public class MyBanker {
         }
     }
 
+    public static void closeHelp() {
+        MyClient.clickWidget("Close", 664, 29, 0);
+    }
 
+    public static boolean isHelpOpen() {
+        return MyClient.isWidgetVisible(664, 8);
+    }
 
 }

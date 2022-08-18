@@ -1,61 +1,52 @@
 package scripts;
 
-import org.tribot.script.sdk.Bank;
 import org.tribot.script.sdk.Inventory;
+import org.tribot.script.sdk.Log;
+import org.tribot.script.sdk.MyPlayer;
 import org.tribot.script.sdk.query.Query;
-import org.tribot.script.sdk.types.World;
-import org.tribot.script.sdk.types.WorldTile;
-import org.tribot.script.sdk.walking.GlobalWalking;
-
-import java.util.List;
+import scripts.api.MyBanker;
 
 public class BankManager {
 
 
-
-    public static void bank(String currentAxe) {
-
-        if (!Bank.isNearby()){
-            GlobalWalking.walkToBank();
-        }else {
-            if (!Bank.isOpen()){
-                Bank.open();
-                if (isHelpOpen()) {
-                    closeHelp();
-                }
-            }
-            Bank.depositInventory();
-            Bank.withdraw(currentAxe, 1);
-            Bank.close();
+    public static void bankLogs(int axeId) {
+        MyBanker.openBank();
+        MyBanker.depositInventory();
+        if (!Query.bank().idEquals(axeId).isAny()) {
+            throw new RuntimeException("Couldn't find the axe that in your bank!");
         }
+        MyBanker.withdraw(axeId, 1, false);
+        MyBanker.closeBank();
     }
 
-
+    public static void dropInventory(int axeId){
+        Inventory.getAll().forEach(item -> {
+            if (item.getId() != axeId) {
+                item.click("Drop");
+            }
+        });
+    }
 
     public static void bankToGearUp() {
-        if(!Bank.isNearby()) {
-            GlobalWalking.walkToBank();
-            if (!Bank.isOpen()){
-                Bank.open();
-            }
-                if (isHelpOpen()) {
-                    closeHelp();
-                }
-                Bank.depositInventory();
-                Bank.withdraw("Bronze sword", 1);
-                Bank.withdraw("Wooden shield", 1);
-                Bank.withdraw("Bread", 1);
-                Bank.withdraw("Shrimps", 1);
-                Bank.close();
-                Inventory.getAll().forEach(item -> item.click("Wield"));
+        if (MyPlayer.getCombatLevel() >= 15) {
+            Log.debug("You are above level 15. Skipping training");
+            return;
         }
-    }
+        Log.debug("Started gearing up process!");
 
-    private static void closeHelp() {
-        MyClient.clickWidget("Close", 664, 29, 0);
-    }
-    private static boolean isHelpOpen() {
-        return MyClient.isWidgetVisible(664, 8);
-    }
+        var open = MyBanker.openBank();
+        if (!open) {
+            Log.debug("Couldn't open bank. Trying again..");
+            MyBanker.openBank();
+        }
+        if (MyBanker.isHelpOpen()) {
+            MyBanker.closeHelp();
+        }
+        MyBanker.depositAll();
 
+        WCEquipmentManager.gearUp();
+        MyBanker.openBank();
+        Query.bank().actionEquals("Eat").findFirst().ifPresent(food -> MyBanker.withdraw(food.getId(), 1, false));
+        MyBanker.closeBank();
+    }
 }
