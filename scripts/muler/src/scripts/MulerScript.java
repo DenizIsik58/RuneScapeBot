@@ -26,7 +26,7 @@ public class MulerScript extends MyScriptExtension {
     public void processTrade(String name) {
         Log.debug("Added: " + name + " to the list!");
 
-        if (!traders.contains(name)){
+        if (!traders.contains(name) && MultiServerSocket.getNames().contains(name)){
             traders.add(name);
         }
         var slaves = MultiServerSocket.getNames();

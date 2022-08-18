@@ -38,6 +38,11 @@ public class LootingManager {
             Log.debug("Not in wilderness. Cancelling looting");
             return;
         }
+
+        if (MyRevsClient.getScript().isState(State.BANKING)) {
+            return;
+        }
+
         Log.debug("Started looting process");
 
         List<GroundItem> possibleLoot = getAllLoot();
@@ -116,7 +121,6 @@ public class LootingManager {
             }catch (Exception e) {
                 Log.error(e);
             }
-
             return;
         }
 
@@ -167,7 +171,6 @@ public class LootingManager {
         Log.debug("Ended looting process. Switching back to killing");
         if (!Combat.isInWilderness()) {
             MyRevsClient.getScript().setState(State.BANKING);
-            return;
         }
     }
 
