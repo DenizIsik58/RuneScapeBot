@@ -28,6 +28,7 @@ public class PrayerManager {
 
     public static boolean turnOffAllPrayer() {
         Prayer.disableAll(Prayer.values());
+        Waiting.waitUntil(() -> Prayer.isAllDisabled(Prayer.values()));
         return false;
     }
 

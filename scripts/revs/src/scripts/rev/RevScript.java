@@ -233,7 +233,7 @@ public class RevScript extends MyScriptExtension {
         }
     }
 
-    private void killPkThread() {
+    public void killPkThread() {
         if (playerDetectionThread != null) {
             if (playerDetectionThread.isRunning()){
                 playerDetectionThread.stopDetection();
@@ -294,7 +294,7 @@ public class RevScript extends MyScriptExtension {
     private void handleWalking() {
         var tile = TeleportManager.refill();
         selectedMonsterTile = tile;
-        if (TeleportManager.monsterTileIsDetected(tile)) {
+        if (MyRevsClient.myPlayerIsAtSouthOrk()) {//TeleportManager.monsterTileIsDetected(tile)
             Log.debug("I have detected the monster place");
             MyOptions.init();
             MyCamera.init();

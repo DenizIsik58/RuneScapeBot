@@ -55,7 +55,7 @@ public class RevkillerManager {
         }*/
 
         //if (iWasFirst) {
-        if (pvmers().count() < 2) {
+        if (pvmers().count() == 0) {
             iWasFirst = true;
         }
 

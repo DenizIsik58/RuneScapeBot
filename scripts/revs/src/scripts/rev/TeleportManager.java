@@ -271,7 +271,7 @@ public class TeleportManager {
             return WalkState.CONTINUE;
         });
 
-        Waiting.wait(2000);
+        Waiting.wait(2500);
         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
         MyRevsClient.getScript().setState(State.BANKING);
     }

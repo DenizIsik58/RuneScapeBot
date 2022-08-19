@@ -73,9 +73,9 @@ public class DetectPlayerThread extends Thread {
         }
         // 5 mins might be too long and run into going another trip after?
         if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 100) * 25) {
-            Log.debug("Handling teleblock");
             setTeleblocked(true);
         } else {
+            Log.debug("You are no longer teleblocked");
             setTeleblocked(false);
         }
 
@@ -263,7 +263,7 @@ public class DetectPlayerThread extends Thread {
     public void antiPk() {
         var pker = getPker();
 
-        while (isTeleblocked() && Combat.isInWilderness()) {
+        while (Combat.isInWilderness()) {
             MyCamera.init();
             handleTeleblock();
             if (!isTeleblocked()) {
@@ -353,8 +353,11 @@ public class DetectPlayerThread extends Thread {
                                         var hopped = WorldManager.hopToRandomMemberWorldWithRequirements();
                                         if (!hopped) {
                                             Log.debug("Couldn't log out for some unknown reason");
+                                            this.cancel();
                                             return;
                                         }
+                                        Log.debug("We have successfully hopped. Teleblock timer i");
+                                        MyScriptVariables.setVariable("lastTeleblockNotification", 0L);
                                         //TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
                                         //Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         Query.inventory().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> ring.click("Wear"));
@@ -465,7 +468,6 @@ public class DetectPlayerThread extends Thread {
             // Run south west
             Log.debug("Player on north east. Running west!");
             //if (!hasTickCounterStarted) {
-            startTime = GameState.getLoopCycle() / 30D;
             WorldTile location = new WorldTile(3202, 10060, 0); // Tile to climb up at
             GlobalWalking.walkTo(location,  () -> {
                 if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isVisible()) {
@@ -473,7 +475,7 @@ public class DetectPlayerThread extends Thread {
                 }
                 return WalkState.CONTINUE;
             });
-
+            startTime = GameState.getLoopCycle() / 30D;
             location.clickOnMinimap();
 
             //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
@@ -481,7 +483,6 @@ public class DetectPlayerThread extends Thread {
             //Player north-west
             // Run east
             Log.debug("Player on north west. Running south east!");
-            startTime = GameState.getLoopCycle() / 30D;
             var location = new WorldTile(3229, 10095, 0);
             GlobalWalking.walkTo(location,  () -> {
                 if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
@@ -489,12 +490,12 @@ public class DetectPlayerThread extends Thread {
                 }
                 return WalkState.CONTINUE;
             });
+            startTime = GameState.getLoopCycle() / 30D;
             location.clickOnMinimap();
             //Waiting.waitUntil(250, () -> new WorldTile(3229, 10095, 0).clickOnMinimap());
         } else if ((MyPlayer.getTile().getY() - pker.getTile().getY()) >= 3 && pker.getTile().getX() < MyPlayer.getTile().getX()) {
             // Player south west
             // Run north
-            startTime = GameState.getLoopCycle() / 30D;
             var location = new WorldTile(3226, 10105, 0);
             GlobalWalking.walkTo(location, () -> {
                 if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
@@ -502,10 +503,10 @@ public class DetectPlayerThread extends Thread {
                 }
                 return WalkState.CONTINUE;
             });
+            startTime = GameState.getLoopCycle() / 30D;
             location.clickOnMinimap();
 
         } else {
-            startTime = GameState.getLoopCycle() / 30D;
             var location = new WorldTile(3205, 10082, 0);
             GlobalWalking.walkTo(location,  () -> {
                 if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
@@ -514,7 +515,7 @@ public class DetectPlayerThread extends Thread {
                 return WalkState.CONTINUE;
             });
             location.clickOnMinimap();
-
+            startTime = GameState.getLoopCycle() / 30D;
             //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
 
         }
@@ -616,7 +617,7 @@ public class DetectPlayerThread extends Thread {
                                 setHasPkerBeenDetected(false);
                                 continue;
                             }
-
+                            
                         }
 
                         if (!processing.get()) {
@@ -680,6 +681,7 @@ public class DetectPlayerThread extends Thread {
         if (Mouse.getSpeed() != 300) Mouse.setSpeed(300);
         if (entangleDetecter != null) entangleDetecter = null;
         hasTickCounterStarted = false;
+        MyRevsClient.getScript().killPkThread();
         setHasHopped(false);
     }
 
