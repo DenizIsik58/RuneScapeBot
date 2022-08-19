@@ -39,7 +39,8 @@ public class LootingManager {
             return;
         }
 
-        if (MyRevsClient.getScript().isState(State.BANKING)) {
+        if (MyRevsClient.getScript().isState(State.BANKING) || !MyRevsClient.getScript().isState(State.LOOTING)) {
+            Log.debug("It's banking state! Cannot loot");
             return;
         }
 
@@ -53,11 +54,16 @@ public class LootingManager {
                 return;
             }
 
-            Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> {
+
+            var boss  = Query.npcs().nameEquals("Revenant maledictus").findFirst().orElse(null);
+            if (boss != null) {
+                Log.debug("Boss has been seen!");
                 if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
+                    Log.debug("Teleport out from boss has begun!");
                     TeleportManager.teleportOut();
                 }
-            });
+                return;
+            }
 
 
             var item = possibleLoot.get(itemIndex);
@@ -90,7 +96,7 @@ public class LootingManager {
                 loot();
             } else {
 
-                if (Pricing.lookupPrice(item.getId()).orElse(0) >= 450000) {
+                if (Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack() >= 450000) {
                     try {
                         var outputFile = ScreenShotManager.takeScreenShotAndSave("drops");
 
@@ -102,8 +108,8 @@ public class LootingManager {
                         Log.error(e);
                     }
                 }
-                tripValue += Pricing.lookupPrice(item.getId()).orElse(0);
-                totalValue += Pricing.lookupPrice(item.getId()).orElse(0);
+                tripValue += Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack();
+                totalValue += Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack();
                 var totalString = MathUtility.getProfitPerHourString(totalValue);
                 MyScriptVariables.setProfit(totalString);
             }
@@ -121,6 +127,8 @@ public class LootingManager {
             }catch (Exception e) {
                 Log.error(e);
             }
+            MyRevsClient.getScript().setState(State.BANKING);
+            Log.debug("Switched to banking stage. I hit 200k+ bag");
             return;
         }
 
@@ -158,8 +166,6 @@ public class LootingManager {
             MyRevsClient.getScript().setState(State.KILLING);
         }
 
-        RevkillerManager.setHasClickedSpot(false);
-
         if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
 
             if (!RevkillerManager.getTarget().isVisible()) {
@@ -170,6 +176,7 @@ public class LootingManager {
 
         Log.debug("Ended looting process. Switching back to killing");
         if (!Combat.isInWilderness()) {
+            Log.debug("I'm not in wildy switching to bank");
             MyRevsClient.getScript().setState(State.BANKING);
         }
     }
@@ -205,7 +212,7 @@ public class LootingManager {
         return Query.groundItems()
                 .nameEquals(lootToPickUp)
                 .inArea(southOrk)
-                .sorted(Comparator.comparingInt(item -> Pricing.lookupPrice(item.getId()).orElse(0)))
+                .sorted(Comparator.comparingInt(item -> Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack()))
                 .toList();
     }
 
@@ -230,6 +237,7 @@ public class LootingManager {
 
     public static boolean hasLootBeenDetected() {
         if (hasPkerBeenDetected()) {
+            Log.debug("Pker has been detected. inside loot has been detected");
             return false;
         }
 

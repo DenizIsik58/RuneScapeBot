@@ -131,6 +131,12 @@ public class MyRevsClient {
 
             return;
         }
+
+        if (message.equals("<col=4f006f>Your Tele Block has expired.")) {
+            Log.debug("Our teleblock spell has expired");
+            MyScriptVariables.setVariable("lastTeleblockNotification", 0L);
+            return;
+        }
         if (message.equals("<col=ef1020>The effects of the divine potion have worn off.")){
             Log.debug("Divine pot expired");
             //BoostingManager.resetBoost();

@@ -199,7 +199,7 @@ public class DetectPlayerThread extends Thread {
                 // Handle ranging weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
-            } else if (playerWeapon.toLowerCase().contains("bludgeon") || playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
+            } else if (playerWeapon.toLowerCase().contains("bludgeon") || playerWeapon.toLowerCase().contains("sword") || playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
                 // Handle melee weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
@@ -615,15 +615,27 @@ public class DetectPlayerThread extends Thread {
 
                         if (MyRevsClient.getScript().isState(scripts.rev.State.WALKING) && !MyPlayer.isHealthBarVisible()) {
                             if (WorldManager.hopToRandomMemberWorldWithRequirements()) {
-                                setInDanger(false);
-                                setHasPkerBeenDetected(false);
+                                resetDangerSigns();
                                 continue;
                             }
 
                         }
 
                         if (!processing.get()) {
+
                             processing.set(true);
+                            var possiblePker = Query.players()
+                                    .withinCombatLevels(Combat.getWildernessLevel())
+                                    .isNotEquipped(PVM_GEAR)
+                                    .findFirst().orElse(null);
+
+                            if (possiblePker == null && MyRevsClient.getScript().isState(scripts.rev.State.BANKING) && !MyRevsClient.myPlayerIsInGE()) {
+                                Log.debug("I'm stuck.. Teleporting out");
+                                TeleportManager.teleportOut();
+                                continue;
+                            }
+
+
                             Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
                             Query.players()
                                     .withinCombatLevels(Combat.getWildernessLevel())

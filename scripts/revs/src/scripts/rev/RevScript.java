@@ -227,9 +227,6 @@ public class RevScript extends MyScriptExtension {
                 BankManagerRevenant.getEquipmentBankTask().execute();
                 BankManagerRevenant.getInventoryBankTask().execute();
             }
-
-            setState(State.WALKING);
-            return;
         }
     }
 
@@ -292,9 +289,8 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handleWalking() {
-        var tile = TeleportManager.refill();
-        selectedMonsterTile = tile;
-        if (MyRevsClient.myPlayerIsAtSouthOrk()) {//TeleportManager.monsterTileIsDetected(tile)
+        selectedMonsterTile = TeleportManager.refill();
+        if (TeleportManager.monsterTileIsDetected(selectedMonsterTile)) {//
             Log.debug("I have detected the monster place");
             MyOptions.init();
             MyCamera.init();

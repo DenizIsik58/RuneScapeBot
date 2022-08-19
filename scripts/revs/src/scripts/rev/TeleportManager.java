@@ -27,6 +27,7 @@ public class TeleportManager {
     private static boolean hasVisitedBeforeTrip = false;
     private static List<WorldTile> monsterTiles = new ArrayList<>(Collections.singletonList(demons)); // South ork removed for now
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
+    private final static Area SOUTH_ORK = Area.fromRectangle(new WorldTile(3200, 10105, 0), new WorldTile(3231, 10085, 0));
 
     public static WorldTile refill() {
         // Random selection of mobs to kill
@@ -54,10 +55,12 @@ public class TeleportManager {
                     setWalkingState();
                     return WalkState.CONTINUE;
                 });
+                south_ork.clickOnMinimap();
             }
 
             if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars() || MyRevsClient.myPlayerIsAtEdge()){
-                    if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
+                MyBanker.closeBank();
+                if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
                         if (!Query.inventory().nameContains("Ring of dueling(").isAny()){
                             BankManagerRevenant.withdrawFoodAndPots();
                         }
@@ -90,6 +93,7 @@ public class TeleportManager {
                 }
                 if (!BankManagerRevenant.isEquipmentBankTaskSatisfied()){
                     MyBanker.openBank();
+                    BankManagerRevenant.equipAndChargeItems();
                     BankManagerRevenant.getEquipmentBankTask().execute();
                 }
 
@@ -263,9 +267,16 @@ public class TeleportManager {
     }
 
     public static void teleportOut() {
+
+        if (!Combat.isInWilderness()) {
+            Log.debug("not in wildy. Stopping teleport process");
+            return;
+        }
+
+        Log.debug("Teleport out process has begun");
         var location = new WorldTile(3205, 10082, 0);
         GlobalWalking.walkTo(location,  () -> {
-            if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
+            if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap() || !Combat.isInWilderness()) {
                 return WalkState.FAILURE;
             }
             return WalkState.CONTINUE;
@@ -273,16 +284,18 @@ public class TeleportManager {
 
         Waiting.wait(2500);
         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-        while (!MyRevsClient.myPlayerIsInGE()) {
-            Waiting.wait(5000);
-            if (MyRevsClient.myPlayerIsInGE()) {
-                break;
-            }
+        var inGe = Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
+        if (!inGe) {
             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
         }
         MyRevsClient.getScript().setState(State.BANKING);
     }
-/*
+
+    public static Area getSouthOrk() {
+        return SOUTH_ORK;
+    }
+
+    /*
     public static WalkState processWalking(){
 
 

@@ -30,6 +30,11 @@ public class RevkillerManager {
 
     public static void killMonster(){
 
+        if (!MyRevsClient.getScript().isState(State.KILLING)) {
+            Log.debug("It's not killing state! Returning!");
+            return;
+        }
+
         if (!GameTab.EQUIPMENT.isOpen()) {
             GameTab.EQUIPMENT.open();
         }
@@ -67,38 +72,24 @@ public class RevkillerManager {
             }
 
             if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
+                Log.debug("Found loot! Switching to looting statw!");
                 MyRevsClient.getScript().setState(State.LOOTING);
                 return;
             }
 
             if (Query.inventory().nameContains("Blighted super restore").count() == 0) {
-                if (target != null) {
-                    if (target.isValid()) {
-                        target.click();
-                        Waiting.waitUntil(() -> !target.isValid());
-                        if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
-                            MyRevsClient.getScript().setState(State.LOOTING);
-                            return;
-                        }
-                    }
-                }
-                TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
+                Log.debug("Low of restore");
+                TeleportManager.teleportOut();
+                //TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
                 MyRevsClient.getScript().setState(State.BANKING);
                 return;
             }
 
             if (Query.inventory().actionEquals("Eat").count() < 6) {
-                if (target != null){
-                    if (target.isValid()) {
-                        target.interact("Attack");
-                        Waiting.waitUntil(25000, () -> !target.isValid());
-                        if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()) {
-                            MyRevsClient.getScript().setState(State.LOOTING);
-                            return;
-                        }
-                    }
-                }
-                TeleportManager.teleportOutOfWilderness("We are low on food. Trying to teleport out...");
+                Log.debug("Low on food");
+                TeleportManager.teleportOut();
+                //TeleportManager.teleportOutOfWilderness("We are low on food. trying to teleport out..");
+                MyRevsClient.getScript().setState(State.BANKING);
                 return;
             }
 
@@ -172,30 +163,19 @@ public class RevkillerManager {
             }
 
             if (target == null){
-                if (!hasClickedSpot){
-                    GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile(), () -> {
-                        if (LootingManager.hasPkerBeenDetected()){
-                            MyRevsClient.getScript().setState(State.BANKING);
-                            return WalkState.FAILURE;
-                        }
-                        return WalkState.CONTINUE;
-                    });
-                    setHasClickedSpot(true);
-                }
-                
                 target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
             }
 
             if (target != null) {
                 Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).findRandom().ifPresent(monster -> {
                     if (monster.isInteractingWithMe() && !monster.isHealthBarVisible()){
+                        target = monster;
                         monster.click();
                     }
                 });
 
 
                 if (!target.isVisible()){
-                    GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
                     target.adjustCameraTo();
                     target.click();
                 }
