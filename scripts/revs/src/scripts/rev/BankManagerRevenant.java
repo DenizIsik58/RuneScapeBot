@@ -562,7 +562,7 @@ public class BankManagerRevenant {
                 })
                 .addInvItem(() -> {
                     var id = Query.bank().nameEquals("Looting bag").findFirst().map(Identifiable::getId).orElse(0);
-                    var amount = id == 0 ? Amount.of(-1) : Amount.of(1);
+                    var amount = id == 0 ? Amount.of(0) : Amount.of(1);
                     return new ItemReq(id, amount);
                 })// Shark
                 .build();

@@ -273,6 +273,13 @@ public class TeleportManager {
 
         Waiting.wait(2500);
         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+        while (!MyRevsClient.myPlayerIsInGE()) {
+            Waiting.wait(5000);
+            if (MyRevsClient.myPlayerIsInGE()) {
+                break;
+            }
+            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+        }
         MyRevsClient.getScript().setState(State.BANKING);
     }
 /*
