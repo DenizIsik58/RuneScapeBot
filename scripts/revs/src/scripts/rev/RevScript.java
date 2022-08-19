@@ -132,7 +132,8 @@ public class RevScript extends MyScriptExtension {
         handlePkThread();
 
         if (playerDetectionThread != null && playerDetectionThread.hasPkerBeenDetected()){
-            //Log.info("Pker detected.");
+
+            Log.info("Pker detected.");
             return;
         }
 
@@ -201,7 +202,12 @@ public class RevScript extends MyScriptExtension {
         }
         if (MyRevsClient.myPlayerIsInGE() && !isState(State.BANKING))  {
             setState(State.BANKING);
-            return;
+        }
+
+        if (!Combat.isInWilderness()) {
+            if (playerDetectionThread != null){
+                playerDetectionThread.setHasPkerBeenDetected(false);
+            }
         }
 
         if (MyRevsClient.myPlayerIsDead()){

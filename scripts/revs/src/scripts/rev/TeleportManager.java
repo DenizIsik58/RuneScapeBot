@@ -277,6 +277,7 @@ public class TeleportManager {
         var location = new WorldTile(3205, 10082, 0);
         GlobalWalking.walkTo(location,  () -> {
             if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap() || !Combat.isInWilderness()) {
+                Log.debug("Failure..");
                 return WalkState.FAILURE;
             }
             return WalkState.CONTINUE;
@@ -286,8 +287,10 @@ public class TeleportManager {
         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
         var inGe = Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
         if (!inGe) {
+            Log.debug("Not in GE. trying again....");
             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
         }
+        Log.debug("Switching to banking state");
         MyRevsClient.getScript().setState(State.BANKING);
     }
 

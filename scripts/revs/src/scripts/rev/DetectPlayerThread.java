@@ -190,12 +190,12 @@ public class DetectPlayerThread extends Thread {
     public static void handleEatAndPrayer(Player pker) {
 
         pker.getEquippedItem(Equipment.Slot.WEAPON).map(Item::getName).ifPresent(playerWeapon -> {
-            if (playerWeapon.toLowerCase().contains("staff")) {
+            if (playerWeapon.toLowerCase().contains("staff") || playerWeapon.toLowerCase().contains("wand") || playerWeapon.toLowerCase().contains("trident")) {
                 // Magic weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MAGIC);
 
-            } else if (playerWeapon.toLowerCase().contains("bow") || (playerWeapon.toLowerCase().contains("ballista"))) {
+            } else if (playerWeapon.toLowerCase().contains("bow") || playerWeapon.toLowerCase().contains("knife") || playerWeapon.toLowerCase().contains("dart") ||(playerWeapon.toLowerCase().contains("ballista"))) {
                 // Handle ranging weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
@@ -629,11 +629,7 @@ public class DetectPlayerThread extends Thread {
                                     .isNotEquipped(PVM_GEAR)
                                     .findFirst().orElse(null);
 
-                            if (possiblePker == null && MyRevsClient.getScript().isState(scripts.rev.State.BANKING) && !MyRevsClient.myPlayerIsInGE()) {
-                                Log.debug("I'm stuck.. Teleporting out");
-                                TeleportManager.teleportOut();
-                                continue;
-                            }
+
 
 
                             Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
@@ -643,6 +639,11 @@ public class DetectPlayerThread extends Thread {
                                     .findFirst()
                                     .ifPresent(this::escape);
 
+                            if (possiblePker == null && MyRevsClient.getScript().isState(scripts.rev.State.BANKING) && !MyRevsClient.myPlayerIsInGE()) {
+                                Log.debug("I'm stuck.. Teleporting out");
+                                TeleportManager.teleportOut();
+                                continue;
+                            }
                             if (isTeleblocked()) {
                                 continue;
                             }
@@ -695,7 +696,6 @@ public class DetectPlayerThread extends Thread {
         if (Mouse.getSpeed() != 300) Mouse.setSpeed(300);
         if (entangleDetecter != null) entangleDetecter = null;
         hasTickCounterStarted = false;
-        MyRevsClient.getScript().killPkThread();
         setHasHopped(false);
     }
 
