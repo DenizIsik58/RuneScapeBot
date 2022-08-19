@@ -104,6 +104,7 @@ public class BankManagerRevenant {
     }
 
     public static void checkIfNeedToRestockSupplies() {
+        Log.debug("Checking if we need to restock supplies");
         List<String> itemsToBuy = new ArrayList<>();
 
         if (!Query.bank().nameContains("divine ranging").isAny()) {
@@ -546,22 +547,22 @@ public class BankManagerRevenant {
                 .addInvItem(385, Amount.of(15)) // shark
                 .addInvItem(() -> {
                     var id = Query.bank().nameContains("Ring of dueling(").findFirst().map(Identifiable::getId).orElse(0);
-                    var amount = id == 0 ? Amount.of(0) : Amount.of(1);
+                    var amount = id == 0 ? Amount.of(-1) : Amount.of(1);
                     return new ItemReq(id, amount);
                 })
                 .addInvItem(() -> {
                     var id = Query.bank().nameContains("Stamina potion(").findFirst().map(Identifiable::getId).orElse(0);
-                    var amount = id == 0 ? Amount.of(0) : Amount.of(1);
+                    var amount = id == 0 ? Amount.of(-1) : Amount.of(1);
                     return new ItemReq(id, amount);
                 })
                 .addInvItem(() -> {
                     var id = Query.bank().nameContains("Divine ranging potion(").findFirst().map(Identifiable::getId).orElse(0);
-                    var amount = id == 0 ? Amount.of(0) : Amount.of(1);
+                    var amount = id == 0 ? Amount.of(-1) : Amount.of(1);
                     return new ItemReq(id, amount);
                 })
                 .addInvItem(() -> {
                     var id = Query.bank().nameEquals("Looting bag").findFirst().map(Identifiable::getId).orElse(0);
-                    var amount = id == 0 ? Amount.of(0) : Amount.of(1);
+                    var amount = id == 0 ? Amount.of(-1) : Amount.of(1);
                     return new ItemReq(id, amount);
                 })// Shark
                 .build();

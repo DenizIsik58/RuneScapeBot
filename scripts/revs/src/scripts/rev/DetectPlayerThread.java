@@ -75,7 +75,6 @@ public class DetectPlayerThread extends Thread {
         if (System.currentTimeMillis() - lastTeleblockNotification < (60 * 100) * 25) {
             setTeleblocked(true);
         } else {
-            Log.debug("You are no longer teleblocked");
             setTeleblocked(false);
         }
 
@@ -346,12 +345,13 @@ public class DetectPlayerThread extends Thread {
                                         this.cancel();
                                         return;
                                     }
-                                    if (!canTargetAttackMe(pker.getName())) {
+                                    if (!canTargetAttackMe(pker.getName()) && Combat.isInWilderness()) {
 
                                         // run away if our target is not nearby
                                         Log.debug("trying to hop worlds... Target is not in sight");
                                         var hopped = WorldManager.hopToRandomMemberWorldWithRequirements();
                                         if (!hopped) {
+                                            setInCombatTimer(false);
                                             Log.debug("Couldn't log out for some unknown reason");
                                             this.cancel();
                                             return;
@@ -364,6 +364,8 @@ public class DetectPlayerThread extends Thread {
                                         Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
                                         MyExchange.walkToGrandExchange();
                                         resetDangerSigns();
+                                        setInCombatTimer(false);
+                                        return;
                                     }
                                     setInCombatTimer(false);
                                     Log.debug("Pker can still attack me");
@@ -617,7 +619,7 @@ public class DetectPlayerThread extends Thread {
                                 setHasPkerBeenDetected(false);
                                 continue;
                             }
-                            
+
                         }
 
                         if (!processing.get()) {
