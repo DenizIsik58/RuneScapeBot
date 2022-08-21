@@ -78,6 +78,18 @@ public class TeleportManager {
             if (MyRevsClient.myPlayerIsInFerox()) {
                 setHasVisitedBeforeTrip(true);
                 Log.debug("[INFO_LISTENER] I'm in ferox");
+                if (!BankManagerRevenant.isEquipmentBankTaskSatisfied()){
+                    MyBanker.openBank();
+                    MyBanker.depositInventory();
+                    BankManagerRevenant.equipAndChargeItems();
+                    BankManagerRevenant.getEquipmentBankTask().execute();
+                }
+
+                if (Inventory.getAll().size() <= 20){
+                    MyBanker.openBank();
+                    BankManagerRevenant.getInventoryBankTask().execute();
+                }
+
                 if (MyRevsClient.myPlayerNeedsToRefresh()){
                     Log.debug("I'm walking to pool");
                     GlobalWalking.walkTo(enclavePool, () -> {
@@ -98,23 +110,14 @@ public class TeleportManager {
                 }
 
                 }
-                if (!BankManagerRevenant.isEquipmentBankTaskSatisfied()){
-                    MyBanker.openBank();
-                    BankManagerRevenant.equipAndChargeItems();
-                    BankManagerRevenant.getEquipmentBankTask().execute();
-                }
 
-                if (Inventory.getAll().size() <= 20){
-                    MyBanker.openBank();
-                    BankManagerRevenant.getInventoryBankTask().execute();
-                }
             }
 
             if (!MyRevsClient.myPlayerIsInCave()){
                 if (Query.gameObjects().idEquals(31555).findBestInteractable().isPresent()){
                     Log.debug("I'm entering cave");
                     Query.gameObjects().idEquals(31555).findBestInteractable().map(c -> c.interact("Enter"));
-                    if (MyClient.isWidgetVisible(193, 0)) {
+                    if (MyClient.isWidgetVisible(193, 0, 2)) {
                         Waiting.waitUntil( () -> MyClient.clickWidget("Continue", 193, 0, 2));
                     }
                     if (ChatScreen.isOpen()){

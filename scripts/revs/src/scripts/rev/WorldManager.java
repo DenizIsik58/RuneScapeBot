@@ -11,7 +11,6 @@ public class WorldManager {
                 .isMembers()
                 .isNotDangerous()
                 .isRequirementsMet()
-                .isRequirementsMet()
                 .isNotAnyType(World.Type.PVP_ARENA)
                 .isNotAnyType(World.Type.BOUNTY)
                 .isNotAnyType(World.Type.TOURNAMENT)

@@ -15,8 +15,11 @@ import scripts.api.utility.MathUtility;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LootingManager {
+
+    private static AtomicBoolean startLooting = new AtomicBoolean(false);
 
     private static final String[] lootToPickUp = new String[]{
             "Looting bag", "Bracelet of ethereum (uncharged)", "Battlestaff", "Rune full helm",
@@ -34,47 +37,53 @@ public class LootingManager {
     private static int totalValue = 0;
 
     public static void loot() {
-        if (!Combat.isInWilderness()) {
-            Log.debug("Not in wilderness. Cancelling looting");
-            return;
-        }
-
-        if (MyRevsClient.getScript().isState(State.BANKING) || !MyRevsClient.getScript().isState(State.LOOTING)) {
-            Log.debug("It's banking state! Cannot loot");
-            return;
-        }
-
-        Log.debug("Started looting process");
-
-        List<GroundItem> possibleLoot = getAllLoot();
+        if (!startLooting.get()) {
+            startLooting.set(true);
 
 
-        for (int itemIndex = 0; itemIndex < possibleLoot.size(); itemIndex++) {
-            if (hasPkerBeenDetected()) {
+            startLooting.set(false);
+
+            if (!Combat.isInWilderness()) {
+                Log.debug("Not in wilderness. Cancelling looting");
                 return;
             }
 
+            if (MyRevsClient.getScript().isState(State.BANKING) || !MyRevsClient.getScript().isState(State.LOOTING)) {
+                Log.debug("It's banking state! Cannot loot");
+                return;
+            }
 
-            var boss  = Query.npcs().nameEquals("Revenant maledictus").findFirst().orElse(null);
-            if (boss != null) {
-                Log.debug("Boss has been seen!");
-                if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
-                    Log.debug("Teleport out from boss has begun!");
-                    TeleportManager.teleportOut();
+            Log.debug("Started looting process");
+
+            List<GroundItem> possibleLoot = getAllLoot();
+
+
+            for (int itemIndex = 0; itemIndex < possibleLoot.size(); itemIndex++) {
+                if (hasPkerBeenDetected()) {
+                    return;
                 }
-                return;
-            }
 
 
-            var item = possibleLoot.get(itemIndex);
+                var boss = Query.npcs().nameEquals("Revenant maledictus").findFirst().orElse(null);
+                if (boss != null) {
+                    Log.debug("Boss has been seen!");
+                    if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()) {
+                        Log.debug("Teleport out from boss has begun!");
+                        TeleportManager.teleportOut();
+                    }
+                    return;
+                }
+
+
+                var item = possibleLoot.get(itemIndex);
 
                 openLootingBag();
 
-            var countBeforePickingUp = getAllLoot().size();
+                var countBeforePickingUp = getAllLoot().size();
 
 
-            // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
-            item.interact("Take", () -> hasPkerBeenDetected()  || !Combat.isInWilderness());
+                // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
+                item.interact("Take", () -> hasPkerBeenDetected() || !Combat.isInWilderness());
 
             /*if (itemIndex == 0) {
                 Log.debug("First item to pick up. Hovering over teleport in case pker is waiting.");
@@ -84,100 +93,104 @@ public class LootingManager {
                 });
             }*/
 
-            if (hasPkerBeenDetected()) {
-                Log.debug("Pker has been detected. Cancelled further looting");
-                return;
-            }
-
-            var changed = Waiting.waitUntil(4000, () -> hasDecreased(countBeforePickingUp));
-
-            if (!changed) {
-                Log.debug("Not changed");
-                loot();
-            } else {
-
-                if (Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack() >= 450000) {
-                    try {
-                        var outputFile = ScreenShotManager.takeScreenShotAndSave("drops");
-
-                        MyRevsClient.getScript().getLootWebhook().setUsername("Revenant Farm")
-                                .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "You have received a drop - **" + item.getName() + " - Value = " + Pricing.lookupPrice(item.getId()).orElse(0) + "**")
-                                .addFile(outputFile)
-                                .execute();
-                    }catch (Exception e) {
-                        Log.error(e);
-                    }
-                }
-                tripValue += Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack();
-                totalValue += Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack();
-                var totalString = MathUtility.getProfitPerHourString(totalValue);
-                MyScriptVariables.setProfit(totalString);
-            }
-        }
-
-        if (getTripValue() >= 200000) {
-            TeleportManager.teleportOut();
-            try {
-                var outputFile = ScreenShotManager.takeScreenShotAndSave("success");
-
-                MyRevsClient.getScript().getSuccessfullTripHook().setUsername("Revenant Farm")
-                        .setContent("**" + MyPlayer.getUsername() + " - Revs** - " +  "Successful trip - **" + " - Value = " + LootingManager.getTripValue() + "**")
-                        .addFile(outputFile)
-                        .execute();
-            }catch (Exception e) {
-                Log.error(e);
-            }
-            MyRevsClient.getScript().setState(State.BANKING);
-            Log.debug("Switched to banking stage. I hit 200k+ bag");
-            return;
-        }
-
-        // starts back here with brea
-        var allPossibleFood = getAllFood();
-
-        for (int itemIndex = 0; itemIndex < allPossibleFood.size(); itemIndex++) {
-            if (Inventory.getAll().size() < 27 && Inventory.contains("Looting bag") && !getAllFood().isEmpty()) {
-                var foodCount = Query.inventory().actionEquals("Eat").count();
-                closeLootingBag();
-                Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
-                var food = allPossibleFood.get(itemIndex);
-                food.interact("Take", () -> hasPkerBeenDetected() || !Combat.isInWilderness());
-                Log.debug("Count before pick: " + allPossibleFood.size());
-
-                var pickedUp = Waiting.waitUntil(4000, () -> foodCount == Query.inventory().actionEquals("Eat").count() + 1);
-
-                Log.debug("After picking up: " + getAllFood().size());
                 if (hasPkerBeenDetected()) {
                     Log.debug("Pker has been detected. Cancelled further looting");
                     return;
                 }
 
-                if (!pickedUp) {
+                var changed = Waiting.waitUntil(4000, () -> hasDecreased(countBeforePickingUp));
+
+                if (!changed) {
+                    Log.debug("Not changed");
                     loot();
+                } else {
+
+                    if (Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack() >= 450000) {
+                        try {
+                            var outputFile = ScreenShotManager.takeScreenShotAndSave("drops");
+
+                            MyRevsClient.getScript().getLootWebhook().setUsername("Revenant Farm")
+                                    .setContent("@everyone **" + MyPlayer.getUsername() + " - Revs** - " + "You have received a drop - **" + item.getName() + " - Value = " + (Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack()) + "**")
+                                    .addFile(outputFile)
+                                    .execute();
+                        } catch (Exception e) {
+                            Log.error(e);
+                        }
+                    }
+                    tripValue += Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack();
+                    totalValue += Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack();
+                    var totalString = MathUtility.getProfitPerHourString(totalValue);
+                    MyScriptVariables.setProfit(totalString);
                 }
-            }else {
-                break;
             }
-        }
 
-        Log.debug("I'm done looting");
-        if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
-            GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
-            MyRevsClient.getScript().setState(State.KILLING);
-        }
+            if (getTripValue() >= 200000) {
+                TeleportManager.teleportOut();
 
-        if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
+                try {
+                    var outputFile = ScreenShotManager.takeScreenShotAndSave("success");
 
-            if (!RevkillerManager.getTarget().isVisible()) {
-                RevkillerManager.getTarget().adjustCameraTo();
+                    MyRevsClient.getScript().getSuccessfullTripHook().setUsername("Revenant Farm")
+                            .setContent("**" + MyPlayer.getUsername() + " - Revs** - " + "Successful trip - **" + " - Value = " + LootingManager.getTripValue() + "**")
+                            .addFile(outputFile)
+                            .execute();
+
+                } catch (Exception e) {
+                    Log.error(e);
+                }
+
+                MyRevsClient.getScript().setState(State.BANKING);
+                Log.debug("Switched to banking stage. I hit 200k+ bag");
+                return;
             }
-            RevkillerManager.getTarget().click();
-        }
 
-        Log.debug("Ended looting process. Switching back to killing");
-        if (!Combat.isInWilderness()) {
-            Log.debug("I'm not in wildy switching to bank");
-            MyRevsClient.getScript().setState(State.BANKING);
+            // starts back here with brea
+            var allPossibleFood = getAllFood();
+
+            for (int itemIndex = 0; itemIndex < allPossibleFood.size(); itemIndex++) {
+                if (Inventory.getAll().size() < 27 && Inventory.contains("Looting bag") && !getAllFood().isEmpty()) {
+                    var foodCount = Query.inventory().actionEquals("Eat").count();
+                    closeLootingBag();
+                    Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
+                    var food = allPossibleFood.get(itemIndex);
+                    food.interact("Take", () -> hasPkerBeenDetected() || !Combat.isInWilderness());
+                    Log.debug("Count before pick: " + allPossibleFood.size());
+
+                    var pickedUp = Waiting.waitUntil(4000, () -> foodCount == Query.inventory().actionEquals("Eat").count() + 1);
+
+                    Log.debug("After picking up: " + getAllFood().size());
+                    if (hasPkerBeenDetected()) {
+                        Log.debug("Pker has been detected. Cancelled further looting");
+                        return;
+                    }
+
+                    if (!pickedUp) {
+                        loot();
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            Log.debug("I'm done looting");
+            if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
+                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+                MyRevsClient.getScript().setState(State.KILLING);
+            }
+
+            if (RevkillerManager.getTarget() != null && RevkillerManager.getTarget().isValid()) {
+
+                if (!RevkillerManager.getTarget().isVisible()) {
+                    RevkillerManager.getTarget().adjustCameraTo();
+                }
+                RevkillerManager.getTarget().click();
+            }
+
+            Log.debug("Ended looting process. Switching back to killing");
+            if (!Combat.isInWilderness()) {
+                Log.debug("I'm not in wildy switching to bank");
+                MyRevsClient.getScript().setState(State.BANKING);
+            }
         }
     }
 

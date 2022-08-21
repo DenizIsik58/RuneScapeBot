@@ -117,7 +117,12 @@ public class MultiServerSocket implements Runnable {
                             } else {
                                 name = StringsUtility.extractFirstMatchGroup(tradingRegex, inputLine);
                             }
-                            names.add(name);
+
+                            if (!names.contains(name.toLowerCase())) {
+                                Log.debug("Adding: " + name.toLowerCase());
+                                names.add(name.toLowerCase());
+                            }
+
                             MulerScript.setState(MulerState.MULING);
                             out.println(MyPlayer.getTile().getX() + " " + MyPlayer.getTile().getY() + " " + MyPlayer.getTile().getPlane() + " " + MyPlayer.get().get().getName() + " " + WorldHopper.getCurrentWorld());
                             out.println();

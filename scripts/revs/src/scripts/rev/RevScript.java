@@ -153,8 +153,7 @@ public class RevScript extends MyScriptExtension {
         handlePkThread();
 
         if (playerDetectionThread != null && playerDetectionThread.hasPkerBeenDetected()){
-
-            Log.info("Pker detected.");
+            //Log.info("Pker detected.");
             return;
         }
 
@@ -243,9 +242,7 @@ public class RevScript extends MyScriptExtension {
             // if not bank task is satisfied
             // teleport to ge
             // else
-            if (MyRevsClient.myPlayerIsInFerox()){
-                GlobalWalking.walkTo(new WorldTile(3133, 3628, 0)); // bank spot at ferox
-            }
+            GlobalWalking.walkTo(new WorldTile(3133, 3628, 0)); // bank spot at ferox
 
             if (!BankManagerRevenant.isEquipmentBankTaskSatisfied() && !BankManagerRevenant.isInventoryBankTaskSatisfied()){
                 openBank();
@@ -283,9 +280,9 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handlePkThread() {
+        //Log.debug("Handling pk thread");
         var wasInWild = inWilderness.get();
         var isInWild = Combat.isInWilderness();
-
         if (wasInWild != isInWild) {
             if (isInWild) {
                 startPkThread();

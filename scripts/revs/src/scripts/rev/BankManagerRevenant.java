@@ -58,7 +58,9 @@ public class BankManagerRevenant {
 
     private static void drinkAntiVenom() {
         if (MyPlayer.isPoisoned()) {
-            MyBanker.openBank();
+            while (!MyBanker.openBank()){
+                MyBanker.openBank();
+            }
             Query.bank().nameContains("Anti-venom(").findFirst().map(anti -> MyBanker.withdraw(anti.getName(), 1, false));
             Query.inventory().nameContains("Anti-venom(").findClosestToMouse().map(anti -> anti.click("Drink"));
             var drink = Waiting.waitUntil(2000, () -> !MyPlayer.isPoisoned());
@@ -119,8 +121,8 @@ public class BankManagerRevenant {
             itemsToBuy.add("Divine ranging potion(4)");
         }
 
-        if (!Query.bank().nameContains("Anti-venom(").isAny()) {
-
+        if (Bank.getCount("Anti-venom(4)") < 3) {
+            Log.debug("We are out of anti-venom buying more");
             itemsToBuy.add("Anti-venom(4)");
         }
 
@@ -271,23 +273,30 @@ public class BankManagerRevenant {
         // Take out our stuff
         emptyLootingBag();
 
-
         closeBank();
-        Log.debug("Trying to teleport to ferox");
-        if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
-            if (!Query.inventory().nameContains("Ring of dueling(").isAny()) {
-                BankManagerRevenant.withdrawFoodAndPots();
+        if (!MyRevsClient.myPlayerIsInFerox()) {
+            Log.debug("Trying to teleport to ferox");
+            if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
+                if (!Query.inventory().nameContains("Ring of dueling(").isAny()){
+                    BankManagerRevenant.withdrawFoodAndPots();
+                }
+                Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
             }
             Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
+
+
+            var inFerox = Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
+            if (inFerox){
+                Log.debug("I'm in ferox now");
+                MyRevsClient.getScript().setState(State.WALKING);
+            }else {
+                Log.debug("Trying to teleport to ferox again..");
+                MyTeleporting.Dueling.FeroxEnclave.useTeleport();
+            }
         }
 
-        var inFerox = Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
-        if (inFerox) {
-            Log.debug("I'm in ferox now");
+        if (MyRevsClient.myPlayerIsInFerox()) {
             MyRevsClient.getScript().setState(State.WALKING);
-        } else {
-            Log.debug("Trying to teleport to ferox again..");
-            MyTeleporting.Dueling.FeroxEnclave.useTeleport();
         }
     }
 
@@ -321,6 +330,14 @@ public class BankManagerRevenant {
         return EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1));
     }
 
+    private static EquipmentReq getChaps(){
+        if (Skill.RANGED.getActualLevel() >= 70) {
+            return EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1));
+        }
+        return EquipmentReq.slot(Equipment.Slot.LEGS).item(2495, Amount.of(1));
+
+    }
+
     public static BankTask getEquipmentBankTask() {
         if (equipmentBankTask == null) {
             Log.debug("equipment task");
@@ -349,13 +366,13 @@ public class BankManagerRevenant {
             }
 
 
-            if (!MyRevsClient.myPlayerHas40Defence()) {
+            if (MyRevsClient.myPlayerHas40Defence() && Skill.RANGED.getActualLevel() > 70) {
                 equipmentBankTask = BankTask.builder()
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(1169, Amount.of(1)))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1)))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(2503, Amount.of(1))) // black d hide body
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1))) // black d hide chaps
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(6328, Amount.of(1))) // snakeskin boots
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
                         .addEquipmentItem(getBow())
@@ -364,10 +381,10 @@ public class BankManagerRevenant {
             } else {
                 equipmentBankTask = BankTask.builder()
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(2503, Amount.of(1))) // black d hide body
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1))) // black d hide chaps
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(6328, Amount.of(1))) // snakeskin boots
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(1169, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)))
+                        .addEquipmentItem(BankManagerRevenant::getChaps)
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.CAPE).item(12273, Amount.of(1)))
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
                         .addEquipmentItem(getBow())
@@ -473,7 +490,12 @@ public class BankManagerRevenant {
                 // Something went wrong. Couldn't use ether on
                 Log.debug("Something went wrong.. maybe out of ether... Couldn't use ether on bracelet");
             }
-        } else if (charges > etherGoal && !bow) {
+        }else if(charges > etherGoal && !bow){
+            if (Inventory.getAll().size() > 24) {
+                MyBanker.openBank();
+                MyBanker.depositInventory();
+                MyBanker.closeBank();
+            }
             takeOffBraceCharges();
         }
 
@@ -650,10 +672,15 @@ public class BankManagerRevenant {
         List<String> itemsToBuy = new ArrayList<>();
 
 
+
         for (var item : MyRevsClient.getScript().isSkulledScript() ? EquipmentManager.getSkulledGear() : MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getDefenceGear()  : EquipmentManager.getBasicGear()) {
 
             if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
                 continue;
+            }
+
+            if (Skill.RANGED.getActualLevel() < 70 && item.equals("Black d'hide chaps") && !Query.bank().nameEquals("Red d'hide chaps").isAny()) {
+                itemsToBuy.add("Red d'hide chaps");
             }
 
             if (!Query.bank().nameEquals(item).isAny()) {

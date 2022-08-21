@@ -15,7 +15,7 @@ public class MuleManager {
 
 
     public static void takeOutGp(){
-
+        MyBanker.depositAll();
         Query.bank().nameEquals("Coins").findFirst().ifPresent(gp -> MyBanker.withdraw(995, gp.getStack() - 3000000, false));
         MyBanker.closeBank();
     }
