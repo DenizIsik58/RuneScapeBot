@@ -93,7 +93,9 @@ public class RevkillerManager {
                 return;
             }
 
-            if (!MyRevsClient.myPlayerIsAtSouthOrk()){
+            if (MyRevsClient.getScript().isSkulledScript() && !MyRevsClient.myPlayerIsAtEastGoblin()){
+                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+            }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == 3216 && !MyRevsClient.myPlayerIsAtSouthOrk()) {
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
 
@@ -129,7 +131,7 @@ public class RevkillerManager {
             }
 
 
-            if (Prayer.getPrayerPoints() < 20) {
+            if (Prayer.getPrayerPoints() < 24) {
                 PrayerManager.maintainPrayerPotion();
                 if (target != null){
                     target.click();

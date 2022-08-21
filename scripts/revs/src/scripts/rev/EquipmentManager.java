@@ -1,10 +1,11 @@
 package scripts.rev;
 
+import org.tribot.script.sdk.Bank;
 import org.tribot.script.sdk.Equipment;
 import org.tribot.script.sdk.Inventory;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
-import org.tribot.script.sdk.types.InventoryItem;
+import org.tribot.script.sdk.types.EquipmentItem;
 import scripts.api.MyBanker;
 import scripts.api.MyExchange;
 
@@ -17,27 +18,29 @@ public class EquipmentManager {
 
     private static final List<String> defenceGear = new ArrayList<>(Arrays.asList("Snakeskin bandana", "Bandos cloak", "Black d'hide body", "Black d'hide chaps", "Snakeskin boots", "Amulet of glory(6)", "Craw's bow", "Salve amulet(i)", "Salve amulet(ei)")); //
 
+    private static final List<String> skulledGear = new ArrayList<>(Arrays.asList("Snakeskin bandana", "Rune arrow", "Black d'hide body", "Black d'hide chaps", "Snakeskin boots", "Magic shortbow", "Amulet of avarice")); //
+
     private static int braceCharges = 0;
     private static int bowCharges = 0;
 
-    public static void equipGear(){
-        for (var item : basicGear) {
-            var gear = Query.inventory().nameEquals(item).findFirst().orElse(null);
-            if (gear != null) {
-                gear.click();
+    public static boolean chargeAmmo(int arrowId, int arrowAmount) {
+        var ammo = getAmmo(arrowId);
+        if (ammo < arrowAmount) {
+            MyBanker.openBank();
+            if (Bank.getCount(arrowId) < 400) {
+                GrandExchangeRevManager.restockFromBank(new ArrayList<>(Arrays.asList("Rune arrow")));
+                MyBanker.depositAll();
             }
+            MyBanker.withdraw(arrowId, arrowAmount - ammo, false);
+            MyBanker.closeBank();
+            Query.inventory().idEquals(arrowId).findFirst().map(c -> c.click("Wield"));
         }
-        Query.inventory().nameContains("Ring of wealth (").findFirst().map(InventoryItem::click);
-        Query.inventory().nameContains("Bracelet").findFirst().map(InventoryItem::click);
+        return Equipment.contains(arrowId);
     }
 
-    public static void checkCharges(){
-        Query.equipment().nameContains("Bracelet").findFirst().map(c -> c.click("Check"));
-        Query.equipment().nameContains("Craw").findFirst().map(c -> c.click("Check"));
-        Waiting.wait(3000);
+    private static int getAmmo(int arrowId) {
+        return Equipment.getCount(arrowId);
     }
-
-
 
     public static int checkBraceletCharges() {
         MyBanker.closeBank();
@@ -49,12 +52,12 @@ public class EquipmentManager {
             braceCharges = 0;
             return braceCharges;
         }
-        if (Equipment.contains(21816)){
+        if (Equipment.contains(21816)) {
             Query.equipment().idEquals(21816).findFirst().map(c -> c.click("Check"));
             Waiting.wait(2000);
         }
 
-        if (Inventory.contains(21816)){
+        if (Inventory.contains(21816)) {
             Query.inventory().idEquals(21816).findFirst().map(c -> c.click("Check"));
             Waiting.wait(2000);
         } else if (Inventory.contains(21817)) {
@@ -75,12 +78,12 @@ public class EquipmentManager {
             bowCharges = 0;
             return bowCharges;
         }
-        if (Equipment.contains(22550)){
-           Query.equipment().idEquals(22550).findFirst().map(c -> c.click("Check"));
-           Waiting.wait(2000);
+        if (Equipment.contains(22550)) {
+            Query.equipment().idEquals(22550).findFirst().map(c -> c.click("Check"));
+            Waiting.wait(2000);
         }
 
-        if (Inventory.contains(22550)){
+        if (Inventory.contains(22550)) {
             Query.inventory().idEquals(22550).findFirst().map(c -> c.click("Check"));
             Waiting.wait(2000);
         } else if (Inventory.contains(22547)) {
@@ -112,15 +115,11 @@ public class EquipmentManager {
         EquipmentManager.braceCharges = braceCharges;
     }
 
-    public static boolean equipmentContains(String itemName){
-        return Query.equipment().nameContains(itemName).isAny();
-    }
-
-    public static boolean hasWealthCharges(){
+    public static boolean hasWealthCharges() {
         return Query.equipment().nameContains("Ring of wealth (").isAny();
     }
 
-    public static void toggleBraceletAbsorbOn(){
+    public static void toggleBraceletAbsorbOn() {
         Equipment.Slot.HANDS.getItem().map(c -> c.click("Toggle absorption"));
     }
 
@@ -130,5 +129,9 @@ public class EquipmentManager {
 
     public static List<String> getDefenceGear() {
         return defenceGear;
+    }
+
+    public static List<String> getSkulledGear() {
+        return skulledGear;
     }
 }

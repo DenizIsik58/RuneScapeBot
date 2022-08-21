@@ -231,7 +231,7 @@ public class DetectPlayerThread extends Thread {
                 Log.warn("Out of food under eat percent");
             }
         }
-        if (MyPrayer.shouldDrinkPrayerPotion()) {
+        if (Prayer.getPrayerPoints() < 25) {
             PrayerManager.maintainPrayerPotion();
         }
     }
@@ -465,62 +465,77 @@ public class DetectPlayerThread extends Thread {
         double startTime;
         var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
 
-        if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
-            // Player is north east
-            // Run south west
-            Log.debug("Player on north east. Running west!");
-            //if (!hasTickCounterStarted) {
-            WorldTile location = new WorldTile(3202, 10060, 0); // Tile to climb up at
-            GlobalWalking.walkTo(location,  () -> {
-                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isVisible()) {
-                    return WalkState.FAILURE;
-                }
-                return WalkState.CONTINUE;
-            });
-            startTime = GameState.getLoopCycle() / 30D;
-            location.clickOnMinimap();
+        if (MyRevsClient.getScript().isSkulledScript()) {
+            if (pker.getTile().getY() > MyPlayer.getTile().getY()) {
+                //pker north run south
+                MyPlayer.getTile().translate(0, -15).clickOnMinimap();
+                startTime = GameState.getLoopCycle() / 30D;
 
-            //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
-        } else if (pker.getTile().getX() < MyPlayer.getTile().getX() && (yCoordDifference) >= 5) {
-            //Player north-west
-            // Run east
-            Log.debug("Player on north west. Running south east!");
-            var location = new WorldTile(3229, 10095, 0);
-            GlobalWalking.walkTo(location,  () -> {
-                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
-                    return WalkState.FAILURE;
-                }
-                return WalkState.CONTINUE;
-            });
-            startTime = GameState.getLoopCycle() / 30D;
-            location.clickOnMinimap();
-            //Waiting.waitUntil(250, () -> new WorldTile(3229, 10095, 0).clickOnMinimap());
-        } else if ((MyPlayer.getTile().getY() - pker.getTile().getY()) >= 3 && pker.getTile().getX() < MyPlayer.getTile().getX()) {
-            // Player south west
-            // Run north
-            var location = new WorldTile(3226, 10105, 0);
-            GlobalWalking.walkTo(location, () -> {
-                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
-                    return WalkState.FAILURE;
-                }
-                return WalkState.CONTINUE;
-            });
-            startTime = GameState.getLoopCycle() / 30D;
-            location.clickOnMinimap();
+            }else {
+                MyPlayer.getTile().translate(0, 15).clickOnMinimap();
+                startTime = GameState.getLoopCycle() / 30D;
+            }
 
-        } else {
-            var location = new WorldTile(3205, 10082, 0);
-            GlobalWalking.walkTo(location,  () -> {
-                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
-                    return WalkState.FAILURE;
-                }
-                return WalkState.CONTINUE;
-            });
-            location.clickOnMinimap();
-            startTime = GameState.getLoopCycle() / 30D;
-            //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+        }else {
+            if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
+                // Player is north east
+                // Run south west
+                Log.debug("Player on north east. Running west!");
+                //if (!hasTickCounterStarted) {
+                WorldTile location = new WorldTile(3202, 10060, 0); // Tile to climb up at
+                GlobalWalking.walkTo(location,  () -> {
+                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isVisible()) {
+                        return WalkState.FAILURE;
+                    }
+                    return WalkState.CONTINUE;
+                });
+                startTime = GameState.getLoopCycle() / 30D;
+                location.clickOnMinimap();
 
+                //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+            } else if (pker.getTile().getX() < MyPlayer.getTile().getX() && (yCoordDifference) >= 5) {
+                //Player north-west
+                // Run east
+                Log.debug("Player on north west. Running south east!");
+                var location = new WorldTile(3229, 10095, 0);
+                GlobalWalking.walkTo(location,  () -> {
+                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
+                        return WalkState.FAILURE;
+                    }
+                    return WalkState.CONTINUE;
+                });
+                startTime = GameState.getLoopCycle() / 30D;
+                location.clickOnMinimap();
+                //Waiting.waitUntil(250, () -> new WorldTile(3229, 10095, 0).clickOnMinimap());
+            } else if ((MyPlayer.getTile().getY() - pker.getTile().getY()) >= 3 && pker.getTile().getX() < MyPlayer.getTile().getX()) {
+                // Player south west
+                // Run north
+                var location = new WorldTile(3226, 10105, 0);
+                GlobalWalking.walkTo(location, () -> {
+                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
+                        return WalkState.FAILURE;
+                    }
+                    return WalkState.CONTINUE;
+                });
+                startTime = GameState.getLoopCycle() / 30D;
+                location.clickOnMinimap();
+
+            } else {
+                var location = new WorldTile(3205, 10082, 0);
+                GlobalWalking.walkTo(location,  () -> {
+                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
+                        return WalkState.FAILURE;
+                    }
+                    return WalkState.CONTINUE;
+                });
+                location.clickOnMinimap();
+                startTime = GameState.getLoopCycle() / 30D;
+                //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+
+            }
         }
+
+
 
         if (!Combat.isInWilderness()) {
             Log.debug("We are not in wilderness");
@@ -546,6 +561,10 @@ public class DetectPlayerThread extends Thread {
         //Waiting.wait(2000);
         Log.debug("After waiting: " + GameState.getLoopCycle());
         Log.debug("1,8 seconds gone Teleporting now");
+        if (isTeleblocked()) {
+            Log.debug("We are teleblocked. Running instead of teleporting");
+            return;
+        }
         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
         //MyExchange.walkToGrandExchange();
 

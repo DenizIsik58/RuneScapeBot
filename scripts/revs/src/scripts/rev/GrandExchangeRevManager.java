@@ -9,6 +9,7 @@ import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
 import scripts.api.MyExchange;
 import scripts.api.MyScriptVariables;
+import scripts.api.MyWorldHopper;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,7 +51,7 @@ public class GrandExchangeRevManager {
         MyBanker.withdraw("Coins", 2147000000, false);
         AtomicInteger itemsToSell = new AtomicInteger();
         for (var item : LootingManager.getLootToPickUp()) {
-            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)") || item.contains("Blighted")) {
+            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)") || item.contains("Blighted") || MyRevsClient.getScript().isSkulledScript() && item.equals("Amulet of avarice")) {
                 continue;
             }
 
@@ -332,11 +333,15 @@ public class GrandExchangeRevManager {
                 MyExchange.createGrandExchangeBuyOrder(item, 300, 0, true);
             } else if (item.equals("Leather boots") || item.equals("Leather body") || item.equals("Coif") || item.contains("Snakeskin")) {
                     MyExchange.createGrandExchangeBuyOrder(item, 20, 3000, false);
-                } else if (item.equals("Bandos cloak")) {
+            } else if (item.equals("Bandos cloak")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 1, 0, true);
-                } else {
+            } else if (item.equals("Amulet of avarice")) {
+                MyExchange.createGrandExchangeBuyOrder(item, 1, 1000000, false);
+            } else if (item.equals("Rune arrow")) {
+                MyExchange.createGrandExchangeBuyOrder(item, 5000, 0, true);
+            } else{
                 MyExchange.createGrandExchangeBuyOrder(item, 10, 0, true);
-                }
+            }
 
             Waiting.wait(3000);
         }

@@ -3,13 +3,14 @@ package scripts;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.*;
 import org.tribot.script.sdk.*;
+import scripts.gui.AbstractGui;
 
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.TimerTask;
 
-public class WCController extends AbstractGui{
+public class WCController extends AbstractGui {
 
 
     public Button loadButton;

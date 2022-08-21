@@ -12,10 +12,13 @@ import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.*;
 import scripts.api.concurrency.Debounce;
+import scripts.api.gui.MyGUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,12 +38,13 @@ public class RevScript extends MyScriptExtension {
     private WorldTile selectedMonsterTile = new WorldTile(3216, 10091, 0); // South ork by default
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
-
+    private AtomicBoolean skulledScript = new AtomicBoolean(false);
     private final Debounce walkDebounce = new Debounce(1000, TimeUnit.MILLISECONDS);
     private DiscordWebhook lootWebhook;
     private DiscordWebhook onEndWebhook;
     private DiscordWebhook onDeathWebhook;
     private DiscordWebhook successfullTripHook;
+    private URL fxml;
 
     @Override
     protected void setupScript(ScriptSetup setup) {
@@ -73,6 +77,23 @@ public class RevScript extends MyScriptExtension {
         onEndWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
         onDeathWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006886106870075443/KgnJFpyL07_92FZ2fk8pxpCSDCxDQ_pIDDU0i2NwhxvRFG8KScu1eLKMz9VfT1xcwI3N");
         successfullTripHook = new DiscordWebhook("https://discord.com/api/webhooks/1007597804274847824/0BeuF_rHMu3N1Gqa0Lm1teNGl2-KSDSfCu7A4GmyZIlSx6x0I5KlXAvfnO8UNFSirN5V");
+
+        try {
+            File file = new File("/Users/deniz/Desktop/RuneScapeBot/scripts/revs/src/scripts/rev/gui.fxml");
+
+
+            fxml = file.toURI().toURL();
+
+        }catch (Exception e) {
+            Log.error(e);
+        }
+
+        MyGUI gui = new MyGUI(fxml);
+        gui.show();
+
+        while (gui.isOpen()) {
+            Waiting.wait(500);
+        }
 
         /*
         GameListening.addGameTickListener(new Runnable() {
@@ -373,6 +394,14 @@ public class RevScript extends MyScriptExtension {
         muleClient = new MulingClient();
         muleClient.startConnection("localhost", 6668);
         return muleClient;
+    }
+
+    public void setSkulledScript(boolean skulledScript) {
+        this.skulledScript.set(skulledScript);
+    }
+
+    public boolean isSkulledScript() {
+        return skulledScript.get();
     }
 
     public DiscordWebhook getLootWebhook() {

@@ -11,6 +11,7 @@ import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyCamera;
 import scripts.api.MyOptions;
 import scripts.api.MyWorldHopper;
+import scripts.gui.GUI;
 
 import java.io.File;
 import java.net.URL;

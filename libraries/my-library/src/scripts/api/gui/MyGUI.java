@@ -1,4 +1,4 @@
-package scripts;
+package scripts.api.gui;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,7 +18,7 @@ import java.net.URL;
 /**
  * @author Laniax
  */
-public class GUI extends Application {
+public class MyGUI extends Application {
 
 
     private final URL fxml;
@@ -26,24 +26,24 @@ public class GUI extends Application {
 
     private Stage stage;
     private Scene scene;
-    private AbstractGui controller;
+    private MyAbstractGui controller;
     private boolean decorated = true;
 
     private boolean isOpen = false;
 
-    public GUI(URL fxml) {
+    public MyGUI(URL fxml) {
         this(fxml, null);
     }
 
-    public GUI(URL fxml, boolean decorated) {
+    public MyGUI(URL fxml, boolean decorated) {
         this(fxml, null, decorated);
     }
 
-    public GUI(URL fxml, URL stylesheet) {
+    public MyGUI(URL fxml, URL stylesheet) {
         this(fxml, stylesheet, true);
     }
 
-    public GUI(URL fxml, URL stylesheet, boolean decorated) {
+    public MyGUI(URL fxml, URL stylesheet, boolean decorated) {
 
         this.fxml = fxml;
         this.stylesheet = stylesheet;
@@ -71,6 +71,7 @@ public class GUI extends Application {
 
         waitForInit();
     }
+
 
     public Scene getScene() {
         return this.scene;
@@ -139,7 +140,7 @@ public class GUI extends Application {
 
     }
 
-    public <T extends AbstractGui> T getController() {
+    public <T extends MyAbstractGui> T getController() {
         return (T) this.controller;
 
     }

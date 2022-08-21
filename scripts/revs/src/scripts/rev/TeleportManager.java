@@ -23,6 +23,7 @@ public class TeleportManager {
     private static final WorldTile enclavePool = new WorldTile(3128, 3634, 0);
     private static final WorldTile south_ork = new WorldTile(3216, 10091, 0);
     private static final WorldTile north_ork = new WorldTile(3226, 10132,0 );
+    private static final WorldTile east_goblin = new WorldTile(3240, 10095, 0);
     public static final WorldTile demons = new WorldTile(3160, 10115,0 );
     private static boolean hasVisitedBeforeTrip = false;
     private static List<WorldTile> monsterTiles = new ArrayList<>(Collections.singletonList(demons)); // South ork removed for now
@@ -32,7 +33,13 @@ public class TeleportManager {
     public static WorldTile refill() {
         // Random selection of mobs to kill
 
-        var chosenMobArea = south_ork; //getRandomMobArea();
+        WorldTile chosenMobArea;
+
+        if (MyRevsClient.getScript().isSkulledScript()) {
+            chosenMobArea = east_goblin; //getRandomMobArea();
+        }else {
+            chosenMobArea = south_ork;
+        }
 
         if (!chosenMobArea.isVisible()) {
             if (MyRevsClient.myPlayerIsInWhitePortal()) {
@@ -47,7 +54,7 @@ public class TeleportManager {
 
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");
-                GlobalWalking.walkTo(south_ork, () -> {
+                GlobalWalking.walkTo(chosenMobArea, () -> {
                     if (!MyRevsClient.myPlayerIsInCave()) {
                         refill();
                         return WalkState.SUCCESS;
@@ -124,7 +131,7 @@ public class TeleportManager {
             }
 
         Mouse.setSpeed(300);
-        return south_ork;
+        return chosenMobArea;
     }
 
     private static WorldTile getRandomMobArea() {
@@ -260,6 +267,9 @@ public class TeleportManager {
             }
         */
     public static int getMonsterIdBasedOnLocation(WorldTile tile){
+        if (tile.getX() == 3240) {
+            return 7933;
+        }
         if (tile.getX() != demons.getX()){
             return 7937;
         }

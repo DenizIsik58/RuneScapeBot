@@ -9,9 +9,11 @@ import org.tribot.script.sdk.tasks.BankTask;
 import org.tribot.script.sdk.tasks.EquipmentReq;
 import org.tribot.script.sdk.tasks.ItemReq;
 import org.tribot.script.sdk.types.InventoryItem;
+import org.tribot.script.sdk.types.Widget;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
+import scripts.api.MyClient;
 import scripts.api.MyExchange;
 import scripts.api.MyTeleporting;
 
@@ -54,7 +56,7 @@ public class BankManagerRevenant {
         }
     }
 
-    private static void drinkAntiVenom(){
+    private static void drinkAntiVenom() {
         if (MyPlayer.isPoisoned()) {
             MyBanker.openBank();
             Query.bank().nameContains("Anti-venom(").findFirst().map(anti -> MyBanker.withdraw(anti.getName(), 1, false));
@@ -85,6 +87,11 @@ public class BankManagerRevenant {
         /*if (Skill.RANGED.getActualLevel() < 75) {
             equipAndCharge(true);
         }*/
+        if (MyRevsClient.getScript().isSkulledScript()) {
+            equipAndCharge(false);
+            EquipmentManager.chargeAmmo(892, 400);
+            return;
+        }
         equipAndCharge(true);
         equipAndCharge(false);
     }
@@ -142,7 +149,6 @@ public class BankManagerRevenant {
         }
 
 
-
         // Buy items if we need
         if (itemsToBuy.size() != 0) {
             itemsToBuy.forEach(Log::info);
@@ -158,8 +164,8 @@ public class BankManagerRevenant {
     }
 
     public static void emptyLootingBag() {
-        if (!Inventory.contains("Looting bag")){
-            if (!Bank.contains("Looting bag")){
+        if (!Inventory.contains("Looting bag")) {
+            if (!Bank.contains("Looting bag")) {
                 Log.debug("We have no looting bag");
                 return;
             }
@@ -167,16 +173,16 @@ public class BankManagerRevenant {
             Log.debug("Withdrawing looting bag");
             MyBanker.withdraw("Looting bag", 1, false);
             Waiting.waitUntil(() -> Inventory.contains("Looting bag"));
-            Waiting.waitNormal(1000,100);
+            Waiting.waitNormal(1000, 100);
         }
         openBank();
         var lb = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
         if (lb != null) {
             if (lb.click("View")) {
-                Waiting.waitNormal(1000,100);
+                Waiting.waitNormal(1000, 100);
                 if (isWidgetVisible(15, 8)) {
                     Waiting.waitUntil(() -> clickWidget("Deposit loot", 15, 8));
-                    Waiting.waitNormal(1500,200);
+                    Waiting.waitNormal(1500, 200);
                     Waiting.waitUntil(() -> clickWidget("Dismiss", 15, 10));
                     MyBanker.closeBank();
                     return;
@@ -187,7 +193,7 @@ public class BankManagerRevenant {
         Log.debug("I don't have a looting bag");
     }
 
-    public static void takeOffBraceCharges(){
+    public static void takeOffBraceCharges() {
         if (MyRevsClient.myPlayerHasTooManyChargesInBrace()) {
             Log.debug("Bracelet has too much ether. Unloading...");
 
@@ -205,37 +211,36 @@ public class BankManagerRevenant {
                         Waiting.waitUntil(() -> Inventory.contains(21820));
                     }
                 });
-            }else if (Inventory.contains("Bracelet of ethereum")){
+            } else if (Inventory.contains("Bracelet of ethereum")) {
                 Query.inventory().nameEquals("Bracelet of ethereum").findFirst().ifPresent(brace -> {
 
-                        Waiting.waitUntil(() -> brace.click("Uncharge"));
-                        Waiting.waitUntil(ChatScreen::isOpen);
-                        Waiting.waitNormal(1250, 125);
-                        clickWidget("Yes", 584, 1);
-                        Waiting.waitUntil(() -> Inventory.contains(21820));
+                    Waiting.waitUntil(() -> brace.click("Uncharge"));
+                    Waiting.waitUntil(ChatScreen::isOpen);
+                    Waiting.waitNormal(1250, 125);
+                    clickWidget("Yes", 584, 1);
+                    Waiting.waitUntil(() -> Inventory.contains(21820));
                 });
             }
 
-                MyBanker.openBank();
-                var amount = Query.inventory().idEquals(21820).findFirst().map(InventoryItem::getStack).orElse(0);
-                MyBanker.deposit(21820, amount - 250,false);
-                Waiting.waitNormal(1500, 100);
-                MyBanker.closeBank();
-                Waiting.wait(1000);
-                Query.inventory()
-                        .nameEquals("Bracelet of ethereum (uncharged)")
-                        .findFirst()
-                        .map(b -> Query.inventory()
-                                .idEquals(21820)
-                                .findFirst()
-                                .map(ether -> ether.useOn(b))
-                                .orElse(false));
+            MyBanker.openBank();
+            var amount = Query.inventory().idEquals(21820).findFirst().map(InventoryItem::getStack).orElse(0);
+            MyBanker.deposit(21820, amount - 250, false);
+            Waiting.waitNormal(1500, 100);
+            MyBanker.closeBank();
+            Waiting.wait(1000);
+            Query.inventory()
+                    .nameEquals("Bracelet of ethereum (uncharged)")
+                    .findFirst()
+                    .map(b -> Query.inventory()
+                            .idEquals(21820)
+                            .findFirst()
+                            .map(ether -> ether.useOn(b))
+                            .orElse(false));
 
-                Waiting.wait(1000);
-                Query.inventory().nameEquals("Bracelet of ethereum").findFirst().map(b -> b.click("Wear"));
-            }
+            Waiting.wait(1000);
+            Query.inventory().nameEquals("Bracelet of ethereum").findFirst().map(b -> b.click("Wear"));
         }
-
+    }
 
 
     public static void withdrawFoodAndPots() {
@@ -246,7 +251,7 @@ public class BankManagerRevenant {
         Log.debug("Withdrawing supplies process started");
         setPlaceHolder();
 
-        if (!isEquipmentBankTaskSatisfied()){
+        if (!isEquipmentBankTaskSatisfied()) {
             Log.debug("[ERROR_LISTENER] We did not satisfy the gear setup. Trying again..");
             //withdrawGear();
             MyBanker.depositInventory();
@@ -255,7 +260,7 @@ public class BankManagerRevenant {
             getEquipmentBankTask().execute();
         }
 
-        if (!isInventoryBankTaskSatisfied()){
+        if (!isInventoryBankTaskSatisfied()) {
             Log.debug("Inventory Bank Task not satisfied..");
             Bank.depositInventory();
             checkIfNeedToRestockSupplies();
@@ -267,28 +272,31 @@ public class BankManagerRevenant {
         emptyLootingBag();
 
 
-
-            closeBank();
-            Log.debug("Trying to teleport to ferox");
-            if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
-                if (!Query.inventory().nameContains("Ring of dueling(").isAny()){
-                    BankManagerRevenant.withdrawFoodAndPots();
-                }
-                Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
+        closeBank();
+        Log.debug("Trying to teleport to ferox");
+        if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
+            if (!Query.inventory().nameContains("Ring of dueling(").isAny()) {
+                BankManagerRevenant.withdrawFoodAndPots();
             }
+            Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
+        }
 
-            var inFerox = Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
-            if (inFerox){
-                Log.debug("I'm in ferox now");
-                MyRevsClient.getScript().setState(State.WALKING);
-            }else {
-                Log.debug("Trying to teleport to ferox again..");
-                MyTeleporting.Dueling.FeroxEnclave.useTeleport();
-            }
+        var inFerox = Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
+        if (inFerox) {
+            Log.debug("I'm in ferox now");
+            MyRevsClient.getScript().setState(State.WALKING);
+        } else {
+            Log.debug("Trying to teleport to ferox again..");
+            MyTeleporting.Dueling.FeroxEnclave.useTeleport();
+        }
     }
 
     private static EquipmentReq getAmulet() {
         int id = 0;
+        if (MyRevsClient.getScript().isSkulledScript()) {
+            return EquipmentReq.slot(Equipment.Slot.NECK).item(22557, Amount.of(1)); // averice
+
+        }
 
         if (Bank.contains("Salve amulet(ei)") || Equipment.contains("Salve amulet(ei)") || Inventory.contains("Salve amulet(ei)")) {
             id = 12018;
@@ -303,10 +311,13 @@ public class BankManagerRevenant {
         }
     }
 
-    private static EquipmentReq getBow(){
+    private static EquipmentReq getBow() {
         /*if (Skill.RANGED.getActualLevel() >= 75) {
             return Blowpipe.equipBlowpipe(2000, Blowpipe.Dart.MITHRIL);
         }*/
+        if (MyRevsClient.getScript().isSkulledScript()) {
+            return EquipmentReq.slot(Equipment.Slot.WEAPON).item(861, Amount.of(1));
+        }
         return EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1));
     }
 
@@ -315,6 +326,27 @@ public class BankManagerRevenant {
             Log.debug("equipment task");
             openBank();
             setPlaceHolder();
+
+            if (MyRevsClient.getScript().isSkulledScript()) {
+                equipmentBankTask = BankTask.builder()
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(1169, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
+                        .addEquipmentItem(() -> {
+                            if (Equipment.getCount(892) < 400) {
+                                return EquipmentReq.slot(Equipment.Slot.AMMO).item(892, Amount.of(400 - Equipment.getCount(892)));
+                            }
+                            return EquipmentReq.slot(Equipment.Slot.AMMO).item(892, Amount.of(0));
+
+                        })
+                        .addEquipmentItem(getBow())
+                        //.addEquipmentItem(BankManagerRevenant::getAmulet)
+                        .build();
+                return equipmentBankTask;
+            }
 
 
             if (!MyRevsClient.myPlayerHas40Defence()) {
@@ -329,7 +361,7 @@ public class BankManagerRevenant {
                         .addEquipmentItem(getBow())
                         .addEquipmentItem(BankManagerRevenant::getAmulet)
                         .build();
-            }else {
+            } else {
                 equipmentBankTask = BankTask.builder()
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
@@ -344,11 +376,11 @@ public class BankManagerRevenant {
             }
 
 
-
         }
 
         return equipmentBankTask;
     }
+
 
     private static boolean useEther(boolean bow) {
         int[] targetIds = bow ? new int[]{22550, 22547} : new int[]{21816, 21817};
@@ -377,7 +409,11 @@ public class BankManagerRevenant {
 
     public static boolean isEquipmentBankTaskSatisfied() {
         // check bracelet charges and bow charges are enough, if not recharge or return false
-        return getEquipmentBankTask().isSatisfied();
+        return getEquipmentBankTask().isSatisfied() && isAvariceSatisfied();
+    }
+
+    public static boolean isAvariceSatisfied(){
+        return Equipment.contains(22557);
     }
 
     public static boolean hasEnoughEther(int amount) {
@@ -398,7 +434,7 @@ public class BankManagerRevenant {
                 GrandExchangeRevManager.sellLoot();
                 GrandExchangeRevManager.buyFromBank(21820, 4000);
             }
-            if (Inventory.getAll().size() > 25){
+            if (Inventory.getAll().size() > 25) {
                 MyBanker.openBank();
                 MyBanker.depositInventory();
             }
@@ -418,10 +454,10 @@ public class BankManagerRevenant {
                 Log.warn("Failed to withdraw bow, may need to buy?");
                 return false;
             }
-            if (bow && equipmentContainsCharged(true) || inventoryContainsCharged(true)){
+            if (bow && equipmentContainsCharged(true) || inventoryContainsCharged(true)) {
                 Log.debug("I have a charged bow equip or in invy");
                 etherGoal = bow ? 300 : 100;
-            }else {
+            } else {
                 etherGoal = bow ? 1300 : 100;
             }
 
@@ -437,7 +473,7 @@ public class BankManagerRevenant {
                 // Something went wrong. Couldn't use ether on
                 Log.debug("Something went wrong.. maybe out of ether... Couldn't use ether on bracelet");
             }
-        }else if(charges > etherGoal && !bow){
+        } else if (charges > etherGoal && !bow) {
             takeOffBraceCharges();
         }
 
@@ -492,6 +528,35 @@ public class BankManagerRevenant {
         return inventoryContainsCharged(bow) || equipmentContainsCharged(bow);
     }
 
+    private static boolean wearAvarice(){
+
+        if (Equipment.Slot.NECK.getItem().map(c -> c.getId() == 22557).orElse(false)) {
+            Log.debug("We are already wearing an avarice");
+            return true;
+        }
+
+        if (!Inventory.contains(22557)) {
+            MyBanker.openBank();
+            MyBanker.withdraw(22557, 1, false);
+            MyBanker.closeBank();
+        }
+
+        if (!Equipment.contains(22557) && !Inventory.contains(22557) && Bank.contains(22557)) {
+            GrandExchangeRevManager.restockFromBank(new ArrayList<>(Arrays.asList("Amulet of avarice")));
+            MyBanker.depositAll();
+        }
+
+
+        Query.inventory().idEquals(22557).findFirst().map(c -> c.click("Wear"));
+        Waiting.waitUntil(() -> isWidgetVisible(219, 1));
+        Query.widgets()
+                .inIndexPath(219, 1, 1)
+                .findFirst()
+                .map(Widget::click)
+                .orElse(false);
+        return Equipment.Slot.NECK.getItem().map(c -> c.getId() == 22557).orElse(false);
+    }
+
 
     public static void withdrawGear() {
         /*if (withdrawGearAttempts.incrementAndGet() > 3) {
@@ -500,10 +565,11 @@ public class BankManagerRevenant {
         }*/
 
         Log.debug("Started withdrawing gear process");
-        if (MyRevsClient.myPlayerIsInFerox()){
+        if (MyRevsClient.myPlayerIsInFerox()) {
             GlobalWalking.walkTo(new WorldTile(3133, 3628, 0)); // bank spot at ferox
         }
-        while (!MyBanker.openBank()){
+
+        while (!MyBanker.openBank()) {
             Log.debug("Couldn't enter the bank. Trying again..");
             MyBanker.openBank();
             Waiting.wait(3000);
@@ -518,8 +584,10 @@ public class BankManagerRevenant {
             Log.debug("Equipment task not satisfied. Checking if we need to buy gear..");
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
+            wearAvarice();
+        }
 
-        }/* else {
+        /* else {
             Log.debug("Checking brace and bow charges");
             EquipmentManager.checkBraceletCharges();
             EquipmentManager.checkBowCharges();
@@ -582,7 +650,7 @@ public class BankManagerRevenant {
         List<String> itemsToBuy = new ArrayList<>();
 
 
-        for (var item : MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getDefenceGear() : EquipmentManager.getBasicGear()) {
+        for (var item : MyRevsClient.getScript().isSkulledScript() ? EquipmentManager.getSkulledGear() : MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getDefenceGear()  : EquipmentManager.getBasicGear()) {
 
             if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
                 continue;
@@ -604,8 +672,8 @@ public class BankManagerRevenant {
             itemsToBuy.add("Bracelet of ethereum (uncharged)");
         }
 
-        if (!Query.bank().nameEquals("Amulet of glory(6)").isAny()){
-            if (isUsingGlory){
+        if (!Query.bank().nameEquals("Amulet of glory(6)").isAny()) {
+            if (isUsingGlory) {
                 Log.debug("Out of glories. Adding to buy list!");
                 itemsToBuy.add("Amulet of glory(6)");
             }
@@ -620,7 +688,7 @@ public class BankManagerRevenant {
             Bank.depositInventory();
             Waiting.waitUntil(Inventory::isEmpty);
 
-        }else {
+        } else {
             Log.debug("No items to buy");
         }
 

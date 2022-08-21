@@ -1,4 +1,4 @@
-package scripts;
+package scripts.gui;
 
 import javafx.fxml.Initializable;
 
