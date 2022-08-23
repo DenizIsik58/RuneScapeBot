@@ -226,7 +226,7 @@ public class BankManagerRevenant {
 
             MyBanker.openBank();
             var amount = Query.inventory().idEquals(21820).findFirst().map(InventoryItem::getStack).orElse(0);
-            MyBanker.deposit(21820, amount - 250, false);
+            MyBanker.deposit(21820, amount - 100, false);
             Waiting.waitNormal(1500, 100);
             MyBanker.closeBank();
             Waiting.wait(1000);
@@ -260,6 +260,7 @@ public class BankManagerRevenant {
             equipAndChargeItems();
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
+            wearAvarice();
         }
 
         if (!isInventoryBankTaskSatisfied()) {
@@ -330,11 +331,20 @@ public class BankManagerRevenant {
         return EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1));
     }
 
+    private static EquipmentReq getBody(){
+        if (Skill.RANGED.getActualLevel() >= 70) {
+           return EquipmentReq.slot(Equipment.Slot.BODY).item(2503, Amount.of(1)); // black d hide body
+        }
+        return EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)); // black d hide body
+
+    }
+
     private static EquipmentReq getChaps(){
         if (Skill.RANGED.getActualLevel() >= 70) {
-            return EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1));
+            return EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1)); // black d hide chaps
+
         }
-        return EquipmentReq.slot(Equipment.Slot.LEGS).item(2495, Amount.of(1));
+        return EquipmentReq.slot(Equipment.Slot.LEGS).item(2495, Amount.of(1)); // red d hide chaps
 
     }
 
@@ -347,16 +357,14 @@ public class BankManagerRevenant {
             if (MyRevsClient.getScript().isSkulledScript()) {
                 equipmentBankTask = BankTask.builder()
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(1169, Amount.of(1)))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1)))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
+                        .addEquipmentItem(BankManagerRevenant::getBody) // black d hide body
+                        .addEquipmentItem(BankManagerRevenant::getChaps) // black d hide chaps
+                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(6328, Amount.of(1))) // snakeskin boots
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
                         .addEquipmentItem(() -> {
-                            if (Equipment.getCount(892) < 400) {
-                                return EquipmentReq.slot(Equipment.Slot.AMMO).item(892, Amount.of(400 - Equipment.getCount(892)));
-                            }
-                            return EquipmentReq.slot(Equipment.Slot.AMMO).item(892, Amount.of(0));
+
+                            return EquipmentReq.slot(Equipment.Slot.AMMO).item(892, Amount.of(400));
 
                         })
                         .addEquipmentItem(getBow())
@@ -426,7 +434,7 @@ public class BankManagerRevenant {
 
     public static boolean isEquipmentBankTaskSatisfied() {
         // check bracelet charges and bow charges are enough, if not recharge or return false
-        return getEquipmentBankTask().isSatisfied() && isAvariceSatisfied();
+        return MyRevsClient.getScript().isSkulledScript() ? getEquipmentBankTask().isSatisfied() && isAvariceSatisfied() : getEquipmentBankTask().isSatisfied();
     }
 
     public static boolean isAvariceSatisfied(){
@@ -550,7 +558,7 @@ public class BankManagerRevenant {
         return inventoryContainsCharged(bow) || equipmentContainsCharged(bow);
     }
 
-    private static boolean wearAvarice(){
+    public static boolean wearAvarice(){
 
         if (Equipment.Slot.NECK.getItem().map(c -> c.getId() == 22557).orElse(false)) {
             Log.debug("We are already wearing an avarice");
@@ -558,7 +566,9 @@ public class BankManagerRevenant {
         }
 
         if (!Inventory.contains(22557)) {
-            MyBanker.openBank();
+            if (!MyBanker.openBank()) {
+                MyBanker.openBank();
+            }
             MyBanker.withdraw(22557, 1, false);
             MyBanker.closeBank();
         }

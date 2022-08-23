@@ -43,7 +43,8 @@ public class RevkillerManager {
         Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> {
             if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
                 //TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
-                TeleportManager.teleportOut();
+                    TeleportManager.teleportOut();
+
             }
         });
 
@@ -60,9 +61,13 @@ public class RevkillerManager {
         }*/
 
         //if (iWasFirst) {
+
         if (pvmers().count() < 2) {
             iWasFirst = true;
         }
+
+
+
 
         if (iWasFirst && Combat.isInWilderness()){
 
@@ -79,7 +84,10 @@ public class RevkillerManager {
 
             if (Query.inventory().nameContains("Blighted super restore").count() == 0) {
                 Log.debug("Low of restore");
-                TeleportManager.teleportOut();
+
+                    TeleportManager.teleportOut();
+
+
                 //TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
                 MyRevsClient.getScript().setState(State.BANKING);
                 return;
@@ -87,15 +95,23 @@ public class RevkillerManager {
 
             if (Query.inventory().actionEquals("Eat").count() < 6) {
                 Log.debug("Low on food");
-                TeleportManager.teleportOut();
+
+                    TeleportManager.teleportOut();
+
                 //TeleportManager.teleportOutOfWilderness("We are low on food. trying to teleport out..");
                 MyRevsClient.getScript().setState(State.BANKING);
                 return;
             }
+            if (Equipment.getCount(892) < 10) {
 
-            if (MyRevsClient.getScript().isSkulledScript() && !MyRevsClient.myPlayerIsAtEastGoblin()){
-                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
-            }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == 3216 && !MyRevsClient.myPlayerIsAtSouthOrk()) {
+                Log.debug("Low on arrows teleporting out.");
+                    TeleportManager.teleportOut();
+                    MyRevsClient.getScript().setState(State.BANKING);
+                    return;
+
+            }
+
+            if (!MyRevsClient.myPlayerIsAtSouthOrk()) {
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
             }
 
@@ -211,7 +227,15 @@ public class RevkillerManager {
                 MyRevsClient.getScript().setState(State.BANKING);
                 return;
             }
-            WorldManager.hopToRandomMemberWorldWithRequirements();
+
+            if (MyPlayer.isHealthBarVisible()) {
+                Log.debug("We are being attacked");
+                return;
+            }
+
+            if (!WorldManager.hopToRandomMemberWorldWithRequirements()){
+                Log.debug("We are being attacked!");
+            }
         }
 
 

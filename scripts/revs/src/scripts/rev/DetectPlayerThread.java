@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
+import org.tribot.script.sdk.interfaces.Character;
 import org.tribot.script.sdk.interfaces.Item;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
@@ -188,6 +189,12 @@ public class DetectPlayerThread extends Thread {
     }
 
     public static void handleEatAndPrayer(Player pker) {
+        if (isFrozen()) {
+                PrayerManager.enablePrayer(Prayer.EAGLE_EYE);
+        }else {
+                PrayerManager.enablePrayer(Prayer.MYSTIC_MIGHT);
+        }
+
 
         pker.getEquippedItem(Equipment.Slot.WEAPON).map(Item::getName).ifPresent(playerWeapon -> {
             if (playerWeapon.toLowerCase().contains("staff") || playerWeapon.toLowerCase().contains("wand") || playerWeapon.toLowerCase().contains("trident")) {
@@ -289,6 +296,8 @@ public class DetectPlayerThread extends Thread {
                     Combat.setAttackStyle(Combat.AttackStyle.RAPID);
                 }
 
+
+
                 if (!isFrozen()) {
                     // Start running
                     Log.debug("I'm not frozen running!");
@@ -319,10 +328,9 @@ public class DetectPlayerThread extends Thread {
                             return WalkState.CONTINUE;
                         });
                         handleEatAndPrayer(pker);
-                        var up = Query.gameObjects().idEquals(31558).findBestInteractable()
-                                .map(c -> c.interact("Climb-up")
-                                        && Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave()))
-                                .orElse(false);
+                        Query.gameObjects().idEquals(31558).findBestInteractable()
+                                .map(c -> c.interact("Climb-up"));
+                        var up =  Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave());
                         if (up) {
                             Log.debug("I'm up resetting freeze signs");
                             resetFreezeSigns();
@@ -466,18 +474,7 @@ public class DetectPlayerThread extends Thread {
         double startTime;
         var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
 
-        if (MyRevsClient.getScript().isSkulledScript()) {
-            if (pker.getTile().getY() > MyPlayer.getTile().getY()) {
-                //pker north run south
-                MyPlayer.getTile().translate(0, -15).clickOnMinimap();
-                startTime = GameState.getLoopCycle() / 30D;
 
-            }else {
-                MyPlayer.getTile().translate(0, 15).clickOnMinimap();
-                startTime = GameState.getLoopCycle() / 30D;
-            }
-
-        }else {
             if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
                 // Player is north east
                 // Run south west
@@ -533,7 +530,6 @@ public class DetectPlayerThread extends Thread {
                 startTime = GameState.getLoopCycle() / 30D;
                 //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
 
-            }
         }
 
 
@@ -633,14 +629,6 @@ public class DetectPlayerThread extends Thread {
                             setAntiPking(false);
                         }
 
-                        if (MyRevsClient.getScript().isState(scripts.rev.State.WALKING) && !MyPlayer.isHealthBarVisible()) {
-                            if (WorldManager.hopToRandomMemberWorldWithRequirements()) {
-                                resetDangerSigns();
-                                continue;
-                            }
-
-                        }
-
                         if (!processing.get()) {
 
                             processing.set(true);
@@ -648,8 +636,6 @@ public class DetectPlayerThread extends Thread {
                                     .withinCombatLevels(Combat.getWildernessLevel())
                                     .isNotEquipped(PVM_GEAR)
                                     .findFirst().orElse(null);
-
-
 
 
                             Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
@@ -709,7 +695,7 @@ public class DetectPlayerThread extends Thread {
         resetDangerSigns();
     }
 
-    private void resetDangerSigns(){
+    public void resetDangerSigns(){
         if (isTeleblocked()) setTeleblocked(false);
         if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
         if (inDanger()) setInDanger(false);

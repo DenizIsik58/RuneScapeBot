@@ -79,7 +79,7 @@ public class RevScript extends MyScriptExtension {
         successfullTripHook = new DiscordWebhook("https://discord.com/api/webhooks/1007597804274847824/0BeuF_rHMu3N1Gqa0Lm1teNGl2-KSDSfCu7A4GmyZIlSx6x0I5KlXAvfnO8UNFSirN5V");
 
         try {
-            File file = new File("/Users/deniz/Desktop/RuneScapeBot/scripts/revs/src/scripts/rev/gui.fxml");
+            File file = new File("C:\\Users\\Administrator\\Documents\\GitHub\\RuneScapeBot\\scripts\\revs\\src\\scripts\\rev\\gui.fxml");
 
 
             fxml = file.toURI().toURL();
@@ -212,6 +212,10 @@ public class RevScript extends MyScriptExtension {
             Query.gameObjects().idEquals(39549).findFirst().ifPresent(portal -> portal.click("Use"));
         }
 
+        if (MyRevsClient.myPlayerIsInFerox() && MyPlayer.getTile().getPlane() == 1) {
+            Query.gameObjects().idEquals(14746).findFirst().map(c -> c.click("Climb-down"));
+        }
+
         if (Query.worlds().worldNumberEquals(WorldHopper.getCurrentWorld()).isNonMembers().isAny()) {
             Log.debug("We are not in a members world. Hopping");
             WorldManager.hopToRandomMemberWorldWithRequirements();
@@ -250,6 +254,7 @@ public class RevScript extends MyScriptExtension {
                 BankManagerRevenant.checkIfNeedToRestockSupplies();
                 BankManagerRevenant.getEquipmentBankTask().execute();
                 BankManagerRevenant.getInventoryBankTask().execute();
+                BankManagerRevenant.wearAvarice();
             }
         }
     }
@@ -355,7 +360,7 @@ public class RevScript extends MyScriptExtension {
         PrayerManager.turnOffAllPrayer();
         TeleportManager.setHasVisitedBeforeTrip(false);
         DeathManger.incrementTotalDeaths();
-        LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue() - 500000);
+        LootingManager.setTotalValue(LootingManager.getTotalValue() - LootingManager.getTripValue() - (MyRevsClient.getScript().isSkulledScript() ? 200000 :500000));
         try {
             var outputFile = ScreenShotManager.takeScreenShotAndSave("ondeath");
 

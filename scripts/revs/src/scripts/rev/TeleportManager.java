@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.tribot.script.sdk.Combat.getWildernessLevel;
 import static org.tribot.script.sdk.Waiting.waitUntil;
 
 public class TeleportManager {
@@ -35,11 +36,9 @@ public class TeleportManager {
 
         WorldTile chosenMobArea;
 
-        if (MyRevsClient.getScript().isSkulledScript()) {
-            chosenMobArea = east_goblin; //getRandomMobArea();
-        }else {
+
             chosenMobArea = south_ork;
-        }
+
 
         if (!chosenMobArea.isVisible()) {
             if (MyRevsClient.myPlayerIsInWhitePortal()) {
@@ -55,6 +54,10 @@ public class TeleportManager {
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");
                 GlobalWalking.walkTo(chosenMobArea, () -> {
+                    if (LootingManager.hasPkerBeenDetected()) {
+                        MyRevsClient.getScript().setState(State.BANKING);
+                        return WalkState.FAILURE;
+                    }
                     if (!MyRevsClient.myPlayerIsInCave()) {
                         refill();
                         return WalkState.SUCCESS;
@@ -64,7 +67,7 @@ public class TeleportManager {
                 });
                 south_ork.clickOnMinimap();
             }
-
+//
             if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars() || MyRevsClient.myPlayerIsAtEdge()){
                 MyBanker.closeBank();
                 if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
@@ -73,6 +76,7 @@ public class TeleportManager {
                         }
                         Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
                     }
+                Waiting.waitNormal(1200, 200);
             }
 
             if (MyRevsClient.myPlayerIsInFerox()) {
@@ -83,6 +87,7 @@ public class TeleportManager {
                     MyBanker.depositInventory();
                     BankManagerRevenant.equipAndChargeItems();
                     BankManagerRevenant.getEquipmentBankTask().execute();
+                    BankManagerRevenant.wearAvarice();
                 }
 
                 if (Inventory.getAll().size() <= 20){
@@ -93,6 +98,11 @@ public class TeleportManager {
                 if (MyRevsClient.myPlayerNeedsToRefresh()){
                     Log.debug("I'm walking to pool");
                     GlobalWalking.walkTo(enclavePool, () -> {
+                        if (LootingManager.hasPkerBeenDetected()) {
+                            MyRevsClient.getScript().setState(State.BANKING);
+                            return WalkState.FAILURE;
+                        }
+
                         setWalkingState();
                         return WalkState.CONTINUE;
                     });
@@ -104,6 +114,11 @@ public class TeleportManager {
                 }else {
                     Log.debug("I'm walking to entrance");
                     GlobalWalking.walkTo(caveEntrance, () ->{
+                        if (LootingManager.hasPkerBeenDetected()) {
+                            MyRevsClient.getScript().setState(State.BANKING);
+                            return WalkState.FAILURE;
+                        }
+
                         setWalkingState();
                         return WalkState.CONTINUE;
                     });
@@ -117,7 +132,7 @@ public class TeleportManager {
                 if (Query.gameObjects().idEquals(31555).findBestInteractable().isPresent()){
                     Log.debug("I'm entering cave");
                     Query.gameObjects().idEquals(31555).findBestInteractable().map(c -> c.interact("Enter"));
-                    if (MyClient.isWidgetVisible(193, 0, 2)) {
+                    if (Waiting.waitUntil(500, () -> MyClient.isWidgetVisible(193, 0, 2))) {
                         Waiting.waitUntil( () -> MyClient.clickWidget("Continue", 193, 0, 2));
                     }
                     if (ChatScreen.isOpen()){
@@ -127,9 +142,9 @@ public class TeleportManager {
 
                     }
                     Log.debug("Waiting to be in cave");
-                    Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInCave);
+                    Waiting.waitUntil(500, MyRevsClient::myPlayerIsInCave);
                     Log.debug("Am i in cave? " + MyRevsClient.myPlayerIsInCave());
-                    Waiting.waitNormal(2000, 200);
+                    Waiting.waitNormal(500, 200);
                 }
             }
 
@@ -143,6 +158,8 @@ public class TeleportManager {
     }
 
     private static void setWalkingState(){
+
+
         Mouse.setSpeed(700);
         MyOptions.setRunOn();
         MyCamera.init();

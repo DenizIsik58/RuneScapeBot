@@ -39,7 +39,7 @@ public class MulerScript extends MyScriptExtension {
         Log.debug(MultiServerSocket.getNames().contains(target));
         Log.debug(!traders.contains(target));
 
-        if (!traders.contains(target) && MultiServerSocket.getNames().contains(target)){
+        if (!traders.contains(target) && MultiServerSocket.getNames().contains(target)) {
             Log.debug(Arrays.toString(MultiServerSocket.getNames().toArray()));
             Log.debug("Added: " + target + " to the list!");
             traders.add(target);
@@ -51,15 +51,18 @@ public class MulerScript extends MyScriptExtension {
                 if (hasFinishedCurrentTrade()) {
                     Log.debug("Finished trade");
                     if (getTargetSlave() == null) {
-                        Log.debug("Traget is null");
-                        Log.debug(traders.get(0));
-                        Log.debug(slaves.get(i));
-                        if (slaves.get(i).equals(traders.get(0))) {
-                            Log.debug("Found slave target! Trading: " + slaves.get(i));
-                            index = i;
-                            setTargetSlave(slaves.get(i));
-                            setHasFinishedCurrentTrade(false);
+                        if (StringsUtility.runescapeStringsMatch(target, traders.get(0))) {
+                            Log.debug("Traget is null");
+                            Log.debug(traders.get(0));
+                            Log.debug(slaves.get(i));
+                            if (slaves.get(i).equals(traders.get(0))) {
+                                Log.debug("Found slave target! Trading: " + slaves.get(i));
+                                index = i;
+                                setTargetSlave(slaves.get(i));
+                                setHasFinishedCurrentTrade(false);
+                            }
                         }
+
                     }
                 }
             }
@@ -169,6 +172,7 @@ public class MulerScript extends MyScriptExtension {
                 });
                 return false;
             });
+
             totalValue += amountOfCoins;
             var totalString = MathUtility.getProfitPerHourString(totalValue);
             MyScriptVariables.setProfit(totalString);

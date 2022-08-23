@@ -33,6 +33,8 @@ public class LootingManager {
     };
 
     private static final Area southOrk = Area.fromRectangle(new WorldTile(3200, 10106, 0), new WorldTile(3232, 10086, 0));
+    private static final Area goblin = Area.fromRectangle(new WorldTile(3234, 10110, 0), new WorldTile(3251, 10082, 0));
+
     private static int tripValue = 0;
     private static int totalValue = 0;
 
@@ -69,7 +71,9 @@ public class LootingManager {
                     Log.debug("Boss has been seen!");
                     if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()) {
                         Log.debug("Teleport out from boss has begun!");
-                        TeleportManager.teleportOut();
+                            TeleportManager.teleportOut();
+
+
                     }
                     return;
                 }
@@ -125,7 +129,9 @@ public class LootingManager {
             }
 
             if (getTripValue() >= 200000) {
-                TeleportManager.teleportOut();
+
+                    TeleportManager.teleportOut();
+
 
                 try {
                     var outputFile = ScreenShotManager.takeScreenShotAndSave("success");

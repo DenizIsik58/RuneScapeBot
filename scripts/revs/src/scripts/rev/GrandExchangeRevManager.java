@@ -195,6 +195,7 @@ public class GrandExchangeRevManager {
 
             } catch (Exception e) {
                 MyRevsClient.getScript().getSocketClient().startConnection("localhost", 6668);
+
                 Log.debug("Tried connecting to mule but couldn't");
                 Log.error(e);
             }
@@ -244,8 +245,9 @@ public class GrandExchangeRevManager {
             Log.debug("2nd trade approached");
             // Second trade
             TradeScreen.getStage().filter(tra -> tra == TradeScreen.Stage.SECOND_WINDOW).map(tradeScreen -> {
-                    Waiting.wait(4000);
+                    Waiting.wait(2000);
                     TradeScreen.accept();
+                    Waiting.wait(2000);
                     return true;
             });
 
@@ -339,7 +341,9 @@ public class GrandExchangeRevManager {
                 MyExchange.createGrandExchangeBuyOrder(item, 1, 1000000, false);
             } else if (item.equals("Rune arrow")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 5000, 0, true);
-            } else{
+            } else if (item.equals("Bracelet of ethereum (uncharged)")) {
+                MyExchange.createGrandExchangeBuyOrder(item, 5, 0, true);
+            }else{
                 MyExchange.createGrandExchangeBuyOrder(item, 10, 0, true);
             }
 

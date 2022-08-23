@@ -14,6 +14,11 @@ public class PrayerManager {
         return Prayer.getPrayerPoints() >= Skill.PRAYER.getCurrentLevel();
     }
 
+    public static boolean canUsePrayer(Prayer prayer){
+        return Skill.PRAYER.getActualLevel() >= prayer.getRequiredLevel() && prayer.isUnlocked();
+
+    }
+
     public static void enableQuickPrayer(){
         if (!Prayer.isQuickPrayerEnabled()) {
             Waiting.waitUntil(Prayer::enableQuickPrayer);
@@ -31,9 +36,9 @@ public class PrayerManager {
     }
 
     public static boolean enablePrayer(Prayer prayer){
-        if (!prayer.isEnabled()){
+        if (!prayer.isEnabled() && canUsePrayer(prayer)){
             if (Prayer.getPrayerPoints() == 0) return false;
-            return Waiting.waitUntil(prayer::enable);
+            return Waiting.waitUntil(100, prayer::enable);
         }
         return false;
     }
