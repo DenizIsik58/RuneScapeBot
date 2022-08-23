@@ -153,7 +153,7 @@ public class GrandExchangeRevManager {
                     MyRevsClient.getScript().getSocketClient().startConnection("127.0.0.1", 6668);
                 }
 
-                var msg = MyRevsClient.getScript().getSocketClient().sendMessage("I want to mule! " + MyPlayer.get().get().getName());
+                var msg = MyRevsClient.getScript().getSocketClient().sendMessage(MyPlayer.getUsername());
                 Waiting.wait(2000);
                 Log.debug(msg);
                 var content = msg.split(" ");

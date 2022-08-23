@@ -238,7 +238,7 @@ public class DetectPlayerThread extends Thread {
                 Log.warn("Out of food under eat percent");
             }
         }
-        if (Prayer.getPrayerPoints() < 25) {
+        if (Prayer.getPrayerPoints() < Skill.PRAYER.getActualLevel() - 22) {
             PrayerManager.maintainPrayerPotion();
         }
     }

@@ -35,7 +35,7 @@ public class RevScript extends MyScriptExtension {
     private DetectPlayerThread playerDetectionThread = null;
 
     private MulingClient muleClient;
-    public AtomicReference<State> state = new AtomicReference<>(State.STARTING);
+    public AtomicReference<State> state = new AtomicReference<>(State.SELLLOOT);
     private WorldTile selectedMonsterTile = new WorldTile(3216, 10091, 0); // South ork by default
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
@@ -120,7 +120,7 @@ public class RevScript extends MyScriptExtension {
 
         MessageListening.addServerMessageListener(MyRevsClient::processMessage);
 
-        DaxWalker.setGlobalWalkingCondition(() -> {
+        /*DaxWalker.setGlobalWalkingCondition(() -> {
             handlePkThread();
             if (isCancellingWalking()) {
                 // if we shouldn't walk, and since we are here we are walking,
@@ -129,7 +129,7 @@ public class RevScript extends MyScriptExtension {
                 return WalkingCondition.State.EXIT_OUT_WALKER_FAIL;
             }
             return WalkingCondition.State.CONTINUE_WALKER;
-        });
+        });*/
 
         try {
             muleClient = new MulingClient();

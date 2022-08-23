@@ -147,7 +147,7 @@ public class RevkillerManager {
             }
 
 
-            if (Prayer.getPrayerPoints() < 24) {
+            if (Prayer.getPrayerPoints() < Skill.PRAYER.getActualLevel() - 22) {
                 PrayerManager.maintainPrayerPotion();
                 if (target != null){
                     target.click();

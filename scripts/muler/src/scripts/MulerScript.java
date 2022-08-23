@@ -31,34 +31,33 @@ public class MulerScript extends MyScriptExtension {
     private MyDiscordWebhook mulerWebhook;
 
     public void processTrade(String name) {
-        var target = name.toLowerCase();
         var slaves = MultiServerSocket.getNames();
-
+        Log.debug(name);
         Log.debug(Arrays.toString(slaves.toArray()));
         Log.debug(Arrays.toString(traders.toArray()));
-        Log.debug(MultiServerSocket.getNames().contains(target));
-        Log.debug(!traders.contains(target));
+        Log.debug(MultiServerSocket.getNames().contains(name));
+        Log.debug(!traders.contains(name));
 
-        if (!traders.contains(target) && MultiServerSocket.getNames().contains(target)) {
+        if (!traders.contains(name)) {
             Log.debug(Arrays.toString(MultiServerSocket.getNames().toArray()));
-            Log.debug("Added: " + target + " to the list!");
-            traders.add(target);
+            Log.debug("Added: " + name + " to the list!");
+            traders.add(name);
         }
 
 
         while (slaves.size() != 0) {
             for (int i = 0; i < slaves.size(); i++) {
                 if (hasFinishedCurrentTrade()) {
-                    Log.debug("Finished trade");
+                    Log.debug("Attempting to add a new target slave for trading");
                     if (getTargetSlave() == null) {
-                        if (StringsUtility.runescapeStringsMatch(target, traders.get(0))) {
+                        if (StringsUtility.runescapeStringsMatch(name, traders.get(0))) {
                             Log.debug("Traget is null");
                             Log.debug(traders.get(0));
                             Log.debug(slaves.get(i));
-                            if (slaves.get(i).equals(traders.get(0))) {
+                            if (StringsUtility.runescapeStringsMatch(slaves.get(i), traders.get(0))) {
                                 Log.debug("Found slave target! Trading: " + slaves.get(i));
                                 index = i;
-                                setTargetSlave(slaves.get(i));
+                                setTargetSlave(name);
                                 setHasFinishedCurrentTrade(false);
                             }
                         }

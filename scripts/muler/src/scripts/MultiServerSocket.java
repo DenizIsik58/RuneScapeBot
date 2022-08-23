@@ -108,36 +108,28 @@ public class MultiServerSocket implements Runnable {
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
                     Log.info(inputLine);
-                    if (inputLine.contains("I want to mule!")) {
-                        try {
-                            var content = inputLine.split(" ");
-                            String name = null;
-                            if (content.length == 5) {
-                                name = content[4];
-                            } else {
-                                name = StringsUtility.extractFirstMatchGroup(tradingRegex, inputLine);
-                            }
 
-                            if (!names.contains(name.toLowerCase())) {
-                                Log.debug("Adding: " + name.toLowerCase());
-                                names.add(name.toLowerCase());
+                        try {
+                            if (!names.contains(inputLine)) {
+                                Log.debug("Adding: " + inputLine);
+                                names.add(inputLine);
                             }
 
                             MulerScript.setState(MulerState.MULING);
-                            out.println(MyPlayer.getTile().getX() + " " + MyPlayer.getTile().getY() + " " + MyPlayer.getTile().getPlane() + " " + MyPlayer.get().get().getName() + " " + WorldHopper.getCurrentWorld());
+                            out.println(MyPlayer.getTile().getX() + " " + MyPlayer.getTile().getY() + " " + MyPlayer.getTile().getPlane() + " " + MyPlayer.getUsername() + " " + WorldHopper.getCurrentWorld());
                             out.println();
                         } catch (Exception e) {
                             Log.error(e);
                             Log.debug("Couldn't mule");
                         }
                     }
-                }
 
                 in.close();
                 out.close();
                 clientSocket.close();
             } catch (Exception e) {
-                Log.info("Exception occured");
+                Log.error("Exception occured");
+                Log.error(e);
             }
         }
     }
