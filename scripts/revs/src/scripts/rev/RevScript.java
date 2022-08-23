@@ -8,6 +8,7 @@ import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.TribotScriptManifest;
+import org.tribot.script.sdk.types.GameObject;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.*;
@@ -212,8 +213,8 @@ public class RevScript extends MyScriptExtension {
             Query.gameObjects().idEquals(39549).findFirst().ifPresent(portal -> portal.click("Use"));
         }
 
-        if (MyRevsClient.myPlayerIsInFerox() && MyPlayer.getTile().getPlane() == 1) {
-            Query.gameObjects().idEquals(14746).findFirst().map(c -> c.click("Climb-down"));
+        if (MyPlayer.getTile().getPlane() == 1) {
+            Query.gameObjects().idEquals(14746, 39650, 39643 ).findClosest().map(GameObject::click);
         }
 
         if (Query.worlds().worldNumberEquals(WorldHopper.getCurrentWorld()).isNonMembers().isAny()) {
