@@ -36,7 +36,7 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean danger = new AtomicBoolean(false);
     //    private final AtomicBoolean dangerFlag = new AtomicBoolean(false);
     private final AtomicBoolean isAntiPking = new AtomicBoolean(false);
-    private final static String[] PVM_GEAR = new String[]{"Red d'hide body", "Black d'hide body", "Rune scimitar", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
+    private final static String[] PVM_GEAR = new String[]{"Bone crossbow","Red d'hide body", "Black d'hide body", "Rune scimitar", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
     private final SimpleBooleanProperty running = new SimpleBooleanProperty(false);
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
@@ -295,8 +295,6 @@ public class DetectPlayerThread extends Thread {
                 if (!Combat.isAttackStyleSet(Combat.AttackStyle.RAPID)) {
                     Combat.setAttackStyle(Combat.AttackStyle.RAPID);
                 }
-
-
 
                 if (!isFrozen()) {
                     // Start running

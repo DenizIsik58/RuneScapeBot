@@ -1,10 +1,7 @@
 package scripts;
 
 import lombok.SneakyThrows;
-import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.MyPlayer;
-import org.tribot.script.sdk.Waiting;
-import org.tribot.script.sdk.WorldHopper;
+import org.tribot.script.sdk.*;
 import scripts.api.MyClient;
 import scripts.api.utility.StringsUtility;
 
@@ -114,10 +111,12 @@ public class MultiServerSocket implements Runnable {
                                 Log.debug("Adding: " + inputLine);
                                 names.add(inputLine);
                             }
-
                             MulerScript.setState(MulerState.MULING);
-                            out.println(MyPlayer.getTile().getX() + " " + MyPlayer.getTile().getY() + " " + MyPlayer.getTile().getPlane() + " " + MyPlayer.getUsername() + " " + WorldHopper.getCurrentWorld());
-                            out.println();
+
+                            var message = MyPlayer.getTile().getX() + " " + MyPlayer.getTile().getY() + " " + MyPlayer.getTile().getPlane() + " " + MyPlayer.getUsername() + " " + WorldHopper.getCurrentWorld();
+                            Log.debug(message);
+                            out.println(message);
+
                         } catch (Exception e) {
                             Log.error(e);
                             Log.debug("Couldn't mule");

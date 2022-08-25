@@ -32,18 +32,16 @@ public class MulerScript extends MyScriptExtension {
 
     public void processTrade(String name) {
         var slaves = MultiServerSocket.getNames();
-        Log.debug(name);
-        Log.debug(Arrays.toString(slaves.toArray()));
-        Log.debug(Arrays.toString(traders.toArray()));
-        Log.debug(MultiServerSocket.getNames().contains(name));
-        Log.debug(!traders.contains(name));
 
-        if (!traders.contains(name)) {
-            Log.debug(Arrays.toString(MultiServerSocket.getNames().toArray()));
-            Log.debug("Added: " + name + " to the list!");
-            traders.add(name);
+        for (int i = 0; i < slaves.size(); i++) {
+             if (StringsUtility.runescapeStringsMatch(slaves.get(i), name)) {
+                 if (!traders.contains(name)) {
+                     Log.debug(Arrays.toString(MultiServerSocket.getNames().toArray()));
+                     Log.debug("Added: " + name + " to the list!");
+                     traders.add(name);
+                 }
+             }
         }
-
 
         while (slaves.size() != 0) {
             for (int i = 0; i < slaves.size(); i++) {
@@ -110,6 +108,7 @@ public class MulerScript extends MyScriptExtension {
                 if (!Login.isLoggedIn()) {
                     Log.debug("Attempting to log in");
                     Login.login();
+                    Waiting.waitUntil(() -> GameState.getState() == GameState.State.LOGGED_IN);
                 }
                 handleMuling();
         }
@@ -181,11 +180,17 @@ public class MulerScript extends MyScriptExtension {
             setTargetSlave(null);
             Log.debug("Target slave is: " + getTargetSlave());
             setHasFinishedCurrentTrade(true);
-            var screenshot = mulerWebhook.takeScreenShotAndSave("muler");
-            mulerWebhook.setUsername("Revenant Muler")
-                    .setContent("@everyone **" + MyPlayer.getUsername() + "** has just finished muling - Total gold - **" + Inventory.getCount("Coins") + "**")
-                    .addFile(screenshot)
-                    .execute();
+            try {
+                var screenshot = mulerWebhook.takeScreenShotAndSave("muler");
+
+                mulerWebhook.setUsername("Revenant Muler")
+                        .setContent("@everyone **" + MyPlayer.getUsername() + "** has just finished muling - Total gold - **" + Inventory.getCount("Coins") + "**")
+                        .addFile(screenshot)
+                        .execute();
+            }catch (Exception e) {
+                Log.error(e);
+            }
+
 
         }
         Waiting.wait(50);

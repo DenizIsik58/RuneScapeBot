@@ -1,7 +1,8 @@
 package scripts.api;
 
+
 import okhttp3.*;
-import org.tribot.api.General;
+
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.MyPlayer;
 import org.tribot.script.sdk.Screenshot;
@@ -188,7 +189,7 @@ public class MyDiscordWebhook {
 
             try (Response response = client.newCall(request).execute()) {
             } catch (IOException e) {
-                General.println("Failed to make discord webhook request");
+                Log.error("Failed to make discord webhook request");
             }
         }catch (Exception e) {
             Log.error(e);

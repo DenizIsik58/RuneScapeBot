@@ -35,11 +35,11 @@ public class RevScript extends MyScriptExtension {
     private DetectPlayerThread playerDetectionThread = null;
 
     private MulingClient muleClient;
-    public AtomicReference<State> state = new AtomicReference<>(State.SELLLOOT);
+    public AtomicReference<State> state = new AtomicReference<>(State.STARTING);
     private WorldTile selectedMonsterTile = new WorldTile(3216, 10091, 0); // South ork by default
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
-    private AtomicBoolean skulledScript = new AtomicBoolean(false);
+    private AtomicBoolean skulledScript = new AtomicBoolean(true);
     private final Debounce walkDebounce = new Debounce(1000, TimeUnit.MILLISECONDS);
     private DiscordWebhook lootWebhook;
     private DiscordWebhook onEndWebhook;
@@ -79,7 +79,7 @@ public class RevScript extends MyScriptExtension {
         onDeathWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006886106870075443/KgnJFpyL07_92FZ2fk8pxpCSDCxDQ_pIDDU0i2NwhxvRFG8KScu1eLKMz9VfT1xcwI3N");
         successfullTripHook = new DiscordWebhook("https://discord.com/api/webhooks/1007597804274847824/0BeuF_rHMu3N1Gqa0Lm1teNGl2-KSDSfCu7A4GmyZIlSx6x0I5KlXAvfnO8UNFSirN5V");
 
-        try {
+       /* try {
             File file = new File("C:\\Users\\Administrator\\Documents\\GitHub\\RuneScapeBot\\scripts\\revs\\src\\scripts\\rev\\gui.fxml");
 
 
@@ -95,7 +95,7 @@ public class RevScript extends MyScriptExtension {
         while (gui.isOpen()) {
             Waiting.wait(500);
         }
-
+*/
         /*
         GameListening.addGameTickListener(new Runnable() {
             @Override
@@ -357,6 +357,8 @@ public class RevScript extends MyScriptExtension {
 
     private void handleDeath() {
         Log.debug("Dead");
+
+        MyPlayer.getTile().translate(5,1).click();
         Waiting.wait(2000);
         PrayerManager.turnOffAllPrayer();
         TeleportManager.setHasVisitedBeforeTrip(false);

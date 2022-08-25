@@ -27,7 +27,6 @@ public class GrandExchangeRevManager {
     public static List<InventoryItem> getAllSellItems() {
         return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item ->
                         item.getId() != 995 &&
-                        item.getId() != 22547 &&
                         !item.getName().contains("Blighted")).distinctById().toList();
     }
 
@@ -51,7 +50,7 @@ public class GrandExchangeRevManager {
         MyBanker.withdraw("Coins", 2147000000, false);
         AtomicInteger itemsToSell = new AtomicInteger();
         for (var item : LootingManager.getLootToPickUp()) {
-            if (item.equals("Looting bag") || item.equals("Coins") || item.equals("Craw's bow (u)") || item.contains("Blighted") || MyRevsClient.getScript().isSkulledScript() && item.equals("Amulet of avarice")) {
+            if (item.equals("Looting bag") || item.equals("Coins") || item.contains("Blighted") || MyRevsClient.getScript().isSkulledScript() && item.equals("Amulet of avarice")) {
                 continue;
             }
 
