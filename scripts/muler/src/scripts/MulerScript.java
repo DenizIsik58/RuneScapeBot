@@ -108,7 +108,6 @@ public class MulerScript extends MyScriptExtension {
                 if (!Login.isLoggedIn()) {
                     Log.debug("Attempting to log in");
                     Login.login();
-                    Waiting.waitUntil(() -> GameState.getState() == GameState.State.LOGGED_IN);
                 }
                 handleMuling();
         }
