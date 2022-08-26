@@ -68,7 +68,7 @@ public class TeleportManager {
                 south_ork.clickOnMinimap();
             }
 //
-            if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars() || MyRevsClient.myPlayerIsAtEdge()){
+            if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars() || MyRevsClient.myPlayerIsAtEdge() || MyPlayer.getTile().getPlane() == 2){
                 MyBanker.closeBank();
                 if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
                         if (!Query.inventory().nameContains("Ring of dueling(").isAny()){

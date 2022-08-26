@@ -1,7 +1,6 @@
 package scripts;
 
 import org.tribot.script.sdk.*;
-import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import scripts.api.MyDiscordWebhook;
 import scripts.api.MyScriptExtension;
@@ -26,7 +25,8 @@ public class MulerScript extends MyScriptExtension {
     private static int totalValue = 0;
 
     public static AtomicReference<MulerState> state = new AtomicReference<>(MulerState.IDLING);
-    private static int index;
+    private static int namesIndex;
+    private static int slavesIndex;
     private List<String> traders = new ArrayList<>();
     private MyDiscordWebhook mulerWebhook;
 
@@ -34,6 +34,8 @@ public class MulerScript extends MyScriptExtension {
         var slaves = MultiServerSocket.getNames();
 
         for (int i = 0; i < slaves.size(); i++) {
+            Log.debug(slaves.get(i));
+            Log.debug(name);
              if (StringsUtility.runescapeStringsMatch(slaves.get(i), name)) {
                  if (!traders.contains(name)) {
                      Log.debug(Arrays.toString(MultiServerSocket.getNames().toArray()));
@@ -47,19 +49,20 @@ public class MulerScript extends MyScriptExtension {
             for (int i = 0; i < slaves.size(); i++) {
                 if (hasFinishedCurrentTrade()) {
                     Log.debug("Attempting to add a new target slave for trading");
+                    Log.debug("Current target slave: " + getTargetSlave());
                     if (getTargetSlave() == null) {
-                        if (StringsUtility.runescapeStringsMatch(name, traders.get(0))) {
+                        for (int j = 0; j < traders.size(); j++) {
                             Log.debug("Traget is null");
-                            Log.debug(traders.get(0));
-                            Log.debug(slaves.get(i));
-                            if (StringsUtility.runescapeStringsMatch(slaves.get(i), traders.get(0))) {
-                                Log.debug("Found slave target! Trading: " + slaves.get(i));
-                                index = i;
-                                setTargetSlave(name);
-                                setHasFinishedCurrentTrade(false);
+                                Log.debug(traders.get(j));
+                                Log.debug(slaves.get(i));
+                                if (StringsUtility.runescapeStringsMatch(slaves.get(i), traders.get(j))) {
+                                    Log.debug("Found slave target! Trading: " + slaves.get(i));
+                                    namesIndex = i;
+                                    slavesIndex = j;
+                                    setTargetSlave(name);
+                                    setHasFinishedCurrentTrade(false);
+                                }
                             }
-                        }
-
                     }
                 }
             }
@@ -173,9 +176,10 @@ public class MulerScript extends MyScriptExtension {
             totalValue += amountOfCoins;
             var totalString = MathUtility.getProfitPerHourString(totalValue);
             MyScriptVariables.setProfit(totalString);
-            Log.debug("Finished trading: Removing " + MultiServerSocket.getNames().get(index) + " from the list!");
-            MultiServerSocket.getNames().remove(index);
-            traders.remove(0);
+            Log.debug("Finished trading: Removing " + MultiServerSocket.getNames().get(namesIndex) + " from the list!");
+
+            MultiServerSocket.getNames().remove(namesIndex);
+            traders.remove(slavesIndex);
             setTargetSlave(null);
             Log.debug("Target slave is: " + getTargetSlave());
             setHasFinishedCurrentTrade(true);

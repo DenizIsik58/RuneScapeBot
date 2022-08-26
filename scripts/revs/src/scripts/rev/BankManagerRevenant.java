@@ -292,6 +292,7 @@ public class BankManagerRevenant {
                 MyRevsClient.getScript().setState(State.WALKING);
             }else {
                 Log.debug("Trying to teleport to ferox again..");
+                MyBanker.closeBank();
                 MyTeleporting.Dueling.FeroxEnclave.useTeleport();
             }
         }
@@ -354,7 +355,7 @@ public class BankManagerRevenant {
             openBank();
             setPlaceHolder();
 
-            if (MyRevsClient.getScript().isSkulledScript()) {
+            if (MyRevsClient.getScript().isSkulledScript() && MyRevsClient.myPlayerHas40Defence()) {
                 equipmentBankTask = BankTask.builder()
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
@@ -373,8 +374,27 @@ public class BankManagerRevenant {
                 return equipmentBankTask;
             }
 
+            equipmentBankTask = BankTask.builder()
+                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
+                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(1169, Amount.of(1)))
+                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)))
+                    .addEquipmentItem(BankManagerRevenant::getChaps)
+                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
+                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
+                    .addEquipmentItem(() -> {
 
-            if (MyRevsClient.myPlayerHas40Defence() && Skill.RANGED.getActualLevel() > 70) {
+                        return EquipmentReq.slot(Equipment.Slot.AMMO).item(892, Amount.of(400));
+
+                    })
+                    .addEquipmentItem(getBow())
+                    //.addEquipmentItem(BankManagerRevenant::getAmulet)
+                    .build();
+
+
+
+
+
+            /*if (MyRevsClient.myPlayerHas40Defence() && Skill.RANGED.getActualLevel() > 70) {
                 equipmentBankTask = BankTask.builder()
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
                         .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
@@ -398,7 +418,7 @@ public class BankManagerRevenant {
                         .addEquipmentItem(getBow())
                         .addEquipmentItem(BankManagerRevenant::getAmulet)
                         .build();
-            }
+            }*/
 
 
         }
@@ -683,7 +703,7 @@ public class BankManagerRevenant {
 
 
 
-        for (var item : MyRevsClient.getScript().isSkulledScript() ? EquipmentManager.getSkulledGear() : MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getDefenceGear()  : EquipmentManager.getBasicGear()) {
+        for (var item : MyRevsClient.getScript().isSkulledScript() && MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getSkulledGear() :  EquipmentManager.getPureGear()) {
 
             if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
                 continue;

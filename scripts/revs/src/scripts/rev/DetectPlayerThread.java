@@ -341,7 +341,7 @@ public class DetectPlayerThread extends Thread {
                         MyPlayer.getTile().translate(0, -15).clickOnMinimap();
 
                         MyOptions.setRunOn();
-                        if (!inCombatTimerHasStarted()) {
+                        /*if (!inCombatTimerHasStarted()) {
                             Log.debug("Timer has been started for pker");
                             setInCombatTimer(true);
                             new Timer().schedule(new TimerTask() {
@@ -378,7 +378,7 @@ public class DetectPlayerThread extends Thread {
                                     Log.debug("Pker can still attack me");
                                 }
                             }, 13000);
-                        }
+                        }*/
                         handleEatAndPrayer(pker);
                     }
                     continue;
@@ -643,7 +643,7 @@ public class DetectPlayerThread extends Thread {
                                     .findFirst()
                                     .ifPresent(this::escape);
 
-                            if (possiblePker == null && MyRevsClient.getScript().isState(scripts.rev.State.BANKING) && !MyRevsClient.myPlayerIsInGE()) {
+                            if (possiblePker == null && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
                                 Log.debug("I'm stuck.. Teleporting out");
                                 TeleportManager.teleportOut();
                                 continue;

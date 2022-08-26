@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
 /*public class MultiServerSocket implements Runnable{
 
@@ -110,6 +111,13 @@ public class MultiServerSocket implements Runnable {
                             if (!names.contains(inputLine)) {
                                 Log.debug("Adding: " + inputLine);
                                 names.add(inputLine);
+                                String finalInputLine = inputLine;
+                                new java.util.Timer().schedule(new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        Log.debug("3 minutes passed");
+                                    }
+                                }, 3 * 60000);
                             }
                             MulerScript.setState(MulerState.MULING);
 

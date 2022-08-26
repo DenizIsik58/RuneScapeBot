@@ -11,6 +11,7 @@ import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.GameObject;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.*;
 import scripts.api.concurrency.Debounce;
 import scripts.api.gui.MyGUI;
@@ -40,7 +41,7 @@ public class RevScript extends MyScriptExtension {
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
     private AtomicBoolean skulledScript = new AtomicBoolean(true);
-    private final Debounce walkDebounce = new Debounce(1000, TimeUnit.MILLISECONDS);
+    private final Debounce walkDebounce = new Debounce(3000, TimeUnit.MILLISECONDS);
     private DiscordWebhook lootWebhook;
     private DiscordWebhook onEndWebhook;
     private DiscordWebhook onDeathWebhook;
@@ -120,7 +121,8 @@ public class RevScript extends MyScriptExtension {
 
         MessageListening.addServerMessageListener(MyRevsClient::processMessage);
 
-        /*DaxWalker.setGlobalWalkingCondition(() -> {
+        DaxWalker.setGlobalWalkingCondition(() -> {
+
             handlePkThread();
             if (isCancellingWalking()) {
                 // if we shouldn't walk, and since we are here we are walking,
@@ -129,7 +131,7 @@ public class RevScript extends MyScriptExtension {
                 return WalkingCondition.State.EXIT_OUT_WALKER_FAIL;
             }
             return WalkingCondition.State.CONTINUE_WALKER;
-        });*/
+        });
 
         try {
             muleClient = new MulingClient();
@@ -214,8 +216,9 @@ public class RevScript extends MyScriptExtension {
         }
 
         if (MyPlayer.getTile().getPlane() == 1) {
-            Query.gameObjects().idEquals(14746, 39650, 39643 ).findClosest().map(GameObject::click);
-        }
+            MyTeleporting.Dueling.FeroxEnclave.useTeleport();
+
+            }
 
         if (Query.worlds().worldNumberEquals(WorldHopper.getCurrentWorld()).isNonMembers().isAny()) {
             Log.debug("We are not in a members world. Hopping");

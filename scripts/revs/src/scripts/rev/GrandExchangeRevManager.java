@@ -338,6 +338,8 @@ public class GrandExchangeRevManager {
                 MyExchange.createGrandExchangeBuyOrder(item, 1, 0, true);
             } else if (item.equals("Amulet of avarice")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 1, 1000000, false);
+            } else if (item.equals("Magic shortbow")) {
+                MyExchange.createGrandExchangeBuyOrder(item, 10, 10000, false);
             } else if (item.equals("Rune arrow")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 5000, 0, true);
             } else if (item.equals("Bracelet of ethereum (uncharged)")) {

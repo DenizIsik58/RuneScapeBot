@@ -19,6 +19,7 @@ public class EquipmentManager {
     private static final List<String> defenceGear = new ArrayList<>(Arrays.asList("Snakeskin bandana", "Bandos cloak", "Black d'hide body", "Black d'hide chaps", "Snakeskin boots", "Amulet of glory(6)", "Craw's bow", "Salve amulet(i)", "Salve amulet(ei)")); //
 
     private static final List<String> skulledGear = new ArrayList<>(Arrays.asList("Snakeskin bandana", "Rune arrow", "Black d'hide body", "Black d'hide chaps", "Snakeskin boots", "Magic shortbow", "Amulet of avarice")); //
+    private static final List<String> pureGear = new ArrayList<>(Arrays.asList("Coif", "Rune arrow", "Leather body", "Black d'hide chaps", "Leather boots", "Magic shortbow", "Amulet of avarice" )); //
 
     private static int braceCharges = 0;
     private static int bowCharges = 0;
@@ -129,6 +130,10 @@ public class EquipmentManager {
 
     public static List<String> getDefenceGear() {
         return defenceGear;
+    }
+
+    public static List<String> getPureGear() {
+        return pureGear;
     }
 
     public static List<String> getSkulledGear() {
