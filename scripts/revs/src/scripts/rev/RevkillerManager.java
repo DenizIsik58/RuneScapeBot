@@ -15,6 +15,7 @@ import scripts.api.MyCamera;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
+import java.util.TimerTask;
 
 
 public class RevkillerManager {
@@ -27,6 +28,7 @@ public class RevkillerManager {
 
     @Getter @Setter
     private static boolean hasClickedSpot = false;
+    private static boolean checkedSupplies = false;
 
     public static void killMonster(){
 
@@ -35,81 +37,89 @@ public class RevkillerManager {
             return;
         }
 
-        if (!GameTab.EQUIPMENT.isOpen()) {
-            GameTab.EQUIPMENT.open();
-        }
-
-
-        Query.npcs().nameEquals("Revenant maledictus").findFirst().ifPresent(boss -> {
-            if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()){
-                //TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
-                    TeleportManager.teleportOut();
-
-            }
-        });
-
-        if (Combat.isAutoRetaliateOn()){
-            Combat.setAutoRetaliate(false);
-        }
-
-        if (Options.AttackOption.getNpcAttackOption() != Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE){
-            Options.AttackOption.setNpcAttackOption(Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE);
-        }
-
        /* if (Query.players().isNotEquipped(DetectPlayerThread.getPvmGear()).isAny() || Query.players().count() == 0) {
             iWasFirst = true;
         }*/
 
         //if (iWasFirst) {
 
-        if (pvmers().count() < 2) {
-            iWasFirst = true;
+        if (!iWasFirst) {
+            if (pvmers().count() < 2) {
+                iWasFirst = true;
+            }
         }
 
-
-
-
         if (iWasFirst && Combat.isInWilderness()){
-
 
             if (LootingManager.hasPkerBeenDetected()) {
                 return;
             }
 
-            if (Query.groundItems().isAny() && LootingManager.hasLootBeenDetected()){
+            if (LootingManager.hasLootBeenDetected()){
                 Log.debug("Found loot! Switching to looting statw!");
                 MyRevsClient.getScript().setState(State.LOOTING);
                 return;
             }
 
-            if (Query.inventory().nameContains("Blighted super restore").count() == 0) {
-                Log.debug("Low of restore");
+            if (!hasCheckedSupplies()) {
+                Log.debug("Checking for supplies now");
+                setCheckedSupplies(true);
+                new java.util.Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
 
-                    TeleportManager.teleportOut();
+                        if (Equipment.Slot.RING.getItem().isEmpty()){
+                            Log.debug("Cannot find wealth in equipment. Checking inventory");
+                            Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
+                                Log.debug("found it! Wearing it now!");
+                                ring.click("Wear");
+                                Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
+                            });
+                        }
+
+                        if (Query.inventory().nameContains("Blighted super restore").count() == 0) {
+                            Log.debug("Low of restore");
+
+                            TeleportManager.teleportOut();
 
 
-                //TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
-                MyRevsClient.getScript().setState(State.BANKING);
-                return;
+                            //TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
+                            MyRevsClient.getScript().setState(State.BANKING);
+                            return;
+                        }
+
+                        Query.npcs().nameEquals("Revenant maledictus").findRandom().ifPresent(boss -> {
+                            if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible()){
+                                //TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
+                                TeleportManager.teleportOut();
+
+                            }
+                        });
+
+                        if (Query.inventory().actionEquals("Eat").count() < 6) {
+                            Log.debug("Low on food");
+
+                            TeleportManager.teleportOut();
+
+                            //TeleportManager.teleportOutOfWilderness("We are low on food. trying to teleport out..");
+                            MyRevsClient.getScript().setState(State.BANKING);
+                            return;
+                        }
+                        if (Equipment.getCount(892) < 10) {
+
+                            Log.debug("Low on arrows teleporting out.");
+                            TeleportManager.teleportOut();
+                            MyRevsClient.getScript().setState(State.BANKING);
+                            return;
+
+                        }
+                        setCheckedSupplies(false);
+                        Log.debug("Finished checking for supplies");
+                    }
+                }, 5000);
             }
 
-            if (Query.inventory().actionEquals("Eat").count() < 6) {
-                Log.debug("Low on food");
 
-                    TeleportManager.teleportOut();
-
-                //TeleportManager.teleportOutOfWilderness("We are low on food. trying to teleport out..");
-                MyRevsClient.getScript().setState(State.BANKING);
-                return;
-            }
-            if (Equipment.getCount(892) < 10) {
-
-                Log.debug("Low on arrows teleporting out.");
-                    TeleportManager.teleportOut();
-                    MyRevsClient.getScript().setState(State.BANKING);
-                    return;
-
-            }
 
             if (!MyRevsClient.myPlayerIsAtSouthOrk()) {
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
@@ -122,29 +132,8 @@ public class RevkillerManager {
                 MyScriptVariables.setRangedLevelString(MathUtility.getRangeLevelRate(startRangeLevel, Skill.RANGED.getActualLevel()));
             }
 
-            if (!Query.equipment().nameContains("Ring of wealth (").isAny()){
-                Log.debug("Cannot find wealth in equipment. Checking inventory");
-                Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
-                    Log.debug("found it! Wearing it now!");
-                    ring.click("Wear");
-                    Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
-                });
-            }
-
-
-
             // TODO: Should probably have a method to open the looting bag.
-            var lootingBag = Query.inventory().nameEquals("Looting bag").findFirst().orElse(null);
-
-            if (lootingBag != null) {
-                if (lootingBag.getId() == 11941) {
-                    Waiting.waitUntil(() -> lootingBag.click("Open"));
-                    Waiting.waitUntil(() -> Inventory.contains(22586));
-                    if (target != null) {
-                        target.click();
-                    }
-                }
-            }
+            LootingManager.openLootingBag();
 
 
             if (Prayer.getPrayerPoints() < Skill.PRAYER.getActualLevel() - 22) {
@@ -192,12 +181,6 @@ public class RevkillerManager {
                     }
                 });
 
-
-                if (!target.isVisible()){
-                    target.adjustCameraTo();
-                    target.click();
-                }
-
                 if (!target.isHealthBarVisible() || (target.getHealthBarPercent() != 0 && !target.isAnimating() && !target.isHealthBarVisible())){
                     target.click();
                     Waiting.waitUntil(2000, () -> target.isHealthBarVisible());
@@ -211,7 +194,6 @@ public class RevkillerManager {
                 }
 
             }
-
 
             if (LootingManager.getTripValue() >= 200000) {
                 if (!MyRevsClient.myPlayerIsInGE()) {
@@ -238,6 +220,7 @@ public class RevkillerManager {
             }
         }
 
+        Waiting.wait(100);
 
        /* }else {
             if ((Query.players().isEquipped("Black d'hide body", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace").isAny() || Query.players().isBeingInteractedWith().isAny() || Query.players().isHealthBarVisible().isAny()) && !iWasFirst) {
@@ -246,6 +229,13 @@ public class RevkillerManager {
         }*/
     }
 
+    private static boolean hasCheckedSupplies() {
+        return checkedSupplies;
+    }
+
+    public static void setCheckedSupplies(boolean checkedSupplies) {
+        RevkillerManager.checkedSupplies = checkedSupplies;
+    }
 
     private static PlayerQuery pvmers(){
         return Query.players().isEquipped(DetectPlayerThread.getPvmGear());

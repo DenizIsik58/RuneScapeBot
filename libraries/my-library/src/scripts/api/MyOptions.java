@@ -1,9 +1,6 @@
 package scripts.api;
 
-import org.tribot.script.sdk.GameState;
-import org.tribot.script.sdk.GameTab;
-import org.tribot.script.sdk.MyPlayer;
-import org.tribot.script.sdk.Options;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.InventoryItem;
@@ -30,6 +27,16 @@ public class MyOptions {
             }
         }
 
+    }
+
+    public static void setCombatSettings(){
+        if (Combat.isAutoRetaliateOn()){
+            Combat.setAutoRetaliate(false);
+        }
+
+        if (Options.AttackOption.getNpcAttackOption() != Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE){
+            Options.AttackOption.setNpcAttackOption(Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE);
+        }
     }
 
     public static void setRunOn(){
@@ -78,6 +85,7 @@ public class MyOptions {
         setSoundOff();
         setZoomScrollable();
         setPkerProtectionOn();
+        setCombatSettings();
         setOnPkSkullPrevention();
         closeAllSettings();
     }

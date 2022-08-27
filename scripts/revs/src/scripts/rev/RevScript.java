@@ -174,6 +174,7 @@ public class RevScript extends MyScriptExtension {
                 return;
             case WALKING:
                 handleWalking();
+                Waiting.wait(2000);
                 return;
             case SELLLOOT:
                 handleSellLoot();
@@ -211,20 +212,6 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void updateState() {
-        if (Query.npcs().nameEquals("Death").isAny()){
-            Query.gameObjects().idEquals(39549).findFirst().ifPresent(portal -> portal.click("Use"));
-        }
-
-        if (MyPlayer.getTile().getPlane() == 1) {
-            MyTeleporting.Dueling.FeroxEnclave.useTeleport();
-
-            }
-
-        if (Query.worlds().worldNumberEquals(WorldHopper.getCurrentWorld()).isNonMembers().isAny()) {
-            Log.debug("We are not in a members world. Hopping");
-            WorldManager.hopToRandomMemberWorldWithRequirements();
-        }
-
         if (isState(State.STARTING) || isState(State.SELLLOOT)) {
             return;
         }
@@ -250,8 +237,6 @@ public class RevScript extends MyScriptExtension {
             // if not bank task is satisfied
             // teleport to ge
             // else
-            GlobalWalking.walkTo(new WorldTile(3133, 3628, 0)); // bank spot at ferox
-
             if (!BankManagerRevenant.isEquipmentBankTaskSatisfied() && !BankManagerRevenant.isInventoryBankTaskSatisfied()){
                 openBank();
                 BankManagerRevenant.checkIfNeedToBuyGear();

@@ -65,20 +65,6 @@ public class LootingManager {
                     return;
                 }
 
-
-                var boss = Query.npcs().nameEquals("Revenant maledictus").findFirst().orElse(null);
-                if (boss != null) {
-                    Log.debug("Boss has been seen!");
-                    if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible() || boss.getTile().isVisible() || boss.getTile().isRendered()) {
-                        Log.debug("Teleport out from boss has begun!");
-                            TeleportManager.teleportOut();
-
-
-                    }
-                    return;
-                }
-
-
                 var item = possibleLoot.get(itemIndex);
 
                 openLootingBag();
@@ -180,7 +166,7 @@ public class LootingManager {
 
             Log.debug("I'm done looting");
             if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
-                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+                MyRevsClient.getScript().getSelectedMonsterTile().clickOnMinimap();
                 MyRevsClient.getScript().setState(State.KILLING);
             }
 
@@ -209,7 +195,7 @@ public class LootingManager {
 
     }
 
-    private static void openLootingBag() {
+    public static void openLootingBag() {
         getLootingBag().ifPresent(lootingBag -> {
             if (lootingBag.getId() == 11941) {
                 lootingBag.click("Open");

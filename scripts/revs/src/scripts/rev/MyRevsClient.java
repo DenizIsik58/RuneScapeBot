@@ -1,6 +1,7 @@
 package scripts.rev;
 
 import org.tribot.script.sdk.*;
+import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
@@ -146,6 +147,13 @@ public class MyRevsClient {
             //BoostingManager.resetBoost();
             return;
         }
+
+        if (message.equals("Last Man Standing is not available on this world.")) {
+            GlobalWalking.walkTo(new WorldTile(3125,3628, 0 ));
+            Query.gameObjects().idEquals(39656).findClosest().ifPresent(c -> c.click("Pass-Through"));
+            return;
+        }
+
         if (message.equals("You don't have enough inventory space.")){
             Bank.depositInventory();
             BankManagerRevenant.withdrawGear();

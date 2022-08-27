@@ -10,7 +10,7 @@ public class TargetManager {
                 .isNotBeingInteractedWith()
                 .isReachable()
                 .isHealthBarNotVisible()
-                .findBestInteractable().orElse(null);
+                .findRandom().orElse(null);
     }
 
     public static boolean isTargetDead(Npc target){

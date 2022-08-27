@@ -457,6 +457,7 @@ public class DetectPlayerThread extends Thread {
             return;
         }
 
+
         /*if (RevkillerManager.getTarget() != null) {
             if (!RevkillerManager.getTarget().isHealthBarVisible()) {
                 Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
@@ -648,18 +649,23 @@ public class DetectPlayerThread extends Thread {
                                 TeleportManager.teleportOut();
                                 continue;
                             }
+
                             if (isTeleblocked()) {
                                 continue;
                             }
 
                             if (detectedRaggers){
-                                Query.players()
+                                var ragger = Query.players()
                                         .withinCombatLevels(getWildernessLevel())
                                         .hasSkullIcon()
                                         .notInArea(FEROX_ENCLAVE)
                                         .isInteractingWithMe()
-                                        .findFirst()
-                                        .ifPresent(this::escape);
+                                        .findFirst().orElse(null);
+
+                                if (ragger != null) {
+                                    handleEatAndPrayer(ragger);
+                                    escape(ragger);
+                                }
                             }
 
 

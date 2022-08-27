@@ -41,6 +41,11 @@ public class TeleportManager {
 
 
         if (!chosenMobArea.isVisible()) {
+            if (MyPlayer.getTile().getPlane() == 1) {
+                MyTeleporting.Dueling.FeroxEnclave.useTeleport();
+
+            }
+
             if (MyRevsClient.myPlayerIsInWhitePortal()) {
                 Query.gameObjects().idEquals(26646).findFirst().ifPresent(c -> c.click("Exit"));
             }
@@ -62,7 +67,6 @@ public class TeleportManager {
                         refill();
                         return WalkState.SUCCESS;
                     }
-                    setWalkingState();
                     return WalkState.CONTINUE;
                 });
                 south_ork.clickOnMinimap();
@@ -103,7 +107,6 @@ public class TeleportManager {
                             return WalkState.FAILURE;
                         }
 
-                        setWalkingState();
                         return WalkState.CONTINUE;
                     });
 
@@ -119,7 +122,6 @@ public class TeleportManager {
                             return WalkState.FAILURE;
                         }
 
-                        setWalkingState();
                         return WalkState.CONTINUE;
                     });
                 }
@@ -131,7 +133,7 @@ public class TeleportManager {
             if (!MyRevsClient.myPlayerIsInCave()){
                 if (Query.gameObjects().idEquals(31555).findBestInteractable().isPresent()){
                     Log.debug("I'm entering cave");
-                    Query.gameObjects().idEquals(31555).findBestInteractable().map(c -> c.interact("Enter"));
+                    Query.gameObjects().idEquals(31555).findBestInteractable().ifPresent(c -> c.interact("Enter"));
                     if (Waiting.waitUntil(500, () -> MyClient.isWidgetVisible(193, 0, 2))) {
                         Waiting.waitUntil( () -> MyClient.clickWidget("Continue", 193, 0, 2));
                     }
@@ -159,7 +161,7 @@ public class TeleportManager {
 
     private static void setWalkingState(){
 
-
+/*
         Mouse.setSpeed(700);
         MyOptions.setRunOn();
         MyCamera.init();
@@ -170,7 +172,7 @@ public class TeleportManager {
 
         if (MyClient.isWidgetVisible(182, 3)) {
             MyClient.clickWidget("World Switcher", 182, 3);
-        }
+        }*/
 
         /*if (Query.players()
                 .withinCombatLevels(Combat.getWildernessLevel())
@@ -179,6 +181,7 @@ public class TeleportManager {
                 .findFirst().isPresent()){
             WorldManager.hopToRandomMemberWorldWithRequirements();
         }*/
+
     }
 
     public static boolean monsterTileIsDetected(WorldTile tile){
