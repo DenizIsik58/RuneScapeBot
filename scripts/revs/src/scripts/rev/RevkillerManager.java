@@ -62,11 +62,11 @@ public class RevkillerManager {
             }
 
             if (!hasCheckedSupplies()) {
-                Log.debug("Checking for supplies now");
                 setCheckedSupplies(true);
                 new java.util.Timer().schedule(new TimerTask() {
                     @Override
                     public void run() {
+                        if (!Combat.isInWilderness()) return;
 
                         if (Equipment.Slot.RING.getItem().isEmpty()){
                             Log.debug("Cannot find wealth in equipment. Checking inventory");
@@ -178,6 +178,7 @@ public class RevkillerManager {
                     if (monster.isInteractingWithMe() && !monster.isHealthBarVisible()){
                         target = monster;
                         monster.click();
+                        Waiting.waitNormal(500, 100);
                     }
                 });
 

@@ -185,7 +185,7 @@ public class MyRevsClient {
     }
 
 
-
-
-
+    public static boolean myPlayerIsAtDeath() {
+        return isInLocation(true, Area.fromRectangle(new WorldTile(16070, 1040, 0), new WorldTile(16085, 1025, 0))) || isInLocation(true, Area.fromRectangle(new WorldTile(7620, 3725, 0), new WorldTile(7635, 3715, 0)));
+    }
 }

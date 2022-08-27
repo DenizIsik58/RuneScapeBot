@@ -146,11 +146,9 @@ public class LootingManager {
                     Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
                     var food = allPossibleFood.get(itemIndex);
                     food.interact("Take", () -> hasPkerBeenDetected() || !Combat.isInWilderness());
-                    Log.debug("Count before pick: " + allPossibleFood.size());
 
                     var pickedUp = Waiting.waitUntil(4000, () -> foodCount == Query.inventory().actionEquals("Eat").count() + 1);
 
-                    Log.debug("After picking up: " + getAllFood().size());
                     if (hasPkerBeenDetected()) {
                         Log.debug("Pker has been detected. Cancelled further looting");
                         return;

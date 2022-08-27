@@ -292,9 +292,6 @@ public class DetectPlayerThread extends Thread {
                     }
                 });
 
-                if (!Combat.isAttackStyleSet(Combat.AttackStyle.RAPID)) {
-                    Combat.setAttackStyle(Combat.AttackStyle.RAPID);
-                }
 
                 if (!isFrozen()) {
                     // Start running
@@ -324,9 +321,10 @@ public class DetectPlayerThread extends Thread {
                                 return WalkState.FAILURE;
                             }
                             return WalkState.CONTINUE;
+
                         });
                         handleEatAndPrayer(pker);
-                        Query.gameObjects().idEquals(31558).findBestInteractable()
+                        Query.gameObjects().idEquals(31558).findFirst()
                                 .map(c -> c.interact("Climb-up"));
                         var up =  Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave());
                         if (up) {
@@ -380,6 +378,7 @@ public class DetectPlayerThread extends Thread {
                             }, 13000);
                         }*/
                         handleEatAndPrayer(pker);
+                        Waiting.waitNormal(300,100);
                     }
                     continue;
                 }
@@ -470,6 +469,7 @@ public class DetectPlayerThread extends Thread {
 
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         }*/
+        handleEatAndPrayer(pker);
         double startTime;
         var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
 

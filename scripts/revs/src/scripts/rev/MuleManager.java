@@ -1,5 +1,6 @@
 package scripts.rev;
 
+import org.tribot.script.sdk.Bank;
 import org.tribot.script.sdk.WorldHopper;
 import org.tribot.script.sdk.interfaces.Stackable;
 import org.tribot.script.sdk.query.Query;
@@ -20,7 +21,7 @@ public class MuleManager {
         MyBanker.closeBank();
     }
     public static boolean hasEnoughToMule(){
-        var stack = Query.bank().nameEquals("Coins").findFirst().map(Stackable::getStack).orElse(0);
+        var stack = Bank.getCount("Coins");
         return stack >= 10000000;
     }
 

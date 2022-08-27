@@ -5,6 +5,7 @@ import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
+import org.tribot.script.sdk.types.GameObject;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
@@ -30,7 +31,7 @@ public class TeleportManager {
     private static List<WorldTile> monsterTiles = new ArrayList<>(Collections.singletonList(demons)); // South ork removed for now
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
     private final static Area SOUTH_ORK = Area.fromRectangle(new WorldTile(3200, 10105, 0), new WorldTile(3231, 10085, 0));
-
+    private static GameObject pool = null;
     public static WorldTile refill() {
         // Random selection of mobs to kill
 
@@ -110,7 +111,11 @@ public class TeleportManager {
                         return WalkState.CONTINUE;
                     });
 
+
+
                     Query.gameObjects().idEquals(39651).findClosest().map(c -> c.interact("Drink"));
+
+
                     Log.debug("I'm trying to drink from the pool");
                     waitUntil(() -> MyPlayer.getAnimation() == 7305);
                     Waiting.wait(2000);
@@ -149,6 +154,11 @@ public class TeleportManager {
                     Waiting.waitNormal(500, 200);
                 }
             }
+
+        if (Query.npcs().nameEquals("Death").isAny()){
+            Query.gameObjects().idEquals(39549).findFirst().ifPresent(portal -> portal.click("Use"));
+        }
+
 
         Mouse.setSpeed(300);
         return chosenMobArea;
