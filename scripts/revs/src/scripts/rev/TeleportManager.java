@@ -42,6 +42,7 @@ public class TeleportManager {
 
 
         if (!chosenMobArea.isVisible()) {
+            BankManagerRevenant.drinkAntiVenom();
             if (MyPlayer.getTile().getPlane() == 1) {
                 MyTeleporting.Dueling.FeroxEnclave.useTeleport();
 

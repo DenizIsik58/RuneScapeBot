@@ -56,7 +56,7 @@ public class BankManagerRevenant {
         }
     }
 
-    private static void drinkAntiVenom() {
+    public static void drinkAntiVenom() {
         if (MyPlayer.isPoisoned() || MyPlayer.isVenomed()) {
             while (!MyBanker.openBank()){
                 MyBanker.openBank();
