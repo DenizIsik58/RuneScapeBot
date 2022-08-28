@@ -39,8 +39,12 @@ public class RevkillerManager {
 
     private static AtomicBoolean lowArrows = new AtomicBoolean(false);
 
-    @Setter
-    private static SuppliesChecker checker = null;
+    public static void resetSuppliesChecks(){
+        RevkillerManager.setLowRestores(false);
+        RevkillerManager.setBossDetected(false);
+        RevkillerManager.setLowFood(false);
+        RevkillerManager.setLowArrows(false);
+    }
     public static void killMonster(){
 
         if (!MyRevsClient.getScript().isState(State.KILLING)) {
@@ -48,11 +52,7 @@ public class RevkillerManager {
             return;
         }
 
-        if (checker == null) {
-            Log.debug("Supplies checker is null. Starting a new thread");
-            checker = new SuppliesChecker();
-            new Thread(checker).start();
-        }
+
 
        /* if (Query.players().isNotEquipped(DetectPlayerThread.getPvmGear()).isAny() || Query.players().count() == 0) {
             iWasFirst = true;
@@ -173,12 +173,17 @@ public class RevkillerManager {
                     }
                 });
 
+                if (!target.isVisible()) {
+                    target.adjustCameraTo();
+                    target.click();
+                }
+
                 if (!target.isHealthBarVisible() || (target.getHealthBarPercent() != 0 && !target.isAnimating() && !target.isHealthBarVisible())){
                     target.click();
                     Waiting.waitUntil(2000, () -> target.isHealthBarVisible());
                 }
 
-                if((target.getHealthBarPercent() == 0 && Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).isAny()) || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
+                if((target.getHealthBarPercent() == 0 || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe()))){
                     Log.debug("[WILDERNESS_LISTENER] target mob died. Finding a new one!");
                     incrementKillCounts();
                     MyScriptVariables.setKillCountString(String.valueOf(getKillCount()));

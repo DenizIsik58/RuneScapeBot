@@ -10,7 +10,7 @@ public class SuppliesChecker implements Runnable{
     @Override
     public void run() {
 
-        while (MyRevsClient.getScript().getPlayerDetectionThread() != null && Combat.isInWilderness()) {
+        while (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
             if (Query.inventory().nameContains("Blighted super restore").count() == 0) {
                 Log.debug("Low of restore");
                 RevkillerManager.setLowRestores(true);
@@ -21,8 +21,8 @@ public class SuppliesChecker implements Runnable{
             Query.npcs().nameEquals("Revenant maledictus").findRandom().ifPresent(boss -> {
                 if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible()) {
                     //TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
+                    Log.debug("Boss has been detected");
                     RevkillerManager.setBossDetected(true);
-
                 }
             });
 
@@ -41,5 +41,6 @@ public class SuppliesChecker implements Runnable{
 
             Waiting.wait(5000);
         }
+
     }
 }

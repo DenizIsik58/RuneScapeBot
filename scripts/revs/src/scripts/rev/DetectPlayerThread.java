@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
-import org.tribot.script.sdk.interfaces.Character;
 import org.tribot.script.sdk.interfaces.Item;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Area;
@@ -19,7 +18,6 @@ import scripts.api.*;
 import scripts.api.utility.StringsUtility;
 
 import java.util.Optional;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -49,14 +47,18 @@ public class DetectPlayerThread extends Thread {
     @Getter
     @Setter
     private static Projectile lastEntangle = null;
+
     @Getter
     @Setter
     private static boolean isEntangleTimerStarted = false;
     private static boolean isEntangled = false;
     private static MagicManager entangleDetecter = null;
+
+    private static SuppliesChecker suppliesChecker = null;
     private AtomicBoolean processing = new AtomicBoolean(false);
     private AtomicBoolean inCombatTimer = new AtomicBoolean(false);
-
+    private AtomicBoolean hasStartedEntangleDetecter = new AtomicBoolean(false);
+    private AtomicBoolean hasStartedSuppliesChecker = new AtomicBoolean(false);
     public DetectPlayerThread(RevScript revScript) {
         this.script = revScript;
         ScriptListening.addPauseListener(() -> paused.set(true));
@@ -596,12 +598,23 @@ public class DetectPlayerThread extends Thread {
             handleTeleblock();
 
             if (Combat.isInWilderness()) {
+
+                if (!hasStartedSuppliesChecker.get()) {
+                    if (suppliesChecker == null) {
+                        RevkillerManager.resetSuppliesChecks();
+                        Log.debug("Supplies checker is null. Starting a new thread");
+                        suppliesChecker = new SuppliesChecker();
+                        new Thread(suppliesChecker).start();
+                        hasStartedSuppliesChecker.set(true);
+                    }
+                }
+
+
                 if (!danger) {
 
-                    if (detectedPkers || detectedRaggers || detectedSkull || teleblocked) {
+                    if (detectedPkers || detectedRaggers|| teleblocked) {
                         if (detectedPkers) Log.warn("[DANGER_LISTENER] DETECTED DANGER - PKER");
                         if (detectedRaggers) Log.warn("[DANGER_LISTENER] DETECTED DANGER - RAGGER");
-                        if (detectedSkull) Log.warn("[DANGER_LISTENER] DETECTED DANGER - SKULLED PLAYER");
                         if (teleblocked) Log.warn("[DANGER_LISTENER] DETECTED DANGER - TELEBLOCK");
 
                         setInDanger(true);
@@ -612,10 +625,14 @@ public class DetectPlayerThread extends Thread {
 
                 danger = inDanger();
                 if (danger) {
-                    if (entangleDetecter == null) {
-                        entangleDetecter = new MagicManager();
-                        new Thread(entangleDetecter).start();
+                    if (!hasStartedEntangleDetecter.get()) {
+                        if (entangleDetecter == null) {
+                            entangleDetecter = new MagicManager();
+                            new Thread(entangleDetecter).start();
+                            hasStartedEntangleDetecter.set(true);
+                        }
                     }
+
 
                     Log.warn("[DANGER_LISTENER] HANDLING DANGER");
                     if (Mouse.getSpeed() == 300) {
@@ -710,7 +727,9 @@ public class DetectPlayerThread extends Thread {
         hasTickCounterStarted = false;
         setHasHopped(false);
         Log.debug("Setting supplies checker to null");
-        RevkillerManager.setChecker(null);
+        if (suppliesChecker != null) suppliesChecker = null;
+        if (hasStartedEntangleDetecter.get()) hasStartedEntangleDetecter.set(false);
+        if (hasStartedSuppliesChecker.get()) hasStartedSuppliesChecker.set(false);
     }
 
     private static void resetFreezeSigns(){

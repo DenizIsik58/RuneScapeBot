@@ -228,6 +228,10 @@ public class RevScript extends MyScriptExtension {
             }
         }
 
+        if (MyRevsClient.myPlayerIsAtEdgeDitch()) {
+            Query.gameObjects().idEquals(23271).findRandom().map(c -> c.click("Cross"));
+        }
+
         if (MyRevsClient.myPlayerIsDead()){
             if (playerDetectionThread != null){
                 playerDetectionThread.setHasPkerBeenDetected(false);
@@ -278,7 +282,7 @@ public class RevScript extends MyScriptExtension {
 
     private void handlePkThread() {
         //Log.debug("Handling pk thread");
-        var wasInWild = inWilderness.get();
+       var wasInWild = inWilderness.get();
         var isInWild = Combat.isInWilderness();
         if (wasInWild != isInWild) {
             if (isInWild) {
@@ -288,6 +292,7 @@ public class RevScript extends MyScriptExtension {
             }
             inWilderness.set(isInWild);
         }
+
     }
 
     private void handleSellLoot() {

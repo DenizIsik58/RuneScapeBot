@@ -16,6 +16,12 @@ public class MyOptions {
         }
     }
 
+    public static void setRoofsOff(){
+        if (Options.isRoofsEnabled()) {
+            Options.setRemoveRoofsEnabled(true);
+        }
+    }
+
     public static void setOnPkSkullPrevention(){
 
         if (GameState.getVarbit(13131) != 1){
@@ -86,6 +92,7 @@ public class MyOptions {
         setZoomScrollable();
         setPkerProtectionOn();
         setCombatSettings();
+        setRoofsOff();
         setOnPkSkullPrevention();
         closeAllSettings();
     }

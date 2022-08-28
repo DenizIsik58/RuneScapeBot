@@ -96,6 +96,10 @@ public class MulerScript extends MyScriptExtension {
         } catch (Exception e) {
             Log.debug("Failed creating TCP socket");
         }
+        if (!Login.isLoggedIn()) {
+            Login.login();
+            Waiting.waitNormal(15000, 2000);
+        }
     }
 
     @Override
