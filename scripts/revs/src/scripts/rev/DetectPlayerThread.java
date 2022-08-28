@@ -489,6 +489,11 @@ public class DetectPlayerThread extends Thread {
 
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         }*/
+        if (!MyRevsClient.myPlayerIsInCave()) {
+            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+            MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+            return;
+        }
         double startTime;
         var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
 
@@ -680,8 +685,7 @@ public class DetectPlayerThread extends Thread {
                                     .filter(player -> player.isInteractingWithMe())
                                     .collect(Collectors.toList());
 
-                            var pkers = allPlayers.stream()
-                                    .filter(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())))
+                            var pkers = allPlayers.stream().filter(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())))
                                     .collect(Collectors.toList());
 
                             if (!pkers.isEmpty()) {
