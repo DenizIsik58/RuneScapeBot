@@ -36,7 +36,7 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean danger = new AtomicBoolean(false);
     //    private final AtomicBoolean dangerFlag = new AtomicBoolean(false);
     private final AtomicBoolean isAntiPking = new AtomicBoolean(false);
-    private final static String[] PVM_GEAR = new String[]{"Bone crossbow","Red d'hide body", "Black d'hide body", "Rune scimitar", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
+    private final static String[] PVM_GEAR = new String[]{"Abyssal tentacle","Elder maul", "Abyssal whip","Bone crossbow","Red d'hide body", "Black d'hide body", "Rune scimitar", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3120, 3623, 0));
     private final SimpleBooleanProperty running = new SimpleBooleanProperty(false);
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
@@ -688,9 +688,15 @@ public class DetectPlayerThread extends Thread {
                             var pkers = allPlayers.stream().filter(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())))
                                     .collect(Collectors.toList());
 
+                            if (pkers.isEmpty() && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
+                                Log.debug("I'm stuck.. Teleporting out");
+                                TeleportManager.teleportOut();
+                                continue;
+                            }
+
                             if (!pkers.isEmpty()) {
                                 escape(pkers.get(0));
-
+                                continue;
                             }
 
                             Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
@@ -702,11 +708,7 @@ public class DetectPlayerThread extends Thread {
                                     .ifPresent(this::escape);
                             */
 
-                            if (pkers.isEmpty() && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
-                                Log.debug("I'm stuck.. Teleporting out");
-                                TeleportManager.teleportOut();
-                                continue;
-                            }
+
 
                             if (isTeleblocked()) {
                                 continue;
@@ -748,7 +750,7 @@ public class DetectPlayerThread extends Thread {
                 resetDangerSigns();
             }
         }
-        // if running was set false and thread is ending, run these one last time
+        // if running waFs set false and thread is ending, run these one last time
         resetDangerSigns();
     }
 

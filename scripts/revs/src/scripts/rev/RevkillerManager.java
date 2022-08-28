@@ -8,14 +8,12 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Npc;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
-import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.FoodManager;
 import scripts.api.MyAntiBan;
 import scripts.api.MyCamera;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
-import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -52,6 +50,39 @@ public class RevkillerManager {
             return;
         }
 
+        if (lowRestores.get()) {
+            Log.debug("Low of restore");
+
+            TeleportManager.teleportOut();
+            //TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
+            MyRevsClient.getScript().setState(State.BANKING);
+            return;
+        }
+
+        if (bossDetected.get()) {
+            TeleportManager.teleportOut();
+            MyRevsClient.getScript().setState(State.BANKING);
+            return;
+        }
+
+        if (lowFood.get()) {
+            Log.debug("Low on food");
+
+            TeleportManager.teleportOut();
+
+            //TeleportManager.teleportOutOfWilderness("We are low on food. trying to teleport out..");
+            MyRevsClient.getScript().setState(State.BANKING);
+            return;
+        }
+
+        if (lowArrows.get()) {
+
+            Log.debug("Low on arrows teleporting out.");
+            TeleportManager.teleportOut();
+            MyRevsClient.getScript().setState(State.BANKING);
+            return;
+
+        }
 
 
        /* if (Query.players().isNotEquipped(DetectPlayerThread.getPvmGear()).isAny() || Query.players().count() == 0) {
@@ -76,40 +107,6 @@ public class RevkillerManager {
                 Log.debug("Found loot! Switching to looting statw!");
                 MyRevsClient.getScript().setState(State.LOOTING);
                 return;
-            }
-
-            if (lowRestores.get()) {
-                Log.debug("Low of restore");
-
-                TeleportManager.teleportOut();
-                //TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
-                MyRevsClient.getScript().setState(State.BANKING);
-                return;
-            }
-
-            if (bossDetected.get()) {
-                TeleportManager.teleportOut();
-                MyRevsClient.getScript().setState(State.BANKING);
-                return;
-            }
-
-            if (lowFood.get()) {
-                Log.debug("Low on food");
-
-                TeleportManager.teleportOut();
-
-                //TeleportManager.teleportOutOfWilderness("We are low on food. trying to teleport out..");
-                MyRevsClient.getScript().setState(State.BANKING);
-                return;
-            }
-
-            if (lowArrows.get()) {
-
-                Log.debug("Low on arrows teleporting out.");
-                TeleportManager.teleportOut();
-                MyRevsClient.getScript().setState(State.BANKING);
-                return;
-
             }
 
             if (!MyRevsClient.myPlayerIsAtSouthOrk()) {
