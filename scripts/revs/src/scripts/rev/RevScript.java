@@ -8,17 +8,12 @@ import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.TribotScriptManifest;
-import org.tribot.script.sdk.types.GameObject;
 import org.tribot.script.sdk.types.WorldTile;
-import org.tribot.script.sdk.walking.GlobalWalking;
-import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.*;
 import scripts.api.concurrency.Debounce;
-import scripts.api.gui.MyGUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
@@ -353,7 +348,7 @@ public class RevScript extends MyScriptExtension {
 
     private void handleDeath() {
         Log.debug("Dead");
-
+        Waiting.waitNormal(4000, 100);
         MyPlayer.getTile().translate(5,1).click();
         Waiting.wait(2000);
         PrayerManager.turnOffAllPrayer();
