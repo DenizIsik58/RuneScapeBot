@@ -78,7 +78,7 @@ public class MultiServerSocket implements Runnable {
             Log.info("Accepting connections");
                 new EchoClientHandler(serverSocket.accept()).start();
 
-            Waiting.wait(50);
+            Waiting.wait(100);
         }
     }
 

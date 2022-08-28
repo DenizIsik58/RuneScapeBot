@@ -326,11 +326,6 @@ public class DetectPlayerThread extends Thread {
                         handleEatAndPrayer(pker);
                         Query.gameObjects().idEquals(31558).findFirst()
                                 .map(c -> c.interact("Climb-up"));
-                        var up =  Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave());
-                        if (up) {
-                            Log.debug("I'm up resetting freeze signs");
-                            resetFreezeSigns();
-                        }
 
                     } else {
                         //ensureWalkingPermission();
@@ -378,7 +373,7 @@ public class DetectPlayerThread extends Thread {
                             }, 13000);
                         }*/
                         handleEatAndPrayer(pker);
-                        Waiting.waitNormal(300,100);
+                        Waiting.wait(50);
                     }
                     continue;
                 }
@@ -469,7 +464,6 @@ public class DetectPlayerThread extends Thread {
 
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         }*/
-        handleEatAndPrayer(pker);
         double startTime;
         var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
 
@@ -567,6 +561,14 @@ public class DetectPlayerThread extends Thread {
         var inGE = Waiting.waitUntil(3000, MyRevsClient::myPlayerIsInGE);
         if (!inGE) {
             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+        }
+        if (Equipment.Slot.RING.getItem().isEmpty()){
+            Log.debug("Cannot find wealth in equipment. Checking inventory");
+            Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
+                Log.debug("found it! Wearing it now!");
+                ring.click("Wear");
+                Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
+            });
         }
         MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
 
@@ -707,6 +709,8 @@ public class DetectPlayerThread extends Thread {
         if (entangleDetecter != null) entangleDetecter = null;
         hasTickCounterStarted = false;
         setHasHopped(false);
+        Log.debug("Setting supplies checker to null");
+        RevkillerManager.setChecker(null);
     }
 
     private static void resetFreezeSigns(){

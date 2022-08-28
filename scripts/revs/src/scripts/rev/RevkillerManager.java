@@ -16,6 +16,7 @@ import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class RevkillerManager {
@@ -30,11 +31,27 @@ public class RevkillerManager {
     private static boolean hasClickedSpot = false;
     private static boolean checkedSupplies = false;
 
+    private static AtomicBoolean bossDetected = new AtomicBoolean(false);
+
+    private static AtomicBoolean lowFood = new AtomicBoolean(false);
+
+    private static AtomicBoolean lowRestores = new AtomicBoolean(false);
+
+    private static AtomicBoolean lowArrows = new AtomicBoolean(false);
+
+    @Setter
+    private static SuppliesChecker checker = null;
     public static void killMonster(){
 
         if (!MyRevsClient.getScript().isState(State.KILLING)) {
             Log.debug("It's not killing state! Returning!");
             return;
+        }
+
+        if (checker == null) {
+            Log.debug("Supplies checker is null. Starting a new thread");
+            checker = new SuppliesChecker();
+            new Thread(checker).start();
         }
 
        /* if (Query.players().isNotEquipped(DetectPlayerThread.getPvmGear()).isAny() || Query.players().count() == 0) {
@@ -61,65 +78,39 @@ public class RevkillerManager {
                 return;
             }
 
-            if (!hasCheckedSupplies()) {
-                setCheckedSupplies(true);
-                new java.util.Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (!Combat.isInWilderness()) return;
+            if (lowRestores.get()) {
+                Log.debug("Low of restore");
 
-                        if (Equipment.Slot.RING.getItem().isEmpty()){
-                            Log.debug("Cannot find wealth in equipment. Checking inventory");
-                            Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
-                                Log.debug("found it! Wearing it now!");
-                                ring.click("Wear");
-                                Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
-                            });
-                        }
-
-                        if (Query.inventory().nameContains("Blighted super restore").count() == 0) {
-                            Log.debug("Low of restore");
-
-                            TeleportManager.teleportOut();
-
-
-                            //TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
-                            MyRevsClient.getScript().setState(State.BANKING);
-                            return;
-                        }
-
-                        Query.npcs().nameEquals("Revenant maledictus").findRandom().ifPresent(boss -> {
-                            if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible()){
-                                //TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
-                                TeleportManager.teleportOut();
-
-                            }
-                        });
-
-                        if (Query.inventory().actionEquals("Eat").count() < 6) {
-                            Log.debug("Low on food");
-
-                            TeleportManager.teleportOut();
-
-                            //TeleportManager.teleportOutOfWilderness("We are low on food. trying to teleport out..");
-                            MyRevsClient.getScript().setState(State.BANKING);
-                            return;
-                        }
-                        if (Equipment.getCount(892) < 10) {
-
-                            Log.debug("Low on arrows teleporting out.");
-                            TeleportManager.teleportOut();
-                            MyRevsClient.getScript().setState(State.BANKING);
-                            return;
-
-                        }
-                        setCheckedSupplies(false);
-                        Log.debug("Finished checking for supplies");
-                    }
-                }, 5000);
+                TeleportManager.teleportOut();
+                //TeleportManager.teleportOutOfWilderness("We are low on prayer. trying to teleport out..");
+                MyRevsClient.getScript().setState(State.BANKING);
+                return;
             }
 
+            if (bossDetected.get()) {
+                TeleportManager.teleportOut();
+                MyRevsClient.getScript().setState(State.BANKING);
+                return;
+            }
 
+            if (lowFood.get()) {
+                Log.debug("Low on food");
+
+                TeleportManager.teleportOut();
+
+                //TeleportManager.teleportOutOfWilderness("We are low on food. trying to teleport out..");
+                MyRevsClient.getScript().setState(State.BANKING);
+                return;
+            }
+
+            if (lowArrows.get()) {
+
+                Log.debug("Low on arrows teleporting out.");
+                TeleportManager.teleportOut();
+                MyRevsClient.getScript().setState(State.BANKING);
+                return;
+
+            }
 
             if (!MyRevsClient.myPlayerIsAtSouthOrk()) {
                 GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
@@ -268,5 +259,21 @@ public class RevkillerManager {
 
     public static void setiWasFirst(boolean iWasFirst) {
         RevkillerManager.iWasFirst = iWasFirst;
+    }
+
+    public static void setLowFood(boolean lowFood) {
+        RevkillerManager.lowFood.set(lowFood);
+    }
+
+    public static void setLowArrows(boolean lowFood) {
+        RevkillerManager.lowArrows.set(lowFood);
+    }
+
+    public static void setBossDetected(boolean lowFood) {
+        RevkillerManager.bossDetected.set(lowFood);
+    }
+
+    public static void setLowRestores(boolean lowFood) {
+        RevkillerManager.lowRestores.set(lowFood);
     }
 }

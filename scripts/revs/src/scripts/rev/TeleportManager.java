@@ -98,6 +98,7 @@ public class TeleportManager {
                 if (Inventory.getAll().size() <= 20){
                     MyBanker.openBank();
                     BankManagerRevenant.getInventoryBankTask().execute();
+                    BankManagerRevenant.emptyLootingBag();
                 }
 
                 if (MyRevsClient.myPlayerNeedsToRefresh()){

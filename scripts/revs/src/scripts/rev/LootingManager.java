@@ -47,6 +47,9 @@ public class LootingManager {
 
             if (!Combat.isInWilderness()) {
                 Log.debug("Not in wilderness. Cancelling looting");
+                if (!MyRevsClient.getScript().isState(State.BANKING)){
+                    MyRevsClient.getScript().isState(State.BANKING);
+                }
                 return;
             }
 
@@ -161,7 +164,6 @@ public class LootingManager {
                     break;
                 }
             }
-
             Log.debug("I'm done looting");
             if (Combat.isInWilderness() && MyRevsClient.myPlayerIsInCave()) {
                 MyRevsClient.getScript().getSelectedMonsterTile().clickOnMinimap();
