@@ -17,9 +17,11 @@ import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.*;
 import scripts.api.utility.StringsUtility;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static org.tribot.script.sdk.Combat.getWildernessLevel;
 
@@ -118,6 +120,27 @@ public class DetectPlayerThread extends Thread {
                 .notInArea(FEROX_ENCLAVE)
                 .isInteractingWithMe()
                 .isAny();
+    }
+
+    public static boolean detectPlayers() {
+        var allPlayers = Query.players()
+                .withinCombatLevels(getWildernessLevel())
+                .notInArea(FEROX_ENCLAVE).toList();
+
+        var skulledPlayers = allPlayers.stream()
+                .filter(player -> player.getSkullIcon().isPresent())
+                .collect(Collectors.toList());
+
+        var raggers = allPlayers.stream()
+                .filter(player -> player.isInteractingWithMe())
+                .collect(Collectors.toList());
+
+        var pkers = allPlayers.stream()
+                .filter(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())))
+                .collect(Collectors.toList());
+
+
+        return !skulledPlayers.isEmpty() || !raggers.isEmpty() || !pkers.isEmpty();
     }
 
     public static boolean canTargetAttackMe(String name) {
@@ -589,9 +612,7 @@ public class DetectPlayerThread extends Thread {
             if (paused.get()) continue;
 
             var danger = inDanger();
-            var detectedPkers = detectPKers();
-            var detectedRaggers = detectRaggers();
-            var detectedSkull = detectSkull();
+            var detectedPkers = detectPlayers();
             var teleblocked = isTeleblocked();
 
 
@@ -612,9 +633,8 @@ public class DetectPlayerThread extends Thread {
 
                 if (!danger) {
 
-                    if (detectedPkers || detectedRaggers|| teleblocked) {
+                    if (detectedPkers || teleblocked) {
                         if (detectedPkers) Log.warn("[DANGER_LISTENER] DETECTED DANGER - PKER");
-                        if (detectedRaggers) Log.warn("[DANGER_LISTENER] DETECTED DANGER - RAGGER");
                         if (teleblocked) Log.warn("[DANGER_LISTENER] DETECTED DANGER - TELEBLOCK");
 
                         setInDanger(true);
@@ -639,8 +659,10 @@ public class DetectPlayerThread extends Thread {
                         int dangerMouseSpeed = getRandomNumber(1500, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
                     }
+
                     teleblocked = isTeleblocked();
                     Log.debug("Am I teleblocked? " + teleblocked);
+
                     if (!teleblocked) {
                         Log.trace("[DANGER_LISTENER] NOT TELEBLOCKED - Teleporting");
                         if (isAntiPking()) {
@@ -650,20 +672,36 @@ public class DetectPlayerThread extends Thread {
                         if (!processing.get()) {
 
                             processing.set(true);
-                            var possiblePker = Query.players()
-                                    .withinCombatLevels(Combat.getWildernessLevel())
-                                    .isNotEquipped(PVM_GEAR)
-                                    .findFirst().orElse(null);
+                            var allPlayers = Query.players()
+                                    .withinCombatLevels(getWildernessLevel())
+                                    .notInArea(FEROX_ENCLAVE).toList();
 
+                            var skulledPlayers = allPlayers.stream()
+                                    .filter(player -> player.getSkullIcon().isPresent())
+                                    .collect(Collectors.toList());
+
+                            var raggers = allPlayers.stream()
+                                    .filter(player -> player.isInteractingWithMe())
+                                    .collect(Collectors.toList());
+
+                            var pkers = allPlayers.stream()
+                                    .filter(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())))
+                                    .collect(Collectors.toList());
+
+                            if (!pkers.isEmpty()) {
+                                escape(pkers.get(0));
+                            }
 
                             Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
-                            Query.players()
+
+                            /*Query.players()
                                     .withinCombatLevels(Combat.getWildernessLevel())
                                     .isNotEquipped(PVM_GEAR)
                                     .findFirst()
                                     .ifPresent(this::escape);
+                            */
 
-                            if (possiblePker == null && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
+                            if (pkers.isEmpty() && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
                                 Log.debug("I'm stuck.. Teleporting out");
                                 TeleportManager.teleportOut();
                                 continue;
@@ -673,13 +711,8 @@ public class DetectPlayerThread extends Thread {
                                 continue;
                             }
 
-                            if (detectedRaggers){
-                                var ragger = Query.players()
-                                        .withinCombatLevels(getWildernessLevel())
-                                        .hasSkullIcon()
-                                        .notInArea(FEROX_ENCLAVE)
-                                        .isInteractingWithMe()
-                                        .findFirst().orElse(null);
+                            if (!raggers.isEmpty()){
+                                var ragger = raggers.get(0);
 
                                 if (ragger != null) {
                                     handleEatAndPrayer(ragger);
