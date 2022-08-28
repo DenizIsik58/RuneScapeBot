@@ -335,6 +335,7 @@ public class DetectPlayerThread extends Thread {
                                 Log.debug("I'm frozen returning failure");
                                 return WalkState.FAILURE;
                             }
+                            Waiting.wait(100);
                             return WalkState.CONTINUE;
 
                         });
@@ -388,7 +389,7 @@ public class DetectPlayerThread extends Thread {
                             }, 13000);
                         }*/
                         handleEatAndPrayer(pker);
-                        Waiting.wait(50);
+                        Waiting.wait(100);
                     }
                     continue;
                 }
