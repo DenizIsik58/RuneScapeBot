@@ -1,10 +1,7 @@
 package scripts.rev;
 
 
-import org.tribot.script.sdk.Combat;
-import org.tribot.script.sdk.MyPlayer;
-import org.tribot.script.sdk.Prayer;
-import org.tribot.script.sdk.Waiting;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 
 public class MagicManager implements Runnable {
@@ -37,7 +34,11 @@ public class MagicManager implements Runnable {
                 }
                 }
 
-            Waiting.wait(50);
+            try {
+                Thread.sleep(50);
+            }catch (Exception e) {
+                Log.error(e);
+            }
         }
     }
 }

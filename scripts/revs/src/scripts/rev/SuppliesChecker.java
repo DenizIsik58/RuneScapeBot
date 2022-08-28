@@ -1,9 +1,7 @@
 package scripts.rev;
 
-import org.tribot.script.sdk.Combat;
 import org.tribot.script.sdk.Equipment;
 import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
 
 public class SuppliesChecker implements Runnable{
@@ -39,7 +37,11 @@ public class SuppliesChecker implements Runnable{
 
             }
 
-            Waiting.wait(5000);
+            try {
+                Thread.sleep(5000);
+            }catch (Exception e) {
+                Log.error(e);
+            }
         }
 
     }

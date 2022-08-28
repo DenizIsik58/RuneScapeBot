@@ -594,7 +594,7 @@ public class DetectPlayerThread extends Thread {
         running.set(true);
         while (running.get()) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 Log.debug(e);
                 e.printStackTrace();
@@ -676,6 +676,7 @@ public class DetectPlayerThread extends Thread {
 
                             if (!pkers.isEmpty()) {
                                 escape(pkers.get(0));
+
                             }
 
                             Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
