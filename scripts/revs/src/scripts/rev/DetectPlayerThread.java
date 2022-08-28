@@ -122,25 +122,15 @@ public class DetectPlayerThread extends Thread {
                 .isAny();
     }
 
-    public static boolean detectPlayers() {
+    public static boolean detectPkers() {
+
         var allPlayers = Query.players()
                 .withinCombatLevels(getWildernessLevel())
-                .notInArea(FEROX_ENCLAVE).toList();
+                .notInArea(FEROX_ENCLAVE)
+                .toList();
 
-        var skulledPlayers = allPlayers.stream()
-                .filter(player -> player.getSkullIcon().isPresent())
-                .collect(Collectors.toList());
-
-        var raggers = allPlayers.stream()
-                .filter(player -> player.isInteractingWithMe())
-                .collect(Collectors.toList());
-
-        var pkers = allPlayers.stream()
-                .filter(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())))
-                .collect(Collectors.toList());
-
-
-        return !skulledPlayers.isEmpty() || !raggers.isEmpty() || !pkers.isEmpty();
+        if (allPlayers.stream().anyMatch(player -> player.isInteractingWithMe())) return true;
+        return allPlayers.stream().anyMatch(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())));
     }
 
     public static boolean canTargetAttackMe(String name) {
@@ -612,7 +602,7 @@ public class DetectPlayerThread extends Thread {
             if (paused.get()) continue;
 
             var danger = inDanger();
-            var detectedPkers = detectPlayers();
+            var detectedPkers = detectPkers();
             var teleblocked = isTeleblocked();
 
 
@@ -675,10 +665,6 @@ public class DetectPlayerThread extends Thread {
                             var allPlayers = Query.players()
                                     .withinCombatLevels(getWildernessLevel())
                                     .notInArea(FEROX_ENCLAVE).toList();
-
-                            var skulledPlayers = allPlayers.stream()
-                                    .filter(player -> player.getSkullIcon().isPresent())
-                                    .collect(Collectors.toList());
 
                             var raggers = allPlayers.stream()
                                     .filter(player -> player.isInteractingWithMe())
