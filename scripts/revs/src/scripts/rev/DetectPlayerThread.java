@@ -130,7 +130,7 @@ public class DetectPlayerThread extends Thread {
                 .toList();
 
         if (allPlayers.stream().anyMatch(player -> player.isInteractingWithMe())) return true;
-        return allPlayers.stream().anyMatch(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())));
+        return allPlayers.stream().allMatch(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())));
     }
 
     public static boolean canTargetAttackMe(String name) {
