@@ -129,8 +129,15 @@ public class DetectPlayerThread extends Thread {
                 .notInArea(FEROX_ENCLAVE)
                 .toList();
 
-        if (allPlayers.stream().anyMatch(player -> player.isInteractingWithMe())) return true;
-        return allPlayers.stream().allMatch(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())));
+        if (allPlayers.stream().anyMatch(player -> player.isInteractingWithMe())) {
+            Log.debug("Interacting with me");
+            return true;
+        }
+        if (allPlayers.stream().allMatch(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())))){
+            Log.debug("We have a pker");
+            return true;
+        }
+        return false;
     }
 
     public static boolean canTargetAttackMe(String name) {
