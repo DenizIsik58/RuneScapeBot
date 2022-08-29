@@ -695,11 +695,6 @@ public class DetectPlayerThread extends Thread {
 
                             processing.set(true);
 
-                            if (!MyRevsClient.myPlayerIsInCave()) {
-
-                                continue;
-                            }
-
                             /*var allPlayers = Query.players()
                                     .withinCombatLevels(getWildernessLevel())
                                     .notInArea(FEROX_ENCLAVE)
@@ -747,8 +742,8 @@ public class DetectPlayerThread extends Thread {
                                 escape(skulled);
                                 continue;
                             }
-                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                            MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+
+                            TeleportManager.teleportOut();
 
                             continue;
                         }
@@ -760,35 +755,17 @@ public class DetectPlayerThread extends Thread {
                                         .isNotEquipped(PVM_GEAR)
                                         .findFirst().orElse(null);
 
-                                if (possiblePker == null && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
-                                    Log.debug("I'm stuck.. Teleporting out");
-                                    if (!MyRevsClient.myPlayerIsInCave()) {
-                                        Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-
-                                    }else {
-                                        TeleportManager.teleportOut();
-                                    }
-
-                                    MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
-
-                                    continue;
-                                }
-
                                 Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
                                 if (possiblePker != null) {
                                     escape(possiblePker);
                                     continue;
                                 }
+
+                                TeleportManager.teleportOut();
+
+
+                                MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                             }
-
-
-
-
-
-
-
-
-
 
                             if (isTeleblocked()) {
                                 continue;
@@ -805,8 +782,17 @@ public class DetectPlayerThread extends Thread {
                                 if (ragger != null) {
                                     handleEatAndPrayer(ragger);
                                     escape(ragger);
+                                    continue;
                                 }
+
+                                TeleportManager.teleportOut();
+
+
+                                MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+
                             }
+
+                            TeleportManager.teleportOut();
 
 
                             processing.set(false);

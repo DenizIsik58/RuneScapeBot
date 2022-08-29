@@ -702,13 +702,14 @@ public class BankManagerRevenant {
 
 
 
-        for (var item : MyRevsClient.getScript().isSkulledScript() && MyRevsClient.myPlayerHas40Defence() && Skill.RANGED.getActualLevel() >= 70 ? EquipmentManager.getSkulledGear() :  EquipmentManager.getPureGear()) {
+        for (var item : MyRevsClient.getScript().isSkulledScript() && MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getSkulledGear() :  EquipmentManager.getPureGear()) {
 
             if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
                 continue;
             }
 
             if (Skill.RANGED.getActualLevel() < 70 && item.equals("Black d'hide chaps") && !Query.bank().nameEquals("Red d'hide chaps").isAny()) {
+                Log.debug("Out of red hide chaps");
                 itemsToBuy.add("Red d'hide chaps");
             }
 

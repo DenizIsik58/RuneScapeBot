@@ -9,13 +9,15 @@ import org.tribot.script.sdk.types.GameObject;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
-import scripts.api.*;
+import scripts.api.MyBanker;
+import scripts.api.MyClient;
+import scripts.api.MyExchange;
+import scripts.api.MyTeleporting;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.tribot.script.sdk.Combat.getWildernessLevel;
 import static org.tribot.script.sdk.Waiting.waitUntil;
 
 public class TeleportManager {
@@ -317,16 +319,20 @@ public class TeleportManager {
             Log.debug("not in wildy. Stopping teleport process");
             return;
         }
-
         Log.debug("Teleport out process has begun");
-        var location = new WorldTile(3205, 10082, 0);
-        GlobalWalking.walkTo(location,  () -> {
-            if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap() || !Combat.isInWilderness()) {
-                Log.debug("Failure..");
-                return WalkState.FAILURE;
-            }
-            return WalkState.CONTINUE;
-        });
+        if (MyRevsClient.myPlayerIsInCave()) {
+
+            var location = new WorldTile(3205, 10082, 0);
+            GlobalWalking.walkTo(location, () -> {
+                if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap() || !Combat.isInWilderness()) {
+                    Log.debug("Failure..");
+                    return WalkState.FAILURE;
+                }
+                return WalkState.CONTINUE;
+            });
+        }
+
+
 
         Waiting.wait(2500);
         Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));

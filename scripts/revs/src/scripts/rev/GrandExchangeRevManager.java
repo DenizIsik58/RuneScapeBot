@@ -165,7 +165,7 @@ public class GrandExchangeRevManager {
                 if (!mulingPosition.isRendered() || !mulingPosition.isRendered()) {
                     GlobalWalking.walkTo(mulingPosition);
                 }
-                String mulerName = null;
+                String mulerName = content[3];
                 if (content.length == 6) {
                     mulerName = content[3] + " " + content[4];
                 } else if (content.length == 7) {
@@ -179,6 +179,7 @@ public class GrandExchangeRevManager {
                 world = Integer.parseInt(content[content.length-1]);
 
                 Log.debug("World: " + world);
+                Log.debug("Mulername: " + mulerName);
 
                 if (WorldHopper.getCurrentWorld() != world) {
                     WorldHopper.hop(world);
@@ -191,7 +192,6 @@ public class GrandExchangeRevManager {
                 MyRevsClient.getScript().getSocketClient().startConnection("localhost", 6668);
 
                 Log.debug("Tried connecting to mule but couldn't");
-                Log.error(e);
             }
         }
         WorldManager.hopToRandomMemberWorldWithRequirements();
