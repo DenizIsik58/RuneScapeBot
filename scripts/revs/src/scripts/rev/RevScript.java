@@ -117,7 +117,7 @@ public class RevScript extends MyScriptExtension {
         MessageListening.addServerMessageListener(MyRevsClient::processMessage);
 
         DaxWalker.setGlobalWalkingCondition(() -> {
-            Waiting.waitNormal(500, 100);
+            Waiting.waitNormal(100, 100);
             handlePkThread();
             if (isCancellingWalking()) {
                 // if we shouldn't walk, and since we are here we are walking,
@@ -275,7 +275,7 @@ public class RevScript extends MyScriptExtension {
         walkDebounce.debounce();
     }
 
-    private void handlePkThread() {
+    public void handlePkThread() {
         //Log.debug("Handling pk thread");
        var wasInWild = inWilderness.get();
         var isInWild = Combat.isInWilderness();

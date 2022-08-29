@@ -122,25 +122,33 @@ public class DetectPlayerThread extends Thread {
                 .isAny();
     }
 
-    public static boolean detectPkers() {
 
+    public static boolean detectPkers() {
+        Log.debug("Checking for pkers");
         var allPlayers = Query.players()
                 .withinCombatLevels(getWildernessLevel())
                 .notInArea(FEROX_ENCLAVE)
                 .toList();
 
-        if (allPlayers.isEmpty()) return false;
+        if (allPlayers.isEmpty()) {
+            Log.debug("Empty pkers");
+            return false;
+        }
+
+
 
         if (allPlayers.stream().anyMatch(player -> player.isInteractingWithMe())) {
             Log.debug("Interacting with me");
             return true;
         }
-        if (allPlayers.stream().allMatch(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())))){
+        if (allPlayers.stream().allMatch(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())) && (player.getSkullIcon().isEmpty() || player.getSkullIcon().isPresent()))){
             Log.debug("We have a pker");
             return true;
         }
+
         return false;
     }
+
 
     public static boolean canTargetAttackMe(String name) {
         return Query.players()
@@ -609,7 +617,7 @@ public class DetectPlayerThread extends Thread {
         running.set(true);
         while (running.get()) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 Log.debug(e);
                 e.printStackTrace();
@@ -617,7 +625,13 @@ public class DetectPlayerThread extends Thread {
             if (paused.get()) continue;
 
             var danger = inDanger();
-            var detectedPkers = detectPkers();
+
+           //var detectedPkers = detectPkers();
+
+            var detectedPkers = detectPKers();
+            var detectedRaggers = detectRaggers();
+            var detectedSkull = detectSkull();
+
             var teleblocked = isTeleblocked();
 
 
@@ -638,8 +652,9 @@ public class DetectPlayerThread extends Thread {
 
                 if (!danger) {
 
-                    if (detectedPkers || teleblocked) {
+                    if (detectedPkers || detectedRaggers || detectedSkull || teleblocked) {
                         if (detectedPkers) Log.warn("[DANGER_LISTENER] DETECTED DANGER - PKER");
+                        if (detectedRaggers) Log.warn("[DANGER_LISTENER] DETECTED DANGER - RAGGER");
                         if (teleblocked) Log.warn("[DANGER_LISTENER] DETECTED DANGER - TELEBLOCK");
 
                         setInDanger(true);
@@ -664,10 +679,8 @@ public class DetectPlayerThread extends Thread {
                         int dangerMouseSpeed = getRandomNumber(1500, 2000);
                         Mouse.setSpeed(dangerMouseSpeed);
                     }
-
                     teleblocked = isTeleblocked();
                     Log.debug("Am I teleblocked? " + teleblocked);
-
                     if (!teleblocked) {
                         Log.trace("[DANGER_LISTENER] NOT TELEBLOCKED - Teleporting");
                         if (isAntiPking()) {
@@ -677,16 +690,22 @@ public class DetectPlayerThread extends Thread {
                         if (!processing.get()) {
 
                             processing.set(true);
-                            var allPlayers = Query.players()
+
+
+                            /*var allPlayers = Query.players()
                                     .withinCombatLevels(getWildernessLevel())
-                                    .notInArea(FEROX_ENCLAVE).toList();
+                                    .notInArea(FEROX_ENCLAVE)
+                                    .toList();
+
 
                             var raggers = allPlayers.stream()
                                     .filter(player -> player.isInteractingWithMe())
                                     .collect(Collectors.toList());
 
-                            var pkers = allPlayers.stream().filter(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName())))
+
+                            var pkers = allPlayers.stream().filter(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName()) && (player.getSkullIcon().isEmpty() || player.getSkullIcon().isPresent())))
                                     .collect(Collectors.toList());
+
 
                             if (pkers.isEmpty() && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
                                 Log.debug("I'm stuck.. Teleporting out");
@@ -695,18 +714,59 @@ public class DetectPlayerThread extends Thread {
                             }
 
                             if (!pkers.isEmpty()) {
+                                Log.debug("Found pker non skull");
                                 escape(pkers.get(0));
                                 continue;
                             }
 
-                            Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
 
-                            /*Query.players()
-                                    .withinCombatLevels(Combat.getWildernessLevel())
+
+
+                            if (!raggers.isEmpty()) {
+                                Log.debug("Found ragger");
+                                escape(raggers.get(0));
+                                continue;
+                            }*/
+
+                        if (detectedSkull) {
+                            var skulled = Query.players()
+                                    .withinCombatLevels(getWildernessLevel())
+                                    .notInArea(FEROX_ENCLAVE)
                                     .isNotEquipped(PVM_GEAR)
-                                    .findFirst()
-                                    .ifPresent(this::escape);
-                            */
+                                    .hasSkullIcon().findFirst().orElse(null);
+                            if (skulled != null) {
+                                escape(skulled);
+                            }
+                            continue;
+                        }
+
+
+                           var possiblePker = Query.players()
+                                    .withinCombatLevels(getWildernessLevel())
+                                    .notInArea(FEROX_ENCLAVE)
+                                    .isNotEquipped(PVM_GEAR)
+                                    .findFirst().orElse(null);
+
+
+
+                            if (possiblePker == null && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
+                                Log.debug("I'm stuck.. Teleporting out");
+                                if (!MyRevsClient.myPlayerIsInCave()) {
+                                    Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                                }else {
+                                    TeleportManager.teleportOut();
+                                }
+
+                                continue;
+                            }
+
+                            Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
+                            if (possiblePker != null) {
+                                escape(possiblePker);
+                                continue;
+                            }
+
+
 
 
 
@@ -714,8 +774,13 @@ public class DetectPlayerThread extends Thread {
                                 continue;
                             }
 
-                            if (!raggers.isEmpty()){
-                                var ragger = raggers.get(0);
+                            if (detectedRaggers){
+                                var ragger = Query.players()
+                                        .withinCombatLevels(getWildernessLevel())
+                                        .hasSkullIcon()
+                                        .notInArea(FEROX_ENCLAVE)
+                                        .isInteractingWithMe()
+                                        .findFirst().orElse(null);
 
                                 if (ragger != null) {
                                     handleEatAndPrayer(ragger);

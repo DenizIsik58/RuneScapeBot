@@ -39,16 +39,17 @@ public class LootingManager {
     private static int totalValue = 0;
 
     public static void loot() {
+        MyRevsClient.getScript().handlePkThread();
         if (!startLooting.get()) {
             startLooting.set(true);
 
 
-            startLooting.set(false);
+
 
             if (!Combat.isInWilderness()) {
                 Log.debug("Not in wilderness. Cancelling looting");
                 if (!MyRevsClient.getScript().isState(State.BANKING)){
-                    MyRevsClient.getScript().isState(State.BANKING);
+                    MyRevsClient.getScript().setState(State.BANKING);
                 }
                 return;
             }
@@ -183,6 +184,7 @@ public class LootingManager {
                 Log.debug("I'm not in wildy switching to bank");
                 MyRevsClient.getScript().setState(State.BANKING);
             }
+            startLooting.set(false);
         }
     }
 

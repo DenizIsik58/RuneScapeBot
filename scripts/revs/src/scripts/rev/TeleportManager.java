@@ -337,6 +337,7 @@ public class TeleportManager {
         }
         Log.debug("Switching to banking state");
         MyRevsClient.getScript().setState(State.BANKING);
+        Waiting.waitNormal(1500, 100);
     }
 
     public static Area getSouthOrk() {
