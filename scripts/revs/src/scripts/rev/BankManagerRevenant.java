@@ -13,7 +13,6 @@ import org.tribot.script.sdk.types.Widget;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
-import scripts.api.MyClient;
 import scripts.api.MyExchange;
 import scripts.api.MyTeleporting;
 
@@ -703,7 +702,7 @@ public class BankManagerRevenant {
 
 
 
-        for (var item : MyRevsClient.getScript().isSkulledScript() && MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getSkulledGear() :  EquipmentManager.getPureGear()) {
+        for (var item : MyRevsClient.getScript().isSkulledScript() && MyRevsClient.myPlayerHas40Defence() && Skill.RANGED.getActualLevel() >= 70 ? EquipmentManager.getSkulledGear() :  EquipmentManager.getPureGear()) {
 
             if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
                 continue;

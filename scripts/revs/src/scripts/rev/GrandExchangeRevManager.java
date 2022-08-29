@@ -9,7 +9,6 @@ import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
 import scripts.api.MyExchange;
 import scripts.api.MyScriptVariables;
-import scripts.api.MyWorldHopper;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -175,15 +174,11 @@ public class GrandExchangeRevManager {
                     mulerName = content[3] + " " + content[4] + " " + content[5] + " " + content[6];
                 }
 
-                int world = 0;
+                int world;
 
-                if (content.length == 6) {
-                    world = Integer.parseInt(content[5]);
-                } else if (content.length == 7) {
-                    world = Integer.parseInt(content[6]);
-                } else if (content.length == 8) {
-                    world = Integer.parseInt(content[7]);
-                }
+                world = Integer.parseInt(content[content.length-1]);
+
+                Log.debug("World: " + world);
 
                 if (WorldHopper.getCurrentWorld() != world) {
                     WorldHopper.hop(world);
