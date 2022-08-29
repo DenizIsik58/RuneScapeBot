@@ -45,7 +45,7 @@ public class MulerScript extends MyScriptExtension {
              }
         }
 
-        while (slaves.size() != 0) {
+
             for (int i = 0; i < slaves.size(); i++) {
                 if (hasFinishedCurrentTrade()) {
                     Log.debug("Attempting to add a new target slave for trading");
@@ -67,7 +67,7 @@ public class MulerScript extends MyScriptExtension {
                 }
             }
             Waiting.wait(100);
-        }
+
         setState(MulerState.IDLING);
     }
 
