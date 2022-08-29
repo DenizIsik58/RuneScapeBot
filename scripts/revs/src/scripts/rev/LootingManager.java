@@ -40,11 +40,6 @@ public class LootingManager {
 
     public static void loot() {
         MyRevsClient.getScript().handlePkThread();
-        if (!startLooting.get()) {
-            startLooting.set(true);
-
-
-
 
             if (!Combat.isInWilderness()) {
                 Log.debug("Not in wilderness. Cancelling looting");
@@ -96,7 +91,6 @@ public class LootingManager {
 
                 if (!changed) {
                     Log.debug("Not changed");
-                    startLooting.set(false);
                     loot();
                 } else {
 
@@ -138,7 +132,7 @@ public class LootingManager {
 
                 MyRevsClient.getScript().setState(State.BANKING);
                 Log.debug("Switched to banking stage. I hit 200k+ bag");
-                startLooting.set(false);
+
                 return;
             }
 
@@ -157,12 +151,12 @@ public class LootingManager {
 
                     if (hasPkerBeenDetected()) {
                         Log.debug("Pker has been detected. Cancelled further looting");
-                        startLooting.set(false);
+
                         return;
                     }
 
                     if (!pickedUp) {
-                        startLooting.set(false);
+
                         loot();
                     }
                 } else {
@@ -188,8 +182,8 @@ public class LootingManager {
                 Log.debug("I'm not in wildy switching to bank");
                 MyRevsClient.getScript().setState(State.BANKING);
             }
-            startLooting.set(false);
-        }
+
+
     }
 
     private static void closeLootingBag(){
