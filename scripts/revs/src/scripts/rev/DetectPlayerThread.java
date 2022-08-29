@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import static org.tribot.script.sdk.Combat.getWildernessLevel;
 
@@ -36,7 +35,7 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean danger = new AtomicBoolean(false);
     //    private final AtomicBoolean dangerFlag = new AtomicBoolean(false);
     private final AtomicBoolean isAntiPking = new AtomicBoolean(false);
-    private final static String[] PVM_GEAR = new String[]{"Abyssal tentacle","Elder maul", "Abyssal whip","Bone crossbow","Red d'hide body", "Black d'hide body", "Rune scimitar", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
+    private final static String[] PVM_GEAR = new String[]{"Crystal bow","Abyssal tentacle","Elder maul", "Abyssal whip","Bone crossbow","Red d'hide body", "Black d'hide body", "Rune scimitar", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3120, 3623, 0));
     private final SimpleBooleanProperty running = new SimpleBooleanProperty(false);
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
