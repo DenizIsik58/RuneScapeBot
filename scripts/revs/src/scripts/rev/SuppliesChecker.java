@@ -9,6 +9,10 @@ public class SuppliesChecker implements Runnable{
     public void run() {
 
         while (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
+            if (MyRevsClient.getScript().getPlayerDetectionThread().isTeleblocked()) {
+                continue;
+            }
+
             if (Query.inventory().nameContains("Blighted super restore").count() == 0) {
                 Log.debug("Low of restore");
                 RevkillerManager.setLowRestores(true);

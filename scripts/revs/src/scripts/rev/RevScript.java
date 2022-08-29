@@ -146,9 +146,8 @@ public class RevScript extends MyScriptExtension {
     @Override
     protected void onMainLoop() {
         MyScriptVariables.updateStatus(state.toString());
-        updateState();
-
         handlePkThread();
+        updateState();
 
         if (playerDetectionThread != null && playerDetectionThread.hasPkerBeenDetected()){
             //Log.info("Pker detected.");
@@ -225,6 +224,7 @@ public class RevScript extends MyScriptExtension {
 
         if (MyRevsClient.myPlayerIsAtEdgeDitch()) {
             Query.gameObjects().idEquals(23271).findRandom().map(c -> c.click("Cross"));
+            setState(State.BANKING);
         }
 
         if (MyRevsClient.myPlayerIsDead()){

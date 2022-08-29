@@ -351,9 +351,9 @@ public class DetectPlayerThread extends Thread {
                         handleEatAndPrayer(pker);
                         Query.gameObjects().idEquals(31558).findFirst()
                                 .map(c -> c.interact("Climb-up"));
-
+                        Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave());
                     } else {
-                        //ensureWalkingPermission();
+                        ensureWalkingPermission();
                         //MyExchange.walkToGrandExchange();
                         Log.debug("i'm out of cave running south");
                         MyPlayer.getTile().translate(0, -15).clickOnMinimap();
