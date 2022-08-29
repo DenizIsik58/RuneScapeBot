@@ -498,7 +498,12 @@ public class DetectPlayerThread extends Thread {
                                         }*/
         if (!MyRevsClient.myPlayerIsInCave()) {
             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+            var inGe = Waiting.waitUntil(4000, MyRevsClient::myPlayerIsInGE);
+            if (!inGe) {
+                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+            }
             MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+
             return;
         }
         double startTime;
@@ -690,6 +695,10 @@ public class DetectPlayerThread extends Thread {
 
                             processing.set(true);
 
+                            if (!MyRevsClient.myPlayerIsInCave()) {
+
+                                continue;
+                            }
 
                             /*var allPlayers = Query.players()
                                     .withinCombatLevels(getWildernessLevel())
@@ -733,37 +742,49 @@ public class DetectPlayerThread extends Thread {
                                     .notInArea(FEROX_ENCLAVE)
                                     .isNotEquipped(PVM_GEAR)
                                     .hasSkullIcon().findFirst().orElse(null);
+
                             if (skulled != null) {
                                 escape(skulled);
+                                continue;
                             }
+                            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                            MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+
                             continue;
                         }
 
+                            if (detectedPkers) {
+                                var possiblePker = Query.players()
+                                        .withinCombatLevels(getWildernessLevel())
+                                        .notInArea(FEROX_ENCLAVE)
+                                        .isNotEquipped(PVM_GEAR)
+                                        .findFirst().orElse(null);
 
-                           var possiblePker = Query.players()
-                                    .withinCombatLevels(getWildernessLevel())
-                                    .notInArea(FEROX_ENCLAVE)
-                                    .isNotEquipped(PVM_GEAR)
-                                    .findFirst().orElse(null);
+                                if (possiblePker == null && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
+                                    Log.debug("I'm stuck.. Teleporting out");
+                                    if (!MyRevsClient.myPlayerIsInCave()) {
+                                        Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
 
+                                    }else {
+                                        TeleportManager.teleportOut();
+                                    }
 
+                                    MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
 
-                            if (possiblePker == null && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
-                                Log.debug("I'm stuck.. Teleporting out");
-                                if (!MyRevsClient.myPlayerIsInCave()) {
-                                    Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                                }else {
-                                    TeleportManager.teleportOut();
+                                    continue;
                                 }
 
-                                continue;
+                                Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
+                                if (possiblePker != null) {
+                                    escape(possiblePker);
+                                    continue;
+                                }
                             }
 
-                            Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
-                            if (possiblePker != null) {
-                                escape(possiblePker);
-                                continue;
-                            }
+
+
+
+
 
 
 

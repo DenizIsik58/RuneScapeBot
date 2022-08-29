@@ -96,6 +96,7 @@ public class LootingManager {
 
                 if (!changed) {
                     Log.debug("Not changed");
+                    startLooting.set(false);
                     loot();
                 } else {
 
@@ -137,6 +138,7 @@ public class LootingManager {
 
                 MyRevsClient.getScript().setState(State.BANKING);
                 Log.debug("Switched to banking stage. I hit 200k+ bag");
+                startLooting.set(false);
                 return;
             }
 
@@ -155,10 +157,12 @@ public class LootingManager {
 
                     if (hasPkerBeenDetected()) {
                         Log.debug("Pker has been detected. Cancelled further looting");
+                        startLooting.set(false);
                         return;
                     }
 
                     if (!pickedUp) {
+                        startLooting.set(false);
                         loot();
                     }
                 } else {
