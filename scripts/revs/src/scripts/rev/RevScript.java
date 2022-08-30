@@ -277,15 +277,16 @@ public class RevScript extends MyScriptExtension {
 
     public void handlePkThread() {
         //Log.debug("Handling pk thread");
-       var wasInWild = inWilderness.get();
+        var wasInWild = inWilderness.get();
         var isInWild = Combat.isInWilderness();
         if (wasInWild != isInWild) {
             if (isInWild) {
                 startPkThread();
-            } else {
-                killPkThread();
             }
-            inWilderness.set(isInWild);
+        }
+        inWilderness.set(isInWild);
+        if (!isInWild) {
+            killPkThread();
         }
 
     }

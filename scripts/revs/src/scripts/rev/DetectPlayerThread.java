@@ -819,6 +819,7 @@ public class DetectPlayerThread extends Thread {
             } else {
                 //Log.debug("Out of wilderness. Resetting danger states");
                 resetDangerSigns();
+                MyRevsClient.getScript().killPkThread();
             }
         }
         // if running waFs set false and thread is ending, run these one last time
