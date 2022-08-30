@@ -730,6 +730,9 @@ public class DetectPlayerThread extends Thread {
                                 escape(raggers.get(0));
                                 continue;
                             }*/
+                            if (!MyRevsClient.myPlayerIsInCave()) {
+                                TeleportManager.teleportOut();
+                            }
 
                         if (detectedSkull) {
                             var skulled = Query.players()
