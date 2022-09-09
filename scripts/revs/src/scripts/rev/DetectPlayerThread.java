@@ -573,6 +573,7 @@ public class DetectPlayerThread extends Thread {
             Log.debug("We are not in wilderness");
             return;
         }
+
         handleEatAndPrayer(pker);
 
         Equipment.Slot.RING.getItem().ifPresent(ring -> {
@@ -687,49 +688,18 @@ public class DetectPlayerThread extends Thread {
                     Log.debug("Am I teleblocked? " + teleblocked);
                     if (!teleblocked) {
                         Log.trace("[DANGER_LISTENER] NOT TELEBLOCKED - Teleporting");
+
                         if (isAntiPking()) {
                             setAntiPking(false);
                         }
+
+
+                            Log.debug("Proccessing: " + processing.get());
 
                         if (!processing.get()) {
 
                             processing.set(true);
 
-                            /*var allPlayers = Query.players()
-                                    .withinCombatLevels(getWildernessLevel())
-                                    .notInArea(FEROX_ENCLAVE)
-                                    .toList();
-
-
-                            var raggers = allPlayers.stream()
-                                    .filter(player -> player.isInteractingWithMe())
-                                    .collect(Collectors.toList());
-
-
-                            var pkers = allPlayers.stream().filter(player -> player.getEquipment().stream().noneMatch(item -> List.of(PVM_GEAR).contains(item.getName()) && (player.getSkullIcon().isEmpty() || player.getSkullIcon().isPresent())))
-                                    .collect(Collectors.toList());
-
-
-                            if (pkers.isEmpty() && (MyRevsClient.getScript().isState(scripts.rev.State.BANKING) || MyRevsClient.getScript().isState(scripts.rev.State.KILLING)) && !MyRevsClient.myPlayerIsInGE()) {
-                                Log.debug("I'm stuck.. Teleporting out");
-                                TeleportManager.teleportOut();
-                                continue;
-                            }
-
-                            if (!pkers.isEmpty()) {
-                                Log.debug("Found pker non skull");
-                                escape(pkers.get(0));
-                                continue;
-                            }
-
-
-
-
-                            if (!raggers.isEmpty()) {
-                                Log.debug("Found ragger");
-                                escape(raggers.get(0));
-                                continue;
-                            }*/
 
                         if (detectedSkull) {
                             var skulled = Query.players()
@@ -756,8 +726,10 @@ public class DetectPlayerThread extends Thread {
                                         .findFirst().orElse(null);
 
                                 Log.debug("ESCAPING PROCESS HAS BEEN STARTED");
+
                                 if (possiblePker != null) {
                                     escape(possiblePker);
+                                    processing.set(false);
                                     continue;
                                 }
 
@@ -782,12 +754,11 @@ public class DetectPlayerThread extends Thread {
                                 if (ragger != null) {
                                     handleEatAndPrayer(ragger);
                                     escape(ragger);
+                                    processing.set(false);
                                     continue;
                                 }
 
                                 TeleportManager.teleportOut();
-
-
                                 MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
 
                             }

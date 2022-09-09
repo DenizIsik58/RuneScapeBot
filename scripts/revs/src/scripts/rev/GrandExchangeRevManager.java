@@ -193,8 +193,9 @@ public class GrandExchangeRevManager {
 
                 Log.debug("Tried connecting to mule but couldn't");
             }
+            WorldManager.hopToRandomMemberWorldWithRequirements();
         }
-        WorldManager.hopToRandomMemberWorldWithRequirements();
+
     }
 
     private static void trade(String mulerName){
@@ -332,13 +333,15 @@ public class GrandExchangeRevManager {
             } else if (item.equals("Bandos cloak")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 1, 0, true);
             } else if (item.equals("Amulet of avarice")) {
-                MyExchange.createGrandExchangeBuyOrder(item, 1, 1000000, false);
+                MyExchange.createGrandExchangeBuyOrder(item, 1, 0, true);
             } else if (item.equals("Magic shortbow")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 10, 10000, false);
             } else if (item.equals("Rune arrow")) {
-                MyExchange.createGrandExchangeBuyOrder(item, 5000, 0, true);
+                MyExchange.createGrandExchangeBuyOrder(item, 5000, 100, false);
             } else if (item.equals("Bracelet of ethereum (uncharged)")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 5, 0, true);
+            }else if (item.contains("chaps")) {
+                MyExchange.createGrandExchangeBuyOrder(item, 5, 10000, false);
             }else{
                 MyExchange.createGrandExchangeBuyOrder(item, 10, 0, true);
             }

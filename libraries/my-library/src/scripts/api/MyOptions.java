@@ -45,6 +45,12 @@ public class MyOptions {
         }
     }
 
+    public static void setResizeAble(){
+        if (Options.getResizableModeType() != Options.ResizableType.FIXED) {
+            Options.setResizableModeType(Options.ResizableType.FIXED);
+        }
+    }
+
     public static void setRunOn(){
         if (!org.tribot.script.sdk.Options.isRunEnabled()) {
             org.tribot.script.sdk.Options.setRunEnabled(true);
@@ -95,6 +101,7 @@ public class MyOptions {
         setRoofsOff();
         setOnPkSkullPrevention();
         closeAllSettings();
+        setResizeAble();
     }
 
 }

@@ -31,7 +31,7 @@ public class RevScript extends MyScriptExtension {
     private DetectPlayerThread playerDetectionThread = null;
 
     private MulingClient muleClient;
-    public AtomicReference<State> state = new AtomicReference<>(State.STARTING);
+    public AtomicReference<State> state = new AtomicReference<>(State.BANKING);
     private WorldTile selectedMonsterTile = new WorldTile(3216, 10091, 0); // South ork by default
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
@@ -139,6 +139,9 @@ public class RevScript extends MyScriptExtension {
         MyOptions.init();
         MyCamera.init();
         PrayerManager.init();
+        if (!WorldHopper.isInMembersWorld()) {
+            WorldManager.hopToRandomMemberWorldWithRequirements();
+        }
 
     }
 
@@ -162,9 +165,11 @@ public class RevScript extends MyScriptExtension {
         switch(getState()) {
             case STARTING:
                 handleStarting();
+                Waiting.wait(2000);
                 return;
             case BANKING:
                 handleBanking();
+                Waiting.wait(2000);
                 return;
             case WALKING:
                 handleWalking();
@@ -178,6 +183,7 @@ public class RevScript extends MyScriptExtension {
                 return;
             case DEATH:
                 handleDeath();
+                Waiting.wait(2000);
                 return;
             case LOOTING:
                 handleLooting();

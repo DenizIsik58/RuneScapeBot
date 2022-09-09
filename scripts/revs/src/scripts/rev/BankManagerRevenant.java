@@ -73,6 +73,7 @@ public class BankManagerRevenant {
     public static void returnFromTrip() {
         //EquipmentManager.checkCharges();
         Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
+        Death.talkToDeath();
         PrayerManager.turnOffAllPrayer();
         MyBanker.openBank();
         drinkAntiVenom();
@@ -332,9 +333,12 @@ public class BankManagerRevenant {
     }
 
     private static EquipmentReq getBody(){
-        if (Skill.RANGED.getActualLevel() >= 70) {
+        if (Skill.RANGED.getActualLevel() >= 70 && MyRevsClient.myPlayerHas40Defence()) {
            return EquipmentReq.slot(Equipment.Slot.BODY).item(2503, Amount.of(1)); // black d hide body
+        }else if (Skill.RANGED.getActualLevel() < 70 && Skill.RANGED.getActualLevel() >= 60 && MyRevsClient.myPlayerHas40Defence()) {
+            return EquipmentReq.slot(Equipment.Slot.BODY).item(2501, Amount.of(1)); // Red d hide body
         }
+
         return EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)); // black d hide body
 
     }
@@ -711,6 +715,22 @@ public class BankManagerRevenant {
             if (Skill.RANGED.getActualLevel() < 70 && item.equals("Black d'hide chaps") && !Query.bank().nameEquals("Red d'hide chaps").isAny()) {
                 Log.debug("Out of red hide chaps");
                 itemsToBuy.add("Red d'hide chaps");
+                continue;
+            }else if (Skill.RANGED.getActualLevel() < 60 && item.equals("Black d'hide chaps") && !Query.bank().nameEquals("Blue d'hide chaps").isAny()) {
+                Log.debug("Out of blue d'hide chaps");
+                itemsToBuy.add("Blue d'hide chaps");
+                continue;
+            }
+
+            if (Skill.RANGED.getActualLevel() < 70 && Skill.RANGED.getActualLevel() >= 60 && MyRevsClient.myPlayerHas40Defence() && !Query.bank().nameEquals("Red d'hide body").isAny()) {
+                Log.debug("Out of Red d'hide body");
+                itemsToBuy.add("Red d'hide body");
+                continue;
+            }
+
+             if (Skill.RANGED.getActualLevel() < 70 && item.equals("Black d'hide body") && !Query.bank().nameEquals("Leather body").isAny()) {
+                Log.debug("Leather bodies");
+                itemsToBuy.add("Leather body");
             }
 
             if (!Query.bank().nameEquals(item).isAny()) {
@@ -729,12 +749,6 @@ public class BankManagerRevenant {
             itemsToBuy.add("Bracelet of ethereum (uncharged)");
         }
 
-        if (!Query.bank().nameEquals("Amulet of glory(6)").isAny()) {
-            if (isUsingGlory) {
-                Log.debug("Out of glories. Adding to buy list!");
-                itemsToBuy.add("Amulet of glory(6)");
-            }
-        }
 
 
         if (itemsToBuy.size() != 0) {

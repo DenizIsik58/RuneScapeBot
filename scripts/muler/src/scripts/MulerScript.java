@@ -33,16 +33,16 @@ public class MulerScript extends MyScriptExtension {
     public void processTrade(String name) {
         var slaves = MultiServerSocket.getNames();
 
-        for (int i = 0; i < slaves.size(); i++) {
-            Log.debug(slaves.get(i));
+        for (String slave : slaves) {
+            Log.debug(slave);
             Log.debug(name);
-             if (StringsUtility.runescapeStringsMatch(slaves.get(i), name)) {
-                 if (!traders.contains(name)) {
-                     Log.debug(Arrays.toString(MultiServerSocket.getNames().toArray()));
-                     Log.debug("Added: " + name + " to the list!");
-                     traders.add(name);
-                 }
-             }
+            if (StringsUtility.runescapeStringsMatch(slave, name)) {
+                if (!traders.contains(name)) {
+                    Log.debug(Arrays.toString(MultiServerSocket.getNames().toArray()));
+                    Log.debug("Added: " + name + " to the list!");
+                    traders.add(name);
+                }
+            }
         }
 
 

@@ -147,6 +147,7 @@ public class TeleportManager {
                         Waiting.waitUntil( () -> MyClient.clickWidget("Continue", 193, 0, 2));
                     }
                     if (ChatScreen.isOpen()){
+                        Waiting.waitNormal(1000,100);
                         Waiting.waitUntil(ChatScreen::clickContinue);
                         Waiting.waitUntil(() -> ChatScreen.containsOption("Yes, don't ask again."));
                         Waiting.waitUntil((() -> ChatScreen.selectOption("Yes, don't ask again.")));
@@ -332,10 +333,17 @@ public class TeleportManager {
             });
         }
 
-
-
         Waiting.wait(2500);
-        Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+        if (Query.inventory().nameContains("Ring of wealth (").isAny() && !Query.equipment().nameContains("Ring of wealth (").isAny()) {
+            Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().map(c -> c.click("Wear"));
+            Waiting.waitUntil(() -> Query.equipment().nameContains("Ring of wealth (").isAny());
+            Equipment.Slot.RING.getItem().ifPresent(ring -> ring.click("Grand Exchange"));
+        }
+
+        if (Query.equipment().nameContains("Ring of wealth (").isAny()) {
+            Equipment.Slot.RING.getItem().ifPresent(ring -> ring.click("Grand Exchange"));
+        }
+
         var inGe = Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
         if (!inGe) {
             Log.debug("Not in GE. trying again....");

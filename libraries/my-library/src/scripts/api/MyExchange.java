@@ -59,12 +59,13 @@ public class MyExchange {
     }
 
     public static boolean createGrandExchangeBuyOrder(String item, int quantity,  int price, boolean adjustment){
-        if (adjustment) {
-            GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(quantity).priceAdjustment(6).type(GrandExchangeOffer.Type.BUY).build());
-        } else {
-            GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(quantity).price(price).type(GrandExchangeOffer.Type.BUY).build());
+        if (!Query.grandExchangeOffers().itemNameEquals(item).isAny()) {
+            if (adjustment) {
+                GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(quantity).priceAdjustment(4).type(GrandExchangeOffer.Type.BUY).build());
+            } else {
+                GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(quantity).price(price).type(GrandExchangeOffer.Type.BUY).build());
+            }
         }
-
         return Waiting.waitUntil(2000, () -> Query.grandExchangeOffers().itemNameEquals(item).isAny());
     }
 
