@@ -2,8 +2,6 @@ package scripts;
 
 import lombok.SneakyThrows;
 import org.tribot.script.sdk.*;
-import scripts.api.MyClient;
-import scripts.api.utility.StringsUtility;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,9 +10,8 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /*public class MultiServerSocket implements Runnable{
 
@@ -63,9 +60,9 @@ import java.util.TimerTask;
 
 public class MultiServerSocket implements Runnable {
     private ServerSocket serverSocket;
-    private static List<String> names = new ArrayList<>();
+    private static Set<String> names = new HashSet<>();
     private static final String tradingRegex = "I want to mule! ([a-zA-Z]+( [a-zA-Z]+)+)";
-
+    private AtomicBoolean listening = new AtomicBoolean(true);
 
     @SneakyThrows
     @Override
@@ -74,7 +71,7 @@ public class MultiServerSocket implements Runnable {
         serverSocket = new ServerSocket(6668, 32, InetAddress.getByName("localhost"));
 
 
-        while (true) {
+        while (isListening()) {
             Log.info("Accepting connections");
                 new EchoClientHandler(serverSocket.accept()).start();
 
@@ -82,8 +79,17 @@ public class MultiServerSocket implements Runnable {
         }
     }
 
+    public boolean isListening(){
+        return listening.get();
+    }
+
+    public void setListening(boolean val){
+        listening.set(val);
+    }
+
     public void stop() throws IOException {
         serverSocket.close();
+        setListening(false);
     }
 
 
@@ -141,7 +147,7 @@ public class MultiServerSocket implements Runnable {
         }
     }
 
-    public static List<String> getNames() {
+    public static Set<String> getNames() {
         return names;
     }
 }

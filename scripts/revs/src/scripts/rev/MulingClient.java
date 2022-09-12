@@ -39,6 +39,7 @@ public class MulingClient {
 
     public void stopConnection() {
         try {
+
             in.close();
             out.close();
             socket.close();

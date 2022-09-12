@@ -8,7 +8,6 @@ import org.tribot.script.sdk.types.Area;
 import org.tribot.script.sdk.types.GroundItem;
 import org.tribot.script.sdk.types.InventoryItem;
 import org.tribot.script.sdk.types.WorldTile;
-import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyScriptVariables;
 import scripts.api.utility.MathUtility;
 
@@ -74,24 +73,16 @@ public class LootingManager {
                 // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
                 item.interact("Take", () -> hasPkerBeenDetected() || !Combat.isInWilderness());
 
-            /*if (itemIndex == 0) {
-                Log.debug("First item to pick up. Hovering over teleport in case pker is waiting.");
-                Equipment.Slot.RING.getItem().ifPresent(ring -> {
-                    ring.hoverMenu("Grand Exchange");
-
-                });
-            }*/
-
                 if (hasPkerBeenDetected()) {
                     Log.debug("Pker has been detected. Cancelled further looting");
                     return;
                 }
 
-                var changed = Waiting.waitUntil(4000, () -> hasDecreased(countBeforePickingUp));
+                var changed = Waiting.waitUntil(4000, () -> hasLootDecreased(countBeforePickingUp));
 
                 if (!changed) {
                     Log.debug("Not changed");
-                    loot();
+                    return;
                 } else {
 
                     if (Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack() >= 450000) {
@@ -141,13 +132,14 @@ public class LootingManager {
 
             for (int itemIndex = 0; itemIndex < allPossibleFood.size(); itemIndex++) {
                 if (Inventory.getAll().size() < 27 && Inventory.contains("Looting bag") && !getAllFood().isEmpty()) {
-                    var foodCount = Query.inventory().actionEquals("Eat").count();
                     closeLootingBag();
                     Log.debug("My inventory is not full, I have a looting bag, and there are angler or manta on the floor");
                     var food = allPossibleFood.get(itemIndex);
+
+                    var foodCount = getAllFood().size();
                     food.interact("Take", () -> hasPkerBeenDetected() || !Combat.isInWilderness());
 
-                    var pickedUp = Waiting.waitUntil(4000, () -> foodCount == Query.inventory().actionEquals("Eat").count() + 1);
+                    var pickedUp = Waiting.waitUntil(6000, () -> hasFoodDecreased(foodCount));
 
                     if (hasPkerBeenDetected()) {
                         Log.debug("Pker has been detected. Cancelled further looting");
@@ -157,7 +149,7 @@ public class LootingManager {
 
                     if (!pickedUp) {
 
-                        loot();
+                        return;
                     }
                 } else {
                     break;
@@ -174,7 +166,7 @@ public class LootingManager {
                 if (!RevkillerManager.getTarget().isVisible()) {
                     RevkillerManager.getTarget().adjustCameraTo();
                 }
-                RevkillerManager.getTarget().click();
+                RevkillerManager.getTarget().interact("Attack");
             }
 
             Log.debug("Ended looting process. Switching back to killing");
@@ -236,8 +228,12 @@ public class LootingManager {
        return false;
     }
 
-    public static boolean hasDecreased(int count) {
+    public static boolean hasLootDecreased(int count) {
         return getAllLoot().size() == count - 1 || getAllLoot().size() == 0;
+    }
+
+    public static boolean hasFoodDecreased(int count) {
+        return getAllFood().size() == count - 1 || getAllFood().size() == 0;
     }
 
     public static boolean hasLootBeenDetected() {

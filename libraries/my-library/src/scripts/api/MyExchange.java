@@ -88,6 +88,7 @@ public class MyExchange {
             Query.bank().nameContains("Ring of wealth (").findFirst().ifPresent(wealth -> {
                 MyBanker.withdraw(wealth.getId(), 1, false);
             });
+            MyBanker.closeBank();
         }
         GlobalWalking.walkTo(grandExchangeArea.getRandomTile());
         return Waiting.waitUntil(5000, MyExchange::isExchangeNearby);

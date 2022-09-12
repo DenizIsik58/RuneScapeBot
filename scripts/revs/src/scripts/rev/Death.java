@@ -30,7 +30,7 @@ public class Death {
                     "How do I know what will happen to my items when I die?");
 
             Query.gameObjects().idEquals(39549).findFirst().ifPresent(portal -> portal.click("Use"));
-
+            Waiting.waitNormal(3000,200);
 
         }
 

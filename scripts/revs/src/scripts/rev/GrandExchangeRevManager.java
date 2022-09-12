@@ -222,8 +222,8 @@ public class GrandExchangeRevManager {
 
                             Log.debug("First trade");
                             TradeScreen.offerAll(995);
-                            Waiting.wait(4000);
                             TradeScreen.accept();
+                            Waiting.waitNormal(1000, 200);
                             return true;
                     });
                     return false;
@@ -235,12 +235,9 @@ public class GrandExchangeRevManager {
                 }
             }
 
-            Waiting.waitNormal(3000, 300);
-
             Log.debug("2nd trade approached");
             // Second trade
             TradeScreen.getStage().filter(tra -> tra == TradeScreen.Stage.SECOND_WINDOW).map(tradeScreen -> {
-                    Waiting.wait(2000);
                     TradeScreen.accept();
                     Waiting.wait(2000);
                     return true;

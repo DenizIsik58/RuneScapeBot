@@ -115,7 +115,7 @@ public abstract class MyScriptExtension implements TribotScript {
         private boolean breakHandlerEnabled = true;
         private boolean loginHandlerEnabled = true;
         private boolean mainLoopWaitsForLogin = true;
-        private int mainLoopInterval = 50;
+        private int mainLoopInterval = 100;
 
         public ScriptSetup enableWaitForLogin() {
             this.mainLoopWaitsForLogin = true;

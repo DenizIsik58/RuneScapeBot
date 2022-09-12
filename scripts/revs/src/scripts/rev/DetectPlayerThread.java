@@ -13,6 +13,7 @@ import org.tribot.script.sdk.types.Player;
 import org.tribot.script.sdk.types.Projectile;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import org.tribot.script.sdk.walking.LocalWalking;
 import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.*;
 import scripts.api.utility.StringsUtility;
@@ -363,47 +364,24 @@ public class DetectPlayerThread extends Thread {
                         ensureWalkingPermission();
                         //MyExchange.walkToGrandExchange();
                         Log.debug("i'm out of cave running south");
-                        MyPlayer.getTile().translate(0, -15).clickOnMinimap();
+
+                        var path = PathManager.getRandomPathToFlee();
+
+                        path.forEach(wt -> {
+                            LocalWalking.walkPath(MyRevsClient.getScript().getMap().getPath(wt), () -> {
+                                if (isFrozen() || !isTeleblocked()) {
+                                    Log.debug("I'm frozen returning failure");
+                                    return WalkState.FAILURE;
+                                }
+                                Waiting.wait(100);
+                                return WalkState.CONTINUE;
+                            });
+                        });
+
+                        //MyPlayer.getTile().translate(0, -15).clickOnMinimap();
 
                         MyOptions.setRunOn();
-                        /*if (!inCombatTimerHasStarted()) {
-                            Log.debug("Timer has been started for pker");
-                            setInCombatTimer(true);
-                            new Timer().schedule(new TimerTask() {
-                                @Override
-                                public void run() {
-                                    if (!Combat.isInWilderness()) {
-                                        Log.debug("Not in wildy. Stopping timer for hop");
-                                        this.cancel();
-                                        return;
-                                    }
-                                    if (!canTargetAttackMe(pker.getName()) && Combat.isInWilderness()) {
 
-                                        // run away if our target is not nearby
-                                        Log.debug("trying to hop worlds... Target is not in sight");
-                                        var hopped = WorldManager.hopToRandomMemberWorldWithRequirements();
-                                        if (!hopped) {
-                                            setInCombatTimer(false);
-                                            Log.debug("Couldn't log out for some unknown reason");
-                                            this.cancel();
-                                            return;
-                                        }
-                                        Log.debug("We have successfully hopped. Teleblock timer i");
-                                        MyScriptVariables.setVariable("lastTeleblockNotification", 0L);
-                                        //TeleportManager.teleportOutOfWilderness("We are trying to teleport out. Target not in sight");
-                                        //Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-                                        Query.inventory().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> ring.click("Wear"));
-                                        Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
-                                        MyExchange.walkToGrandExchange();
-                                        resetDangerSigns();
-                                        setInCombatTimer(false);
-                                        return;
-                                    }
-                                    setInCombatTimer(false);
-                                    Log.debug("Pker can still attack me");
-                                }
-                            }, 13000);
-                        }*/
                         handleEatAndPrayer(pker);
                         Waiting.wait(100);
                     }
@@ -622,7 +600,7 @@ public class DetectPlayerThread extends Thread {
         running.set(true);
         while (running.get()) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(75);
             } catch (InterruptedException e) {
                 Log.debug(e);
                 e.printStackTrace();
@@ -702,6 +680,7 @@ public class DetectPlayerThread extends Thread {
 
 
                         if (detectedSkull) {
+                            Log.debug("Skull detected");
                             var skulled = Query.players()
                                     .withinCombatLevels(getWildernessLevel())
                                     .notInArea(FEROX_ENCLAVE)
@@ -710,15 +689,17 @@ public class DetectPlayerThread extends Thread {
 
                             if (skulled != null) {
                                 escape(skulled);
+                                processing.set(false);
                                 continue;
                             }
 
                             TeleportManager.teleportOut();
-
+                            processing.set(false);
                             continue;
                         }
 
                             if (detectedPkers) {
+                                Log.debug("Pkers detected");
                                 var possiblePker = Query.players()
                                         .withinCombatLevels(getWildernessLevel())
                                         .notInArea(FEROX_ENCLAVE)
@@ -740,10 +721,12 @@ public class DetectPlayerThread extends Thread {
                             }
 
                             if (isTeleblocked()) {
+                                processing.set(false);
                                 continue;
                             }
 
                             if (detectedRaggers){
+                                Log.debug("Raggers detected");
                                 var ragger = Query.players()
                                         .withinCombatLevels(getWildernessLevel())
                                         .hasSkullIcon()

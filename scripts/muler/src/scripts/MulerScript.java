@@ -9,9 +9,7 @@ import scripts.api.utility.MathUtility;
 import scripts.api.utility.StringsUtility;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @TribotScriptManifest(name = "RevMuler", author = "Deniz", category = "Tools", description = "My muler")
@@ -27,15 +25,19 @@ public class MulerScript extends MyScriptExtension {
     public static AtomicReference<MulerState> state = new AtomicReference<>(MulerState.IDLING);
     private static int namesIndex;
     private static int slavesIndex;
-    private List<String> traders = new ArrayList<>();
+    private Set<String> traders = new HashSet<>();
     private MyDiscordWebhook mulerWebhook;
 
     public void processTrade(String name) {
-        var slaves = MultiServerSocket.getNames();
+        var slaves = new ArrayList<>(MultiServerSocket.getNames());
+        Log.debug(Arrays.toString(slaves.toArray()));
 
-        for (String slave : slaves) {
-            Log.debug(slave);
-            Log.debug(name);
+        if (slaves.size() == 0) {
+            setState(MulerState.IDLING);
+            return;
+        }
+
+        /*for (String slave : slaves) {
             if (StringsUtility.runescapeStringsMatch(slave, name)) {
                 if (!traders.contains(name)) {
                     Log.debug(Arrays.toString(MultiServerSocket.getNames().toArray()));
@@ -43,32 +45,81 @@ public class MulerScript extends MyScriptExtension {
                     traders.add(name);
                 }
             }
+        }*/
+
+
+        for (String slave : slaves) {
+                Log.debug("Attempting to add a new target slave for trading");
+                Log.debug("Current target slave: " + getTargetSlave());
+                Log.debug("Current slave in list: " + slave);
+
+                    if (StringsUtility.runescapeStringsMatch(slave, name)) {
+                        Log.debug("Found slave target! Trading: " + slave);
+
+                            Waiting.waitUntil(10000, () -> Chatbox.acceptTradeRequest(name));
+                            Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
+                            var amountOfCoins = TradeScreen.OtherPlayer.getCount("Coins");
+                            Waiting.waitUntil(() -> {
+                                TradeScreen.getStage().map(screen -> {
+                                    if (screen == TradeScreen.Stage.FIRST_WINDOW) {
+                                        if (TradeScreen.OtherPlayer.hasAccepted()) {
+                                            TradeScreen.accept();
+                                            return true;
+                                        }
+                                    }
+                                    return true;
+                                });
+                                return false;
+                            });
+
+
+                            Waiting.waitUntil(25000, () -> {
+                                TradeScreen.getStage().map(screen -> {
+                                    if (screen == TradeScreen.Stage.SECOND_WINDOW) {
+                                        if (TradeScreen.OtherPlayer.hasAccepted()) {
+                                            TradeScreen.accept();
+                                            return true;
+                                        }
+                                    }
+                                    return true;
+                                });
+                                return false;
+                            });
+
+                            totalValue += amountOfCoins;
+                            var totalString = MathUtility.getProfitPerHourString(totalValue);
+                            MyScriptVariables.setProfit(totalString);
+                            slaves.forEach(s -> {
+                                if (s.equals(name)) {
+                                    Log.debug("Finished trading: Removing " + s + " from the list!");
+                                }
+                            });
+
+                            MultiServerSocket.getNames().remove(slave);
+
+                            try {
+                                var screenshot = mulerWebhook.takeScreenShotAndSave("muler");
+
+                                mulerWebhook.setUsername("Revenant Muler")
+                                        .setContent("@everyone **" + MyPlayer.getUsername() + "** has just finished muling - Total gold - **" + Inventory.getCount("Coins") + "**")
+                                        .addFile(screenshot)
+                                        .execute();
+                            }catch (Exception e) {
+                                Log.error(e);
+                            }
+                    }
+                        /*for (int j = 0; j < traders.size(); j++) {
+                            Log.debug("Traget is null");
+
+                            }*/
+
+
         }
 
 
-            for (int i = 0; i < slaves.size(); i++) {
-                if (hasFinishedCurrentTrade()) {
-                    Log.debug("Attempting to add a new target slave for trading");
-                    Log.debug("Current target slave: " + getTargetSlave());
-                    if (getTargetSlave() == null) {
-                        for (int j = 0; j < traders.size(); j++) {
-                            Log.debug("Traget is null");
-                                Log.debug(traders.get(j));
-                                Log.debug(slaves.get(i));
-                                if (StringsUtility.runescapeStringsMatch(slaves.get(i), traders.get(j))) {
-                                    Log.debug("Found slave target! Trading: " + slaves.get(i));
-                                    namesIndex = i;
-                                    slavesIndex = j;
-                                    setTargetSlave(name);
-                                    setHasFinishedCurrentTrade(false);
-                                }
-                            }
-                    }
-                }
-            }
-            Waiting.wait(100);
 
-        setState(MulerState.IDLING);
+
+            Waiting.wait(100);
     }
 
 
@@ -141,67 +192,9 @@ public class MulerScript extends MyScriptExtension {
 
     private void handleMuling() {
         if (MultiServerSocket.getNames().size() == 0) {
+            Log.debug("No slaves left we are idling!");
             setState(MulerState.IDLING);
-            return;
         }
-
-        if (getTargetSlave() != null) {
-            Log.debug("Target slave: " + getTargetSlave());
-            Waiting.waitUntil(10000, () -> Chatbox.acceptTradeRequest(getTargetSlave()));
-            Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
-            var amountOfCoins = TradeScreen.OtherPlayer.getCount("Coins");
-            Waiting.waitUntil(() -> {
-                TradeScreen.getStage().map(screen -> {
-                    if (screen == TradeScreen.Stage.FIRST_WINDOW) {
-                        if (TradeScreen.OtherPlayer.hasAccepted()) {
-                            TradeScreen.accept();
-                            return true;
-                        }
-                    }
-                    return true;
-                });
-                return false;
-            });
-
-
-            Waiting.waitUntil(25000, () -> {
-                TradeScreen.getStage().map(screen -> {
-                    if (screen == TradeScreen.Stage.SECOND_WINDOW) {
-                        if (TradeScreen.OtherPlayer.hasAccepted()) {
-                            TradeScreen.accept();
-                            return true;
-                        }
-                    }
-                    return true;
-                });
-                return false;
-            });
-
-            totalValue += amountOfCoins;
-            var totalString = MathUtility.getProfitPerHourString(totalValue);
-            MyScriptVariables.setProfit(totalString);
-            Log.debug("Finished trading: Removing " + MultiServerSocket.getNames().get(namesIndex) + " from the list!");
-
-            MultiServerSocket.getNames().remove(namesIndex);
-            traders.remove(slavesIndex);
-            setTargetSlave(null);
-            Log.debug("Target slave is: " + getTargetSlave());
-            setHasFinishedCurrentTrade(true);
-            try {
-                var screenshot = mulerWebhook.takeScreenShotAndSave("muler");
-
-                mulerWebhook.setUsername("Revenant Muler")
-                        .setContent("@everyone **" + MyPlayer.getUsername() + "** has just finished muling - Total gold - **" + Inventory.getCount("Coins") + "**")
-                        .addFile(screenshot)
-                        .execute();
-            }catch (Exception e) {
-                Log.error(e);
-            }
-
-
-        }
-        Waiting.wait(50);
-
     }
 
     private void setTargetSlave(String targetSlave) {

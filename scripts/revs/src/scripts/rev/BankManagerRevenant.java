@@ -251,6 +251,7 @@ public class BankManagerRevenant {
         // 3. restock
         // 4. Pull out
         Log.debug("Withdrawing supplies process started");
+        Death.talkToDeath();
         setPlaceHolder();
 
         if (!isEquipmentBankTaskSatisfied()) {
@@ -279,7 +280,7 @@ public class BankManagerRevenant {
             Log.debug("Trying to teleport to ferox");
             if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
                 if (!Query.inventory().nameContains("Ring of dueling(").isAny()){
-                    BankManagerRevenant.withdrawFoodAndPots();
+                    return;
                 }
                 Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
             }
@@ -347,6 +348,8 @@ public class BankManagerRevenant {
         if (Skill.RANGED.getActualLevel() >= 70) {
             return EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1)); // black d hide chaps
 
+        }else if (Skill.RANGED.getActualLevel() < 60) {
+            return EquipmentReq.slot(Equipment.Slot.LEGS).item(2493, Amount.of(1)); // red d hide chaps
         }
         return EquipmentReq.slot(Equipment.Slot.LEGS).item(2495, Amount.of(1)); // red d hide chaps
 
@@ -626,6 +629,7 @@ public class BankManagerRevenant {
 
         while (!MyBanker.openBank()) {
             Log.debug("Couldn't enter the bank. Trying again..");
+            Death.talkToDeath();
             MyBanker.openBank();
             Waiting.wait(3000);
         }

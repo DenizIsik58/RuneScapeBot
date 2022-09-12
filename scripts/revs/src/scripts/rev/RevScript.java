@@ -9,6 +9,7 @@ import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
+import org.tribot.script.sdk.walking.LocalWalking;
 import scripts.api.*;
 import scripts.api.concurrency.Debounce;
 
@@ -42,6 +43,7 @@ public class RevScript extends MyScriptExtension {
     private DiscordWebhook onDeathWebhook;
     private DiscordWebhook successfullTripHook;
     private URL fxml;
+    private LocalWalking.Map map;
 
     @Override
     protected void setupScript(ScriptSetup setup) {
@@ -74,7 +76,8 @@ public class RevScript extends MyScriptExtension {
         onEndWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
         onDeathWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006886106870075443/KgnJFpyL07_92FZ2fk8pxpCSDCxDQ_pIDDU0i2NwhxvRFG8KScu1eLKMz9VfT1xcwI3N");
         successfullTripHook = new DiscordWebhook("https://discord.com/api/webhooks/1007597804274847824/0BeuF_rHMu3N1Gqa0Lm1teNGl2-KSDSfCu7A4GmyZIlSx6x0I5KlXAvfnO8UNFSirN5V");
-
+        map = LocalWalking.createMap();
+        LocalWalking.Map.builder().travelThroughDoors(true);
        /* try {
             File file = new File("C:\\Users\\Administrator\\Documents\\GitHub\\RuneScapeBot\\scripts\\revs\\src\\scripts\\rev\\gui.fxml");
 
@@ -204,6 +207,7 @@ public class RevScript extends MyScriptExtension {
         if (muleClient != null) {
             muleClient.stopConnection();
         }
+
         if (Combat.isInWilderness()){
             TeleportManager.teleportOutOfWilderness("Ending script... Teleporting out");
         }
@@ -211,13 +215,16 @@ public class RevScript extends MyScriptExtension {
         Objects.requireNonNull(MyClient.findTRiBotFrame()).setState(Frame.NORMAL);
     }
 
+    public LocalWalking.Map getMap() {
+        return map;
+    }
+
     private void updateState() {
-
-
 
         if (isState(State.STARTING) || isState(State.SELLLOOT)) {
             return;
         }
+
         if (MyRevsClient.myPlayerIsInGE() && !isState(State.BANKING))  {
             setState(State.BANKING);
         }
@@ -260,6 +267,7 @@ public class RevScript extends MyScriptExtension {
         if (playerDetectionThread != null) {
             if (playerDetectionThread.isRunning()){
                 playerDetectionThread.stopDetection();
+                playerDetectionThread.setHasPkerBeenDetected(false);
             }
             playerDetectionThread = null;
         }

@@ -127,14 +127,16 @@ public class RevkillerManager {
             if (Prayer.getPrayerPoints() < Skill.PRAYER.getActualLevel() - 22) {
                 PrayerManager.maintainPrayerPotion();
                 if (target != null){
-                    target.click();
+                    target.interact("Attack");
+                    Waiting.waitUntil(2500, () -> target.isHealthBarVisible());;
                 }
             }
 
             if (!BoostingManager.isBoosted()){
                 BoostingManager.boost();
                 if (target != null){
-                    target.click();
+                    target.interact("Attack");
+                    Waiting.waitUntil(2500, () -> target.isHealthBarVisible());
                 }
             }
 
@@ -153,39 +155,28 @@ public class RevkillerManager {
             if (MyAntiBan.shouldEat()) {
                 FoodManager.eatFood();
                 if (target != null){
-                    target.click();
+                    target.interact("Attack");
+                    Waiting.waitUntil(2500, () -> target.isHealthBarVisible());
                 }
-            }
-
-            if (target == null){
-                target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
             }
 
             if (target != null) {
-                Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).findRandom().ifPresent(monster -> {
-                    if (monster.isInteractingWithMe() && !monster.isHealthBarVisible()){
-                        target = monster;
-                        monster.click();
-                        Waiting.waitNormal(500, 100);
-                    }
-                });
-
-                if (!target.isVisible()) {
-                    target.adjustCameraTo();
-                    target.click();
-                }
 
                 if (!target.isHealthBarVisible() || (target.getHealthBarPercent() != 0 && !target.isAnimating() && !target.isHealthBarVisible())){
-                    target.click();
-                    Waiting.waitUntil(2000, () -> target.isHealthBarVisible());
+                    target.interact("Attack");
+                    Waiting.waitUntil(2500, () -> target.isHealthBarVisible());
                 }
 
-                if((target.getHealthBarPercent() == 0 || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe()))){
+                if((target.getHealthBarPercent() == 0 || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())) || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
                     Log.debug("[WILDERNESS_LISTENER] target mob died. Finding a new one!");
                     incrementKillCounts();
                     MyScriptVariables.setKillCountString(String.valueOf(getKillCount()));
                     target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
                 }
+            }
+
+            if (target == null){
+                target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
 
             }
 
