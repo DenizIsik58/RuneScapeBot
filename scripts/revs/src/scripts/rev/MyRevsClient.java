@@ -48,7 +48,7 @@ public class MyRevsClient {
     }
 
     public static boolean myPlayerIsDead(){
-        return isInLocation(true, Area.fromRectangle(new WorldTile(3217, 3226, 0), new WorldTile(3226, 3211, 0))) || isInLocation(true, Area.fromRectangle(new WorldTile(3089, 3474, 0), new WorldTile(3099, 3467, 0))) || isInLocation(true, Area.fromRectangle(new WorldTile(2958, 3350, 0), new WorldTile(2982, 3336, 0)));
+        return isInLocation(true, Area.fromRectangle(new WorldTile(3217, 3229, 0), new WorldTile(3232, 3201, 0))) || isInLocation(true, Area.fromRectangle(new WorldTile(3089, 3474, 0), new WorldTile(3099, 3467, 0))) || isInLocation(true, Area.fromRectangle(new WorldTile(2958, 3350, 0), new WorldTile(2982, 3336, 0)));
     }
 
     public static boolean myPlayerIsAtEdge(){

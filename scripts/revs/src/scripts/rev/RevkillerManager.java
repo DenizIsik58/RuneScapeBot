@@ -161,14 +161,18 @@ public class RevkillerManager {
             }
 
             if (target != null) {
-
-                if (!target.isHealthBarVisible() || (target.getHealthBarPercent() != 0 && !target.isAnimating() && !target.isHealthBarVisible())){
+                if (!target.isHealthBarVisible() || (target.getHealthBarPercent() != 0 && !target.isAnimating() && !target.isHealthBarVisible())) {
                     target.interact("Attack");
                     Waiting.waitUntil(3500, () -> target.isHealthBarVisible());
-                    if(MyPlayer.isHealthBarVisible() && !target.isInteractingWithMe() && !target.isHealthBarVisible()){
-                        Log.debug("I'm stuck with a target I can't attack");
-                        target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
-                    }
+                    Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).findRandom().ifPresent(monster -> {
+                        if (monster.isInteractingWithMe() && !monster.isHealthBarVisible()) {
+                            target = monster;
+                            monster.interact("Attack");
+                            Waiting.waitUntil(2500, monster::isHealthBarVisible);
+                            Log.debug("I'm stuck with a target I can't attack");
+
+                        }
+                    });
                 }
 
                 if((target.getHealthBarPercent() == 0 || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())) || (target.isHealthBarVisible() && !target.isInteractingWithMe())){
