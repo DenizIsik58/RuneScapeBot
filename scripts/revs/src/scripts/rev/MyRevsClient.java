@@ -96,6 +96,11 @@ public class MyRevsClient {
 
 
     public static void processMessage(String message) {
+       // Log.debug(message);
+        if (message.equals("<col=ef1020>You don't have 100,000 coins in your inventory or bank to pay the entry fee.")) {
+            TeleportManager.teleportOut();
+            MyRevsClient.getScript().stopScript.set(true);
+        }
 
         if (StringsUtility.hasMatches(TELEBLOCK_MESSAGE_REGEX, message)) {
             MyScriptVariables.setVariable("lastTeleblockNotification", System.currentTimeMillis());
@@ -114,6 +119,7 @@ public class MyRevsClient {
                 }
             }
         }
+
 
         if (message.contains("giving it a total of")) {
             var chargeString = StringsUtility.extractLastCompleteMatch("\\d+", message);

@@ -164,7 +164,11 @@ public class RevkillerManager {
 
                 if (!target.isHealthBarVisible() || (target.getHealthBarPercent() != 0 && !target.isAnimating() && !target.isHealthBarVisible())){
                     target.interact("Attack");
-                    Waiting.waitUntil(2500, () -> target.isHealthBarVisible());
+                    Waiting.waitUntil(3500, () -> target.isHealthBarVisible());
+                    if(MyPlayer.isHealthBarVisible() && !target.isInteractingWithMe() && !target.isHealthBarVisible()){
+                        Log.debug("I'm stuck with a target I can't attack");
+                        target = TargetManager.chooseNewTarget(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile()));
+                    }
                 }
 
                 if((target.getHealthBarPercent() == 0 || !target.isValid() || (target.isHealthBarVisible() && !target.isInteractingWithMe())) || (target.isHealthBarVisible() && !target.isInteractingWithMe())){

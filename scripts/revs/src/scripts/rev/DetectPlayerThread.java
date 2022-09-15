@@ -335,7 +335,7 @@ public class DetectPlayerThread extends Thread {
                         GlobalWalking.walkTo(stairs, () -> {
                             handleEatAndPrayer(pker);
                             MyOptions.setRunOn();
-                            if (!canTargetAttackMe(pker.getName())) {
+                            /*if (!canTargetAttackMe(pker.getName())) {
 
                                 // run away if our target is not nearby
                                 Log.debug("trying to hop worlds... Target is not in sight");
@@ -346,7 +346,7 @@ public class DetectPlayerThread extends Thread {
                                 Query.inventory().nameContains("Ring of wealth (").findFirst().ifPresent(ring -> ring.click("Wear"));
                                 Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
                                 MyExchange.walkToGrandExchange();
-                            }
+                            }*/
 
                             if (isFrozen()) {
                                 Log.debug("I'm frozen returning failure");
@@ -365,20 +365,7 @@ public class DetectPlayerThread extends Thread {
                         //MyExchange.walkToGrandExchange();
                         Log.debug("i'm out of cave running south");
 
-                        var path = PathManager.getRandomPathToFlee();
-
-                        path.forEach(wt -> {
-                            LocalWalking.walkPath(MyRevsClient.getScript().getMap().getPath(wt), () -> {
-                                if (isFrozen() || !isTeleblocked()) {
-                                    Log.debug("I'm frozen returning failure");
-                                    return WalkState.FAILURE;
-                                }
-                                Waiting.wait(100);
-                                return WalkState.CONTINUE;
-                            });
-                        });
-
-                        //MyPlayer.getTile().translate(0, -15).clickOnMinimap();
+                        MyPlayer.getTile().translate(0, -15).clickOnMinimap();
 
                         MyOptions.setRunOn();
 

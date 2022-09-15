@@ -33,6 +33,7 @@ public class RevScript extends MyScriptExtension {
 
     private MulingClient muleClient;
     public AtomicReference<State> state = new AtomicReference<>(State.BANKING);
+    public AtomicBoolean stopScript = new AtomicBoolean(false);
     private WorldTile selectedMonsterTile = new WorldTile(3216, 10091, 0); // South ork by default
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean inWilderness = new AtomicBoolean(false);
@@ -70,7 +71,7 @@ public class RevScript extends MyScriptExtension {
     }
 
     @Override
-    protected void onStart(String args) throws IOException {
+    protected void onStart(String args) {
         // we put the args from the script start here so incase you have a script with args you can use them in your script from this
         lootWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006526256378040390/lBQqh9sKBdmHY3DFI7gKBhAq38gMZr5SsC8CUTICxqYLfrivwA4YI_ODE8iZFjRDuEwm");
         onEndWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
@@ -151,6 +152,9 @@ public class RevScript extends MyScriptExtension {
 
     @Override
     protected void onMainLoop() {
+        if (stopScript.get()) {
+            stopScript("Script has stopped");
+        }
         MyScriptVariables.updateStatus(state.toString());
         handlePkThread();
         updateState();
@@ -253,7 +257,7 @@ public class RevScript extends MyScriptExtension {
             // teleport to ge
             // else
             if (!BankManagerRevenant.isEquipmentBankTaskSatisfied() && !BankManagerRevenant.isInventoryBankTaskSatisfied()){
-                openBank();
+                MyBanker.openBank();
                 BankManagerRevenant.checkIfNeedToBuyGear();
                 BankManagerRevenant.checkIfNeedToRestockSupplies();
                 BankManagerRevenant.getEquipmentBankTask().execute();
@@ -405,6 +409,11 @@ public class RevScript extends MyScriptExtension {
         muleClient = new MulingClient();
         muleClient.startConnection("localhost", 6668);
         return muleClient;
+    }
+
+    public static void stopScript(String message){
+            throw new RuntimeException(message);
+
     }
 
     public void setSkulledScript(boolean skulledScript) {

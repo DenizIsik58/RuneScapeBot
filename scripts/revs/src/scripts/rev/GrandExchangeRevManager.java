@@ -322,7 +322,7 @@ public class GrandExchangeRevManager {
 
         for (var item : itemsTobuy) {
             if (item.contains("Blighted super restore") || item.contains("Saradomin brew") || item.contains("Divine ranging potion") || item.equals("Ring of recoil")) {
-                MyExchange.createGrandExchangeBuyOrder(item, 100, 0, true);
+                MyExchange.createGrandExchangeBuyOrder(item, 40, 0, true);
             } else if (item.contains("Shark")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 300, 0, true);
             } else if (item.equals("Leather boots") || item.equals("Leather body") || item.equals("Coif") || item.contains("Snakeskin")) {
