@@ -1,5 +1,6 @@
 package scripts.rev;
 
+import org.tribot.script.sdk.Combat;
 import org.tribot.script.sdk.Equipment;
 import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.query.Query;
@@ -8,7 +9,7 @@ public class SuppliesChecker implements Runnable{
     @Override
     public void run() {
 
-        while (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
+        while (Combat.isInWilderness()) {
             if (MyRevsClient.getScript().getPlayerDetectionThread().isTeleblocked()) {
                 continue;
             }

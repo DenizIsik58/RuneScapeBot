@@ -245,9 +245,8 @@ public class RevScript extends MyScriptExtension {
         }
 
         if (MyRevsClient.myPlayerIsDead()){
-            if (playerDetectionThread != null){
-                killPkThread();
-            }
+            killPkThread();
+
             TeleportManager.setHasVisitedBeforeTrip(false);
             setState(State.DEATH);
             return;
@@ -367,7 +366,7 @@ public class RevScript extends MyScriptExtension {
 
     private void handleDeath() {
         Log.debug("Dead");
-
+        killPkThread();
         Waiting.waitNormal(4000, 100);
         MyPlayer.getTile().translate(5,1).click();
         Waiting.wait(2000);

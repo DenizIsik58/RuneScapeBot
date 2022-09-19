@@ -57,7 +57,7 @@ public class BankManagerRevenant {
 
     public static void drinkAntiVenom() {
         if (MyPlayer.isPoisoned() || MyPlayer.isVenomed()) {
-            while (!MyBanker.openBank()){
+            while (!MyBanker.openBank()) {
                 MyBanker.openBank();
             }
             Query.bank().nameContains("Anti-venom(").findFirst().map(anti -> MyBanker.withdraw(anti.getName(), 1, false));
@@ -279,7 +279,7 @@ public class BankManagerRevenant {
         if (!MyRevsClient.myPlayerIsInFerox()) {
             Log.debug("Trying to teleport to ferox");
             if (!MyTeleporting.Dueling.FeroxEnclave.useTeleport()) {
-                if (!Query.inventory().nameContains("Ring of dueling(").isAny()){
+                if (!Query.inventory().nameContains("Ring of dueling(").isAny()) {
                     return;
                 }
                 Log.debug("Couldn't teleport to ferox.. You must be missing a ring of dueling");
@@ -288,10 +288,10 @@ public class BankManagerRevenant {
 
 
             var inFerox = Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
-            if (inFerox){
+            if (inFerox) {
                 Log.debug("I'm in ferox now");
                 MyRevsClient.getScript().setState(State.WALKING);
-            }else {
+            } else {
                 Log.debug("Trying to teleport to ferox again..");
                 MyBanker.closeBank();
                 MyTeleporting.Dueling.FeroxEnclave.useTeleport();
@@ -333,25 +333,43 @@ public class BankManagerRevenant {
         return EquipmentReq.slot(Equipment.Slot.WEAPON).item(22550, Amount.of(1));
     }
 
-    private static EquipmentReq getBody(){
+    private static EquipmentReq getBody() {
         if (Skill.RANGED.getActualLevel() >= 70 && MyRevsClient.myPlayerHas40Defence()) {
-           return EquipmentReq.slot(Equipment.Slot.BODY).item(2503, Amount.of(1)); // black d hide body
-        }else if (Skill.RANGED.getActualLevel() < 70 && Skill.RANGED.getActualLevel() >= 60 && MyRevsClient.myPlayerHas40Defence()) {
+            return EquipmentReq.slot(Equipment.Slot.BODY).item(2503, Amount.of(1)); // black d hide body
+        } else if (Skill.RANGED.getActualLevel() < 70 && Skill.RANGED.getActualLevel() >= 60 && MyRevsClient.myPlayerHas40Defence()) {
             return EquipmentReq.slot(Equipment.Slot.BODY).item(2501, Amount.of(1)); // Red d hide body
         }
 
-        return EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)); // black d hide body
+        return EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)); // Leather body
 
     }
 
-    private static EquipmentReq getChaps(){
+    private static EquipmentReq getChaps() {
         if (Skill.RANGED.getActualLevel() >= 70) {
             return EquipmentReq.slot(Equipment.Slot.LEGS).item(2497, Amount.of(1)); // black d hide chaps
 
-        }else if (Skill.RANGED.getActualLevel() < 60) {
+        } else if (Skill.RANGED.getActualLevel() < 60) {
             return EquipmentReq.slot(Equipment.Slot.LEGS).item(2493, Amount.of(1)); // red d hide chaps
         }
         return EquipmentReq.slot(Equipment.Slot.LEGS).item(2495, Amount.of(1)); // red d hide chaps
+
+    }
+
+    private static EquipmentReq getHead(){
+        if (MyRevsClient.myPlayerHas40Defence()) {
+           // snakeskin helm
+            return EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1));
+        }
+        return EquipmentReq.slot(Equipment.Slot.HEAD).item(1169, Amount.of(1));
+
+
+    }
+
+    private static EquipmentReq getFeet(){
+        if (MyRevsClient.myPlayerHas40Defence()) {
+            return EquipmentReq.slot(Equipment.Slot.FEET).item(6328, Amount.of(1)); // snakeskin helm
+        }
+        return EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1));
 
     }
 
@@ -361,43 +379,17 @@ public class BankManagerRevenant {
             openBank();
             setPlaceHolder();
 
-            if (MyRevsClient.getScript().isSkulledScript() && MyRevsClient.myPlayerHas40Defence()) {
-                equipmentBankTask = BankTask.builder()
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(6326, Amount.of(1))) // snakeskin helm
-                        .addEquipmentItem(BankManagerRevenant::getBody) // black d hide body
-                        .addEquipmentItem(BankManagerRevenant::getChaps) // black d hide chaps
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(6328, Amount.of(1))) // snakeskin boots
-                        .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
-                        .addEquipmentItem(() -> {
-
-                            return EquipmentReq.slot(Equipment.Slot.AMMO).item(892, Amount.of(400));
-
-                        })
-                        .addEquipmentItem(getBow())
-                        //.addEquipmentItem(BankManagerRevenant::getAmulet)
-                        .build();
-                return equipmentBankTask;
-            }
-
             equipmentBankTask = BankTask.builder()
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.RING).chargedItem("Ring of wealth", 1))
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HEAD).item(1169, Amount.of(1)))
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.BODY).item(1129, Amount.of(1)))
-                    .addEquipmentItem(BankManagerRevenant::getChaps)
-                    .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.FEET).item(1061, Amount.of(1)))
+                    .addEquipmentItem(BankManagerRevenant::getHead) // snakeskin helm
+                    .addEquipmentItem(BankManagerRevenant::getBody) // black d hide body
+                    .addEquipmentItem(BankManagerRevenant::getChaps) // black d hide chaps
+                    .addEquipmentItem(BankManagerRevenant::getFeet) // snakeskin boots
                     .addEquipmentItem(EquipmentReq.slot(Equipment.Slot.HANDS).item(21816, Amount.of(1)))
-                    .addEquipmentItem(() -> {
-
-                        return EquipmentReq.slot(Equipment.Slot.AMMO).item(892, Amount.of(400));
-
-                    })
+                    .addEquipmentItem(() -> EquipmentReq.slot(Equipment.Slot.AMMO).item(892, Amount.of(400)))
                     .addEquipmentItem(getBow())
                     //.addEquipmentItem(BankManagerRevenant::getAmulet)
                     .build();
-
-
-
 
 
             /*if (MyRevsClient.myPlayerHas40Defence() && Skill.RANGED.getActualLevel() > 70) {
@@ -463,7 +455,7 @@ public class BankManagerRevenant {
         return MyRevsClient.getScript().isSkulledScript() ? getEquipmentBankTask().isSatisfied() && isAvariceSatisfied() : getEquipmentBankTask().isSatisfied();
     }
 
-    public static boolean isAvariceSatisfied(){
+    public static boolean isAvariceSatisfied() {
         return Equipment.contains(22557);
     }
 
@@ -524,7 +516,7 @@ public class BankManagerRevenant {
                 // Something went wrong. Couldn't use ether on
                 Log.debug("Something went wrong.. maybe out of ether... Couldn't use ether on bracelet");
             }
-        }else if(charges > etherGoal && !bow){
+        } else if (charges > etherGoal && !bow) {
             if (Inventory.getAll().size() > 24) {
                 MyBanker.openBank();
                 MyBanker.depositInventory();
@@ -584,7 +576,7 @@ public class BankManagerRevenant {
         return inventoryContainsCharged(bow) || equipmentContainsCharged(bow);
     }
 
-    public static boolean wearAvarice(){
+    public static boolean wearAvarice() {
 
         if (Equipment.Slot.NECK.getItem().map(c -> c.getId() == 22557).orElse(false)) {
             Log.debug("We are already wearing an avarice");
@@ -709,8 +701,7 @@ public class BankManagerRevenant {
         List<String> itemsToBuy = new ArrayList<>();
 
 
-
-        for (var item : MyRevsClient.getScript().isSkulledScript() && MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getSkulledGear() :  EquipmentManager.getPureGear()) {
+        for (var item : MyRevsClient.getScript().isSkulledScript() && MyRevsClient.myPlayerHas40Defence() ? EquipmentManager.getSkulledGear() : EquipmentManager.getPureGear()) {
 
             if (item.equals("Craw's bow") || item.equals("Salve amulet(i)") || item.equals("Salve amulet(ei)")) {
                 continue;
@@ -720,7 +711,7 @@ public class BankManagerRevenant {
                 Log.debug("Out of red hide chaps");
                 itemsToBuy.add("Red d'hide chaps");
                 continue;
-            }else if (Skill.RANGED.getActualLevel() < 60 && item.equals("Black d'hide chaps") && !Query.bank().nameEquals("Blue d'hide chaps").isAny()) {
+            } else if (Skill.RANGED.getActualLevel() < 60 && item.equals("Black d'hide chaps") && !Query.bank().nameEquals("Blue d'hide chaps").isAny()) {
                 Log.debug("Out of blue d'hide chaps");
                 itemsToBuy.add("Blue d'hide chaps");
                 continue;
@@ -732,7 +723,7 @@ public class BankManagerRevenant {
                 continue;
             }
 
-             if (Skill.RANGED.getActualLevel() < 70 && item.equals("Black d'hide body") && !Query.bank().nameEquals("Leather body").isAny()) {
+            if (Skill.RANGED.getActualLevel() < 70 && item.equals("Black d'hide body") && !Query.bank().nameEquals("Leather body").isAny()) {
                 Log.debug("Leather bodies");
                 itemsToBuy.add("Leather body");
             }
@@ -752,7 +743,6 @@ public class BankManagerRevenant {
             Log.debug("We're out of bracelets. Added to list.");
             itemsToBuy.add("Bracelet of ethereum (uncharged)");
         }
-
 
 
         if (itemsToBuy.size() != 0) {
