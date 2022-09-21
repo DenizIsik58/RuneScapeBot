@@ -334,7 +334,7 @@ public class GrandExchangeRevManager {
             } else if (item.equals("Magic shortbow")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 10, 10000, false);
             } else if (item.equals("Rune arrow")) {
-                MyExchange.createGrandExchangeBuyOrder(item, 5000, 100, false);
+                MyExchange.createGrandExchangeBuyOrder(item, 3000, 200, false);
             } else if (item.equals("Bracelet of ethereum (uncharged)")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 5, 0, true);
             }else if (item.contains("chaps")) {

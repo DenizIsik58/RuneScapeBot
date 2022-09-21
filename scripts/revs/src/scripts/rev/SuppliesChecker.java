@@ -9,7 +9,7 @@ public class SuppliesChecker implements Runnable{
     @Override
     public void run() {
 
-        while (Combat.isInWilderness()) {
+        while (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
             if (MyRevsClient.getScript().getPlayerDetectionThread().isTeleblocked()) {
                 continue;
             }
@@ -48,6 +48,7 @@ public class SuppliesChecker implements Runnable{
                 Log.error(e);
             }
         }
+        Log.debug("Exitting supplies checker thread!");
 
     }
 }
