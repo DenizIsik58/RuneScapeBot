@@ -85,7 +85,7 @@ public class LootingManager {
                     return;
                 } else {
 
-                    if (Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack() >= 450000) {
+                    if (Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack() >= 3800000) {
                         try {
                             var outputFile = ScreenShotManager.takeScreenShotAndSave("drops");
 
