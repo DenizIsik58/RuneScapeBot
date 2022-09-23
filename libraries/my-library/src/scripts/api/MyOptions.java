@@ -16,6 +16,21 @@ public class MyOptions {
         }
     }
 
+    public static void turnOffPrivate(){
+        if (Query.widgets()
+                .inIndexPath(162, 18)
+                .textEquals("<br>On")
+                .isVisible()
+                .isAny() || Query.widgets()
+                .inIndexPath(162, 18)
+                .textEquals("<br><col=ffff00>Friends</col>")
+                .isVisible()
+                .isAny()) {
+            Log.debug("I have tracked private on!");
+            MyClient.clickWidget("Show none", 162, 15);
+        }
+    }
+
     public static void setRoofsOff(){
         if (Options.isRoofsEnabled()) {
             Options.setRemoveRoofsEnabled(true);
@@ -102,6 +117,7 @@ public class MyOptions {
         setOnPkSkullPrevention();
         closeAllSettings();
         setResizeAble();
+        turnOffPrivate();
     }
 
 }
