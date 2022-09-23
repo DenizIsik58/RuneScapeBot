@@ -90,8 +90,13 @@ public class GrandExchangeRevManager {
 
 
 
-        MyBanker.closeBank();
-        MyExchange.openExchange();
+        if (!MyBanker.closeBank()){
+            MyBanker.closeBank();
+        }
+
+        if (!MyExchange.openExchange()){
+            MyExchange.openExchange();
+        }
 
         for (var item : getAllSellItems()) {
             // Will wait until the offer shows up in the GE.
@@ -101,6 +106,10 @@ public class GrandExchangeRevManager {
 
             while (!successfullyPosted && attempts < 5) {
                 if (!MyExchange.isExchangeOpen()) {
+                    if (!new WorldTile(3164, 3487, 0).isOnMinimap()) {
+                        GlobalWalking.walkTo(new WorldTile(3164, 3487, 0));
+                    }
+
                     MyExchange.openExchange();
                 }
                 attempts++;

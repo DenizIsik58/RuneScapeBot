@@ -49,65 +49,65 @@ public class MulerScript extends MyScriptExtension {
 
 
         for (String slave : slaves) {
-                Log.debug("Attempting to add a new target slave for trading");
-                Log.debug("Current target slave: " + getTargetSlave());
-                Log.debug("Current slave in list: " + slave);
+            Log.debug("Attempting to add a new target slave for trading");
+            Log.debug("Current target slave: " + getTargetSlave());
+            Log.debug("Current slave in list: " + slave);
 
-                    if (StringsUtility.runescapeStringsMatch(slave, name)) {
-                        Log.debug("Found slave target! Trading: " + slave);
+            if (StringsUtility.runescapeStringsMatch(slave, name)) {
+                Log.debug("Found slave target! Trading: " + slave);
 
-                            Waiting.waitUntil(10000, () -> Chatbox.acceptTradeRequest(name));
-                            Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
-                            var amountOfCoins = TradeScreen.OtherPlayer.getCount("Coins");
-                            Waiting.waitUntil(() -> {
-                                TradeScreen.getStage().map(screen -> {
-                                    if (screen == TradeScreen.Stage.FIRST_WINDOW) {
-                                        if (TradeScreen.OtherPlayer.hasAccepted()) {
-                                            TradeScreen.accept();
-                                            return true;
-                                        }
-                                    }
-                                    return true;
-                                });
-                                return false;
-                            });
-
-
-                            Waiting.waitUntil(25000, () -> {
-                                TradeScreen.getStage().map(screen -> {
-                                    if (screen == TradeScreen.Stage.SECOND_WINDOW) {
-                                        if (TradeScreen.OtherPlayer.hasAccepted()) {
-                                            TradeScreen.accept();
-                                            return true;
-                                        }
-                                    }
-                                    return true;
-                                });
-                                return false;
-                            });
-
-                            totalValue += amountOfCoins;
-                            var totalString = MathUtility.getProfitPerHourString(totalValue);
-                            MyScriptVariables.setProfit(totalString);
-                            slaves.forEach(s -> {
-                                if (s.equals(name)) {
-                                    Log.debug("Finished trading: Removing " + s + " from the list!");
-                                }
-                            });
-
-                            MultiServerSocket.getNames().remove(slave);
-
-                            try {
-                                var screenshot = mulerWebhook.takeScreenShotAndSave("muler");
-
-                                mulerWebhook.setUsername("Revenant Muler")
-                                        .setContent("@everyone **" + MyPlayer.getUsername() + "** has just finished muling - Total gold - **" + Inventory.getCount("Coins") + "**")
-                                        .addFile(screenshot)
-                                        .execute();
-                            }catch (Exception e) {
-                                Log.error(e);
+                Waiting.waitUntil(10000, () -> Chatbox.acceptTradeRequest(name));
+                Waiting.waitUntil(() -> TradeScreen.OtherPlayer.contains("Coins"));
+                var amountOfCoins = TradeScreen.OtherPlayer.getCount("Coins");
+                Waiting.waitUntil(() -> {
+                    TradeScreen.getStage().map(screen -> {
+                        if (screen == TradeScreen.Stage.FIRST_WINDOW) {
+                            if (TradeScreen.OtherPlayer.hasAccepted()) {
+                                TradeScreen.accept();
+                                return true;
                             }
+                        }
+                        return true;
+                    });
+                    return false;
+                });
+
+
+                Waiting.waitUntil(25000, () -> {
+                    TradeScreen.getStage().map(screen -> {
+                        if (screen == TradeScreen.Stage.SECOND_WINDOW) {
+                            if (TradeScreen.OtherPlayer.hasAccepted()) {
+                                TradeScreen.accept();
+                                return true;
+                            }
+                        }
+                        return true;
+                    });
+                    return false;
+                });
+
+                totalValue += amountOfCoins;
+                var totalString = MathUtility.getProfitPerHourString(totalValue);
+                MyScriptVariables.setProfit(totalString);
+                slaves.forEach(s -> {
+                    if (StringsUtility.runescapeStringsMatch(s, name)) {
+                        Log.debug("Finished trading: Removing " + s + " from the list!");
                     }
+                });
+
+                MultiServerSocket.getNames().remove(slave);
+
+                try {
+                    var screenshot = mulerWebhook.takeScreenShotAndSave("muler");
+
+                    mulerWebhook.setUsername("Revenant Muler")
+                            .setContent("@everyone **" + MyPlayer.getUsername() + "** has just finished muling - Total gold - **" + Inventory.getCount("Coins") + "**")
+                            .addFile(screenshot)
+                            .execute();
+                } catch (Exception e) {
+                    Log.error(e);
+                }
+            }
                         /*for (int j = 0; j < traders.size(); j++) {
                             Log.debug("Traget is null");
 
@@ -116,10 +116,13 @@ public class MulerScript extends MyScriptExtension {
 
         }
 
+        if (MultiServerSocket.getNames().size() == 0) {
+            Log.debug("No slaves left we are idling!");
+            setState(MulerState.IDLING);
+        }
 
 
-
-            Waiting.wait(100);
+        Waiting.wait(100);
     }
 
 
@@ -163,11 +166,11 @@ public class MulerScript extends MyScriptExtension {
                 return;
             case MULING:
                 //scriptSetup.enableWaitForLogin();
+                Waiting.waitNormal(300, 10);
                 if (!Login.isLoggedIn()) {
                     Log.debug("Attempting to log in");
                     Login.login();
                 }
-                handleMuling();
         }
     }
 
@@ -191,10 +194,7 @@ public class MulerScript extends MyScriptExtension {
     }
 
     private void handleMuling() {
-        if (MultiServerSocket.getNames().size() == 0) {
-            Log.debug("No slaves left we are idling!");
-            setState(MulerState.IDLING);
-        }
+
     }
 
     private void setTargetSlave(String targetSlave) {
