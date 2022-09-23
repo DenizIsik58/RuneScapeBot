@@ -11,6 +11,11 @@ public class MagicManager implements Runnable {
     public void run() {
         while (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
             var pker = DetectPlayerThread.getPker();
+
+            if (Combat.getCurrentAttackStyle() == Combat.AttackStyle.DEFENSIVE) {
+                Combat.setAttackStyle(Combat.AttackStyle.RAPID);
+            }
+
             DetectPlayerThread.setEntangle();
 
             if (DetectPlayerThread.isFrozen()) {
