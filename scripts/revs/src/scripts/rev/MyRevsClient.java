@@ -63,6 +63,10 @@ public class MyRevsClient {
         return Area.fromRectangle(new WorldTile(3200, 10105, 0), new WorldTile(3231, 10085, 0)).containsMyPlayer();
     }
 
+    public static boolean myPlayerIsAtDemons(){
+        return Area.fromRectangle(new WorldTile(3137, 10129, 0), new WorldTile(3181, 10101, 0)).containsMyPlayer();
+    }
+
     public static boolean myPlayerIsInCave(){
         return Area.fromRectangle(new WorldTile(3136, 10142, 0), new WorldTile(3270, 10053, 0)).containsMyPlayer();
     }

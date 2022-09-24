@@ -109,8 +109,14 @@ public class RevkillerManager {
                 return;
             }
 
-            if (!MyRevsClient.myPlayerIsAtSouthOrk()) {
-                GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+            if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getSouth_ork().getX()) {
+                if (!MyRevsClient.myPlayerIsAtSouthOrk()){// South ork
+                    GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+                }
+            }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getDemons().getX()) {
+                if (!MyRevsClient.myPlayerIsAtDemons()){// South ork
+                    GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+                }
             }
 
             PrayerManager.enableQuickPrayer();

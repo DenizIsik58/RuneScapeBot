@@ -1,4 +1,4 @@
-package scripts.rev;
+/*package scripts.rev;
 
 import org.tribot.api2007.types.RSTile;
 import org.tribot.script.sdk.Log;
@@ -71,7 +71,7 @@ public class PathManager {
                 new WorldTile(3099, 3523, 0)
         };
 
-        return MyAntiBan.roll() ? first : second;*/
+        return MyAntiBan.roll() ? first : second;
     }
 
     public static List<WorldTile> getPathToCaveEntrance(){
@@ -117,3 +117,4 @@ public class PathManager {
 
     }
 }
+*/

@@ -33,7 +33,7 @@ public class LootingManager {
 
     private static final Area southOrk = Area.fromRectangle(new WorldTile(3200, 10106, 0), new WorldTile(3232, 10086, 0));
     private static final Area goblin = Area.fromRectangle(new WorldTile(3234, 10110, 0), new WorldTile(3251, 10082, 0));
-
+    private static final Area demons = Area.fromRectangle(new WorldTile(3137, 10129, 0), new WorldTile(3181, 10101, 0));
     private static int tripValue = 0;
     private static int totalValue = 0;
 
@@ -208,14 +208,14 @@ public class LootingManager {
     private static List<GroundItem> getAllLoot() {
         return Query.groundItems()
                 .nameEquals(lootToPickUp)
-                .inArea(southOrk)
+                .inArea(southOrk,demons)
                 .sorted(Comparator.comparingInt(item -> Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack()))
                 .toList();
     }
 
     private static List<GroundItem> getAllFood(){
             return Query.groundItems()
-                    .inArea(southOrk)
+                    .inArea(southOrk, demons)
                     .nameEquals("Blighted manta ray", "Blighted anglerfish")
                     .toList();
 

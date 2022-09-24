@@ -82,7 +82,6 @@ public class BankManagerRevenant {
         checkIfWeHaveEmblemDrop();
         withdrawFoodAndPots();
         WorldManager.hopToRandomMemberWorldWithRequirements();
-        Waiting.wait(6000);
     }
 
     public static void equipAndChargeItems() {
@@ -91,7 +90,7 @@ public class BankManagerRevenant {
         }*/
         if (MyRevsClient.getScript().isSkulledScript()) {
             equipAndCharge(false);
-            EquipmentManager.chargeAmmo(892, 400);
+            //EquipmentManager.chargeAmmo(892, 400);
             return;
         }
         equipAndCharge(true);
@@ -114,6 +113,9 @@ public class BankManagerRevenant {
 
     public static void checkIfNeedToRestockSupplies() {
         Log.debug("Checking if we need to restock supplies");
+        if (!Bank.isOpen()) {
+            MyBanker.openBank();
+        }
         List<String> itemsToBuy = new ArrayList<>();
 
         if (!Query.bank().nameContains("divine ranging").isAny()) {
@@ -257,7 +259,7 @@ public class BankManagerRevenant {
         if (!isEquipmentBankTaskSatisfied()) {
             Log.debug("[ERROR_LISTENER] We did not satisfy the gear setup. Trying again..");
             //withdrawGear();
-            MyBanker.depositInventory();
+            //MyBanker.depositInventory();
             equipAndChargeItems();
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
@@ -266,7 +268,7 @@ public class BankManagerRevenant {
 
         if (!isInventoryBankTaskSatisfied()) {
             Log.debug("Inventory Bank Task not satisfied..");
-            Bank.depositInventory();
+            //MyBanker.depositInventory();
             checkIfNeedToRestockSupplies();
             getInventoryBankTask().execute();
         }
@@ -478,6 +480,7 @@ public class BankManagerRevenant {
                 GrandExchangeRevManager.buyFromBank(21820, 2000);
             }
             if (Inventory.getAll().size() > 25) {
+                Log.debug("Withdrawing ether");
                 MyBanker.openBank();
                 MyBanker.depositInventory();
             }
@@ -517,11 +520,6 @@ public class BankManagerRevenant {
                 Log.debug("Something went wrong.. maybe out of ether... Couldn't use ether on bracelet");
             }
         } else if (charges > etherGoal && !bow) {
-            if (Inventory.getAll().size() > 24) {
-                MyBanker.openBank();
-                MyBanker.depositInventory();
-                MyBanker.closeBank();
-            }
             takeOffBraceCharges();
         }
 
@@ -636,6 +634,7 @@ public class BankManagerRevenant {
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
             wearAvarice();
+            MyBanker.closeBank();
         }
 
         /* else {
@@ -663,7 +662,7 @@ public class BankManagerRevenant {
                 .addInvItem(24598, Amount.of(4)) // Blighted super restore
                 .addInvItem(6685, Amount.of(3)) // brew
                 .addInvItem(2550, Amount.of(1)) // recoil
-                .addInvItem(385, Amount.of(15)) // shark
+                .addInvItem(385, Amount.of(14)) // shark
                 .addInvItem(() -> {
                     var id = Query.bank().nameContains("Ring of dueling(").findFirst().map(Identifiable::getId).orElse(0);
                     var amount = id == 0 ? Amount.of(-1) : Amount.of(1);
@@ -750,7 +749,7 @@ public class BankManagerRevenant {
             GrandExchangeRevManager.sellLoot();
 
             GrandExchangeRevManager.restockFromBank(itemsToBuy);
-            Bank.depositInventory();
+            MyBanker.depositInventory();
             Waiting.waitUntil(Inventory::isEmpty);
 
         } else {

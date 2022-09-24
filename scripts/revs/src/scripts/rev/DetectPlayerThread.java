@@ -1,6 +1,7 @@
 package scripts.rev;
 
 
+import dax.api_lib.DaxWalker;
 import javafx.beans.property.SimpleBooleanProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,7 +37,7 @@ public class DetectPlayerThread extends Thread {
     private final AtomicBoolean danger = new AtomicBoolean(false);
     //    private final AtomicBoolean dangerFlag = new AtomicBoolean(false);
     private final AtomicBoolean isAntiPking = new AtomicBoolean(false);
-    private final static String[] PVM_GEAR = new String[]{"Dorgeshuun crossbow","Crystal bow","Abyssal tentacle","Elder maul", "Abyssal whip","Bone crossbow","Red d'hide body", "Black d'hide body", "Rune scimitar", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace"};
+    private final static String[] PVM_GEAR = new String[]{"Dorgeshuun crossbow","Crystal bow","Abyssal tentacle","Elder maul", "Abyssal whip","Bone crossbow","Red d'hide body", "Black d'hide body", "Rune scimitar", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace", "Rune crossbow"};
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3120, 3623, 0));
     private final SimpleBooleanProperty running = new SimpleBooleanProperty(false);
     private final AtomicBoolean hasPkerBeenDetected = new AtomicBoolean(false);
@@ -474,7 +475,7 @@ public class DetectPlayerThread extends Thread {
         double startTime;
         var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
 
-
+        if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getSouth_ork().getX()) {
             if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
                 // Player is north east
                 // Run south west
@@ -530,7 +531,24 @@ public class DetectPlayerThread extends Thread {
                 startTime = GameState.getLoopCycle() / 30D;
                 //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
 
+            }
+        }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == 3160) {
+
+                if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
+                    // Player is east
+                    // Run west
+                    Log.debug("Player on east. Running west!");
+                    MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
+
+                }else {
+                    //Player west
+                    // Run east
+                    Log.debug("Player on west. Running east!");
+                    MyPlayer.getTile().translate(15, 0).clickOnMinimap();
+
+                }
         }
+
 
 
 
@@ -554,11 +572,11 @@ public class DetectPlayerThread extends Thread {
 
         Log.debug("Timer for teleport has been started");
 
-        var stopTime = startTime + 4D;
-        Waiting.waitUntil(() -> GameState.getLoopCycle() / 30D > stopTime);
-        //Waiting.wait(2000);
-        Log.debug("After waiting: " + GameState.getLoopCycle());
-        Log.debug("1,8 seconds gone Teleporting now");
+        //var stopTime = startTime + 4D;
+        //Waiting.waitUntil(() -> GameState.getLoopCycle() / 30D > stopTime);
+        Waiting.wait(2400);
+        //Log.debug("After waiting: " + GameState.getLoopCycle());
+        //Log.debug("1,8 seconds gone Teleporting now");
         if (isTeleblocked()) {
             Log.debug("We are teleblocked. Running instead of teleporting");
             return;

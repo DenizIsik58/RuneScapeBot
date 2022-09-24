@@ -26,7 +26,7 @@ public class GrandExchangeRevManager {
     public static List<InventoryItem> getAllSellItems() {
         return Query.inventory().filter(distinctBy(InventoryItem::getIndex)).filter(item ->
                         item.getId() != 995 &&
-                        !item.getName().contains("Blighted")).distinctById().toList();
+                        !item.getName().contains("Blighted s")).distinctById().toList();
     }
 
 
@@ -76,6 +76,11 @@ public class GrandExchangeRevManager {
                 itemsToSell.getAndIncrement();
                 MyBanker.withdraw(item, 10000000, true);
             }
+        }
+
+        if (Query.bank().nameEquals("Blighted manta ray").count() >= 500) {
+            itemsToSell.getAndIncrement();
+            MyBanker.withdraw("Blighted manta ray", 10000000, true);
         }
 
         Log.debug("Items to sell: " + itemsToSell.get());
