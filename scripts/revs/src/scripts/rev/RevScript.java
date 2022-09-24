@@ -1,6 +1,8 @@
 package scripts.rev;
 
 import dax.api_lib.DaxWalker;
+import dax.api_lib.models.DaxCredentials;
+import dax.api_lib.models.DaxCredentialsProvider;
 import dax.walker_engine.WalkingCondition;
 import lombok.Getter;
 import org.tribot.script.sdk.*;
@@ -132,6 +134,9 @@ public class RevScript extends MyScriptExtension {
             }
             return WalkingCondition.State.CONTINUE_WALKER;
         });
+
+
+        DaxWalker.setCredentials(() -> new DaxCredentials("sub_1LlWYpA7n2uRXzFbp5EVTNUA", "cf9ec337-f12c-4665-82fd-2b98ab86636a"));
 
         try {
             muleClient = new MulingClient();

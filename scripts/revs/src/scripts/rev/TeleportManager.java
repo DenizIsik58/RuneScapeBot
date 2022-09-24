@@ -275,7 +275,17 @@ public class TeleportManager {
                 }
                 return WalkState.CONTINUE;
             });
-        }
+        }else if(MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getDemons().getX()) {
+                var location = MyPlayer.getTile().translate(-15, 0);
+                location.clickOnMinimap();
+                GlobalWalking.walkTo(location, () -> {
+                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap() || !Combat.isInWilderness()) {
+                        Log.debug("Failure..");
+                        return WalkState.FAILURE;
+                    }
+                    return WalkState.CONTINUE;
+                });
+            }
     }
 
         Waiting.wait(2500);
