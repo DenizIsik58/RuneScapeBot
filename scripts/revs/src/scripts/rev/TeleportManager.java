@@ -15,6 +15,7 @@ import scripts.api.MyExchange;
 import scripts.api.MyTeleporting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,28 +25,29 @@ public class TeleportManager {
 
     private static final WorldTile enclaveDoor = new WorldTile(3123, 3628, 0);
     private static final WorldTile caveEntrance = new WorldTile(3075, 3648, 0);
-    private static final WorldTile enclavePool = new WorldTile(3128, 3634, 0);
-    private static final WorldTile south_ork = new WorldTile(3216, 10091, 0);
+    private static final WorldTile enclavePool = new WorldTile(3137, 3629, 0);
+    private static final WorldTile south_ork = new WorldTile(3216, 10094, 0);
     private static final WorldTile north_ork = new WorldTile(3226, 10132,0 );
     private static final WorldTile east_goblin = new WorldTile(3240, 10095, 0);
-    public static final WorldTile demons = new WorldTile(3160, 10115,0 );
+    private static final WorldTile demons = new WorldTile(3160, 10115,0 );
     private static boolean hasVisitedBeforeTrip = false;
-    private static List<WorldTile> monsterTiles = new ArrayList<>(Collections.singletonList(demons)); // South ork removed for now
+    private static final List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(demons, south_ork));// demons,  // South ork removed for now
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
     private final static Area SOUTH_ORK = Area.fromRectangle(new WorldTile(3200, 10105, 0), new WorldTile(3231, 10085, 0));
     private static GameObject pool = null;
     public static WorldTile refill() {
         // Random selection of mobs to kill
 
-        WorldTile chosenMobArea;
 
 
-            chosenMobArea = south_ork;
-
+        var chosenMobArea = getRandomMobArea();
 
         if (!chosenMobArea.isVisible()) {
             BankManagerRevenant.drinkAntiVenom();
-            if (MyPlayer.getTile().getPlane() == 1) {
+            if (Bank.isOpen()) {
+                MyBanker.closeBank();
+            }
+            if (MyPlayer.getTile().getPlane() == 1 && !MyRevsClient.myPlayerIsInFerox()) {
                 MyTeleporting.Dueling.FeroxEnclave.useTeleport();
 
             }
@@ -53,16 +55,13 @@ public class TeleportManager {
             if (MyRevsClient.myPlayerIsInWhitePortal()) {
                 Query.gameObjects().idEquals(26646).findFirst().ifPresent(c -> c.click("Exit"));
             }
-            Log.debug("[INFO_LISTENER] Started journey towards the cave...");
 
-            if (GameState.isLoading()) {
-                Log.debug("Game is loading");
-                Waiting.waitUntil(10000, () -> !GameState.isLoading());
-            }
+            Log.debug("[INFO_LISTENER] Started journey towards the cave...");
 
             if (MyRevsClient.myPlayerIsInCave()){
                 Log.debug("i'm in cave. walking to mob area..");
                 GlobalWalking.walkTo(chosenMobArea, () -> {
+
                     if (LootingManager.hasPkerBeenDetected()) {
                         MyRevsClient.getScript().setState(State.BANKING);
                         return WalkState.FAILURE;
@@ -73,7 +72,7 @@ public class TeleportManager {
                     }
                     return WalkState.CONTINUE;
                 });
-                south_ork.clickOnMinimap();
+                chosenMobArea.clickOnMinimap();
             }
 //
             if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars() || MyRevsClient.myPlayerIsAtEdge() || MyPlayer.getTile().getPlane() == 2){
@@ -102,6 +101,7 @@ public class TeleportManager {
                     MyBanker.openBank();
                     BankManagerRevenant.getInventoryBankTask().execute();
                     BankManagerRevenant.emptyLootingBag();
+                    MyBanker.closeBank();
                 }
 
                 if (MyRevsClient.myPlayerNeedsToRefresh()){
@@ -115,14 +115,16 @@ public class TeleportManager {
                         return WalkState.CONTINUE;
                     });
 
-
-
-                    Query.gameObjects().idEquals(39651).findClosest().map(c -> c.interact("Drink"));
-
-
-                    Log.debug("I'm trying to drink from the pool");
-                    waitUntil(() -> MyPlayer.getAnimation() == 7305);
-                    Waiting.wait(2000);
+                    Query.gameObjects().idEquals(39651).findClosest().map(c -> {
+                        if (c.interact("Drink")) {
+                            Log.debug("I'm trying to drink from the pool");
+                            waitUntil(() -> MyPlayer.getAnimation() == 7305);
+                            Waiting.waitUntil(() -> MyPlayer.getAnimation() == -1);
+                            Waiting.waitNormal(1000, 200);
+                            return true;
+                        }
+                        return false;
+                    });
                 }else {
                     Log.debug("I'm walking to entrance");
                     GlobalWalking.walkTo(caveEntrance, () ->{
@@ -134,9 +136,7 @@ public class TeleportManager {
                         return WalkState.CONTINUE;
                     });
                 }
-
                 }
-
             }
 
             if (!MyRevsClient.myPlayerIsInCave()){
@@ -154,9 +154,8 @@ public class TeleportManager {
 
                     }
                     Log.debug("Waiting to be in cave");
-                    Waiting.waitUntil(500, MyRevsClient::myPlayerIsInCave);
+                    Waiting.waitUntil(3000, MyRevsClient::myPlayerIsInCave);
                     Log.debug("Am i in cave? " + MyRevsClient.myPlayerIsInCave());
-                    Waiting.waitNormal(500, 200);
                 }
             }
 
@@ -241,69 +240,14 @@ public class TeleportManager {
         TeleportManager.hasVisitedBeforeTrip = hasVisitedBeforeTrip;
     }
 
-    /* public static WorldTile refillAndWalkToCave(){
+    public static WorldTile getDemons() {
+        return demons;
+    }
 
-                if (Equipment.getAll().size() != 9){
-                    BankManagerRevenant.withdrawGear();
-                }
+    public static WorldTile getSouth_ork() {
+        return south_ork;
+    }
 
-                if (Combat.getWildernessLevel() > 20){
-                    GlobalWalking.walkTo(enclaveDoor);
-                }
-
-                var ring = Query.inventory().nameContains("Ring of dueling").findFirst().orElse(null);
-                if (ring != null){
-                    if (!MyRevsClient.myPlayerIsInFerox()) {
-                        ring.click("Rub");
-                        Waiting.waitUntil(2000, () -> ChatScreen.containsOption("Ferox Enclave."));
-                        ChatScreen.selectOption("Ferox enclave.");
-                        Waiting.waitUntil(MyRevsClient::myPlayerIsInFerox);
-                    }
-                }else {
-                        BankManagerRevenant.withdrawItemByName("Ring of dueling");
-                        Bank.close();
-                        Waiting.wait(4000);
-                }
-                List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(south_ork, north_ork, demons));
-                Collections.shuffle(monsterTiles);
-                var randomMonsterTile = monsterTiles.get(0);
-
-                if (MyRevsClient.myPlayerIsInFerox()) {
-                    GlobalWalking.walkTo(enclavePool);
-                    var pool = Query.gameObjects().idEquals(39651).findClosest().orElse(null);
-                    if (pool != null) {
-                        if (pool.isVisible()) {
-                            pool.interact("Drink");
-                            waitUntil(() -> MyPlayer.getAnimation() == 7305);
-                            Waiting.wait(3000);
-                        }
-                    }
-
-                    if (!MyPlayer.isStaminaActive()) {
-                        Query.inventory().nameContains("Stamina potion").findFirst().map(InventoryItem::click);
-                    }
-
-                    if (!Options.isRunEnabled()){
-                        Options.setRunEnabled(true);
-                    }
-
-                    GlobalWalking.walkTo(caveEntrance);
-                    // Cave entrance
-                    Query.gameObjects().idEquals(31555).findBestInteractable().map(c -> c.interact("Enter"));
-                    if (ChatScreen.isOpen()){
-                        Waiting.waitUntil(ChatScreen::clickContinue);
-                        Waiting.waitUntil(() -> ChatScreen.containsOption("Yes, don't ask again."));
-                        Waiting.waitUntil((() -> ChatScreen.selectOption("Yes, don't ask again.")));
-
-                    }
-                    Waiting.waitUntilInArea(Area.fromRectangle(new WorldTile(3192, 10062, 0), new WorldTile(3202, 10051, 0)), 10000);
-
-                    GlobalWalking.walkTo(randomMonsterTile);
-
-                }
-                return randomMonsterTile;
-            }
-        */
     public static int getMonsterIdBasedOnLocation(WorldTile tile){
         if (tile.getX() == 3240) {
             return 7933;
@@ -322,8 +266,8 @@ public class TeleportManager {
         }
         Log.debug("Teleport out process has begun");
         if (MyRevsClient.myPlayerIsInCave()) {
-
-            var location = new WorldTile(3205, 10082, 0);
+            if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getSouth_ork().getX()){
+                var location = new WorldTile(3205, 10082, 0);
             GlobalWalking.walkTo(location, () -> {
                 if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap() || !Combat.isInWilderness()) {
                     Log.debug("Failure..");
@@ -332,6 +276,7 @@ public class TeleportManager {
                 return WalkState.CONTINUE;
             });
         }
+    }
 
         Waiting.wait(2500);
         if (Query.inventory().nameContains("Ring of wealth (").isAny() && !Query.equipment().nameContains("Ring of wealth (").isAny()) {
