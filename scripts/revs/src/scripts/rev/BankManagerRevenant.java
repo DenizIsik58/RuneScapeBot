@@ -743,6 +743,12 @@ public class BankManagerRevenant {
             itemsToBuy.add("Bracelet of ethereum (uncharged)");
         }
 
+        if (Bank.getCount("Rune arrow") < 400) {
+            Log.debug("Adding rune arrow!");
+            itemsToBuy.add("Rune arrow");
+        }
+        MyBanker.closeBank();
+
 
         if (itemsToBuy.size() != 0) {
             MyExchange.walkToGrandExchange();
