@@ -532,7 +532,7 @@ public class DetectPlayerThread extends Thread {
                 //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
 
             }
-        }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == 3160) {
+        }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getDemons().getX()) {
 
                 if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
                     // Player is east

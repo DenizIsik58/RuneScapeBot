@@ -29,7 +29,7 @@ public class TeleportManager {
     private static final WorldTile south_ork = new WorldTile(3216, 10094, 0);
     private static final WorldTile north_ork = new WorldTile(3226, 10132,0 );
     private static final WorldTile east_goblin = new WorldTile(3240, 10095, 0);
-    private static final WorldTile demons = new WorldTile(3160, 10115,0 );
+    private static final WorldTile demons = new WorldTile(3162, 10109,0 );
     private static boolean hasVisitedBeforeTrip = false;
     private static final List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(demons, south_ork));// demons,  // South ork removed for now
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
