@@ -248,7 +248,7 @@ public class DetectPlayerThread extends Thread {
             }
         });
 
-        if (MyAntiBan.shouldEat() && Query.inventory().nameContains("Blighted super restore").count() != 0) {
+        if (MyAntiBan.shouldEat()) {
             var foodCount = Query.inventory().actionEquals("Eat").count();
             var brewCount = Query.inventory().nameContains("Saradomin brew").count();
             if (foodCount > 0 && brewCount > 0) {
