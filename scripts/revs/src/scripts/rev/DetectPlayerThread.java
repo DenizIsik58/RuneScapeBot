@@ -248,7 +248,7 @@ public class DetectPlayerThread extends Thread {
             }
         });
 
-        if (MyAntiBan.shouldEat()) {
+        if (MyAntiBan.shouldEat() && Query.inventory().nameContains("Blighted super restore").count() != 0) {
             var foodCount = Query.inventory().actionEquals("Eat").count();
             var brewCount = Query.inventory().nameContains("Saradomin brew").count();
             if (foodCount > 0 && brewCount > 0) {
@@ -271,6 +271,7 @@ public class DetectPlayerThread extends Thread {
                 Log.warn("Out of food under eat percent");
             }
         }
+
         if (Prayer.getPrayerPoints() < Skill.PRAYER.getActualLevel() - 22) {
             PrayerManager.maintainPrayerPotion();
         }

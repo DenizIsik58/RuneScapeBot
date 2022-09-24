@@ -63,6 +63,9 @@ public class MulerScript extends MyScriptExtension {
                     TradeScreen.getStage().map(screen -> {
                         if (screen == TradeScreen.Stage.FIRST_WINDOW) {
                             if (TradeScreen.OtherPlayer.hasAccepted()) {
+                                if (TradeScreen.isDelayed()) {
+                                    Waiting.waitUntil(() -> !TradeScreen.isDelayed());
+                                }
                                 TradeScreen.accept();
                                 return true;
                             }
