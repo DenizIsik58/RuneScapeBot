@@ -126,6 +126,7 @@ public class RevScript extends MyScriptExtension {
             if (isCancellingWalking()) {
                 // if we shouldn't walk, and since we are here we are walking,
                 // this debounce will extend the timer for when walking should be cancelled
+                Log.debug("Debouncing");
                 walkDebounce.debounce();
                 return WalkingCondition.State.EXIT_OUT_WALKER_FAIL;
             }
@@ -262,6 +263,7 @@ public class RevScript extends MyScriptExtension {
                 BankManagerRevenant.getEquipmentBankTask().execute();
                 BankManagerRevenant.getInventoryBankTask().execute();
                 BankManagerRevenant.wearAvarice();
+                MyBanker.closeBank();
             }
         }
     }
@@ -328,8 +330,8 @@ public class RevScript extends MyScriptExtension {
     }
 
     private void handleWalking() {
-        selectedMonsterTile = TeleportManager.refill();
-        if (TeleportManager.monsterTileIsDetected(selectedMonsterTile)) {//
+        MyRevsClient.getScript().setSelectedMonsterTile(TeleportManager.refill());
+        if (TeleportManager.monsterTileIsDetected(getSelectedMonsterTile())) {//
             Log.debug("I have detected the monster place");
             MyOptions.init();
             MyCamera.init();
@@ -438,5 +440,9 @@ public class RevScript extends MyScriptExtension {
 
     public WorldTile getSelectedMonsterTile() {
         return selectedMonsterTile;
+    }
+
+    public void setSelectedMonsterTile(WorldTile selectedMonsterTile) {
+        this.selectedMonsterTile = selectedMonsterTile;
     }
 }
