@@ -11,7 +11,9 @@ import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
+import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.LocalWalking;
+import org.tribot.script.sdk.walking.adapter.DaxWalkerAdapter;
 import scripts.api.*;
 import scripts.api.concurrency.Debounce;
 
@@ -135,8 +137,7 @@ public class RevScript extends MyScriptExtension {
             return WalkingCondition.State.CONTINUE_WALKER;
         });
 
-
-        DaxWalker.setCredentials(() -> new DaxCredentials("sub_1LlWYpA7n2uRXzFbp5EVTNUA", "cf9ec337-f12c-4665-82fd-2b98ab86636a"));
+        GlobalWalking.setEngine(new DaxWalkerAdapter("sub_1LlWYpA7n2uRXzFbp5EVTNUA","cf9ec337-f12c-4665-82fd-2b98ab86636a" ));
 
         try {
             muleClient = new MulingClient();

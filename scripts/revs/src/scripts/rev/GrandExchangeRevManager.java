@@ -28,8 +28,6 @@ public class GrandExchangeRevManager {
                         item.getId() != 995 &&
                         !item.getName().contains("Blighted s")).distinctById().toList();
     }
-
-
     public static void sellLoot() {
         Log.debug("Trying to sell loot");
         closeBank();
@@ -78,7 +76,7 @@ public class GrandExchangeRevManager {
             }
         }
 
-        if (Query.bank().nameEquals("Blighted manta ray").count() >= 500) {
+        if (Bank.getCount("Blighted manta ray") >= 500) {
             itemsToSell.getAndIncrement();
             MyBanker.withdraw("Blighted manta ray", 10000000, true);
         }
