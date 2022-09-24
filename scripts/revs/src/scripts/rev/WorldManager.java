@@ -11,15 +11,16 @@ public class WorldManager {
                 .isMembers()
                 .isNotDangerous()
                 .isRequirementsMet()
-                .isNotAnyType(World.Type.PVP_ARENA)
-                .isNotAnyType(World.Type.BOUNTY)
-                .isNotAnyType(World.Type.TOURNAMENT)
-                .isNotAnyType(World.Type.HIGH_RISK)
-                .isNotAnyType(World.Type.LAST_MAN_STANDING)
-                .isNotAnyType(World.Type.LEAGUE)
-                .isNotAnyType(World.Type.PVP)
-                .isNotAnyType(World.Type.DEADMAN)
-                .isNotAnyType(World.Type.DEADMAN_TOURNAMENT)
+                .isNotAnyType(World.Type.PVP_ARENA,
+                        World.Type.BOUNTY,
+                        World.Type.TOURNAMENT,
+                        World.Type.HIGH_RISK,
+                        World.Type.LAST_MAN_STANDING,
+                        World.Type.LEAGUE,
+                        World.Type.PVP,
+                        World.Type.DEADMAN,
+                        World.Type.DEADMAN_TOURNAMENT)
+                .worldNumberNotEquals(403, 404, 407, 408, 411, 412)
                 .isNotCurrentWorld()
                 .findRandom()
                 .map(i -> WorldHopper.hop(i.getWorldNumber()))
