@@ -23,9 +23,10 @@ public class MagicManager implements Runnable {
                 // Do antipk here
                 PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
                 PrayerManager.enablePrayer(Prayer.EAGLE_EYE);
-                if (Combat.canUseSpecialAttack()) {
+                if (Combat.canUseSpecialAttack() && !Combat.isSpecialAttackEnabled()) {
                     if (MyPlayer.getCurrentHealthPercent() < 70) {
-                        Waiting.waitUntil(250, Combat::activateSpecialAttack);
+                        Waiting.waitUntil(250, Combat::isSpecialAttackEnabled);
+
                     }
                 }
 
