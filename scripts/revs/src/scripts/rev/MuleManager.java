@@ -1,6 +1,7 @@
 package scripts.rev;
 
 import org.tribot.script.sdk.Bank;
+import org.tribot.script.sdk.Log;
 import org.tribot.script.sdk.WorldHopper;
 import org.tribot.script.sdk.interfaces.Stackable;
 import org.tribot.script.sdk.query.Query;
@@ -17,8 +18,12 @@ public class MuleManager {
 
     public static void takeOutGp(){
         MyBanker.depositAll();
-        Query.bank().nameEquals("Coins").findFirst().ifPresent(gp -> MyBanker.withdraw(995, gp.getStack() - 3000000, false));
-
+        //Query.bank().nameEquals("Coins").findFirst().ifPresent(gp -> MyBanker.withdraw(995, gp.getStack() - 3000000, false));
+        var haveCoins = MyBanker.withdraw("Coins", Bank.getCount("Coins") - 3000000, false);
+        if (!haveCoins) {
+            Log.debug("We don't have cash in invy. Trying again");
+            MyBanker.withdraw("Coins", Bank.getCount("Coins") - 3000000, false);
+        }
         if (!MyBanker.closeBank()){
             MyBanker.closeBank();
         }

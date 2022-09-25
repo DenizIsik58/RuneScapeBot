@@ -91,8 +91,6 @@ public class GrandExchangeRevManager {
             return;
         }
 
-
-
         if (!MyBanker.closeBank()){
             MyBanker.closeBank();
         }
@@ -197,6 +195,7 @@ public class GrandExchangeRevManager {
                     WorldHopper.hop(world);
 
                 }
+
                 inFirstTrade = false;
                 trade(mulerName);
 
