@@ -7,7 +7,9 @@ import dax.walker_engine.WalkingCondition;
 import lombok.Getter;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
+import org.tribot.script.sdk.interfaces.PreBreakStartListener;
 import org.tribot.script.sdk.painting.template.basic.BasicPaintTemplate;
+import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.script.TribotScriptManifest;
 import org.tribot.script.sdk.types.WorldTile;
@@ -49,6 +51,10 @@ public class RevScript extends MyScriptExtension {
     private DiscordWebhook successfullTripHook;
     private URL fxml;
     private LocalWalking.Map map;
+    private BreakHandler breakHandler;
+
+
+
 
     @Override
     protected void setupScript(ScriptSetup setup) {
@@ -76,6 +82,7 @@ public class RevScript extends MyScriptExtension {
 
     @Override
     protected void onStart(String args) {
+        //new ScriptClass();
         // we put the args from the script start here so incase you have a script with args you can use them in your script from this
         lootWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006526256378040390/lBQqh9sKBdmHY3DFI7gKBhAq38gMZr5SsC8CUTICxqYLfrivwA4YI_ODE8iZFjRDuEwm");
         onEndWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
@@ -83,6 +90,11 @@ public class RevScript extends MyScriptExtension {
         successfullTripHook = new DiscordWebhook("https://discord.com/api/webhooks/1007597804274847824/0BeuF_rHMu3N1Gqa0Lm1teNGl2-KSDSfCu7A4GmyZIlSx6x0I5KlXAvfnO8UNFSirN5V");
         map = LocalWalking.createMap();
         LocalWalking.Map.builder().travelThroughDoors(true);
+
+        Log.debug(MyPlayer.getMembershipDaysRemaining());
+        if (BondManager.haveMoneyForBond() && BondManager.haveNoMembershipDays()) {
+            BondManager.buyBond();
+        }
        /* try {
             File file = new File("C:\\Users\\Administrator\\Documents\\GitHub\\RuneScapeBot\\scripts\\revs\\src\\scripts\\rev\\gui.fxml");
 
@@ -226,6 +238,7 @@ public class RevScript extends MyScriptExtension {
         Objects.requireNonNull(MyClient.findTRiBotFrame()).setState(Frame.NORMAL);
     }
 
+
     public LocalWalking.Map getMap() {
         return map;
     }
@@ -272,6 +285,13 @@ public class RevScript extends MyScriptExtension {
                 MyBanker.closeBank();
             }
         }
+    }
+
+    public BreakHandler getBreakHandler(){
+        if (breakHandler == null) {
+            breakHandler = new BreakHandler(5, 10, 5, 10, 2);
+        }
+        return breakHandler;
     }
 
     public void killPkThread() {
@@ -365,6 +385,7 @@ public class RevScript extends MyScriptExtension {
             playerDetectionThread.setHasPkerBeenDetected(false);
         }
         TeleportManager.setHasVisitedBeforeTrip(false);
+
         BankManagerRevenant.bankLoot();
     }
 

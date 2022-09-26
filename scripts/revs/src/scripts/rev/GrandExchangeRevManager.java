@@ -1,6 +1,7 @@
 package scripts.rev;
 
 import org.tribot.script.sdk.*;
+import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.GrandExchangeOffer;
 import org.tribot.script.sdk.types.InventoryItem;
@@ -44,7 +45,7 @@ public class GrandExchangeRevManager {
             Log.debug("Couldn't empty. Trying again..");
             Waiting.waitUntil(Inventory::isEmpty);
         }
-        MyBanker.withdraw("Coins", 2147000000, false);
+
         AtomicInteger itemsToSell = new AtomicInteger();
         for (var item : LootingManager.getLootToPickUp()) {
             if (item.equals("Looting bag") || item.equals("Coins") || item.contains("Blighted") || MyRevsClient.getScript().isSkulledScript() && item.equals("Amulet of avarice")) {
@@ -87,9 +88,17 @@ public class GrandExchangeRevManager {
             Log.debug("No items to sell");
             openBank();
             MyBanker.depositAll();
-            mule();
+            if (BondManager.haveMoneyForBond() && BondManager.haveLowMembershipDays()) {
+                if (BondManager.buyBond()){
+                    Log.debug("Used bond!");
+                }
+            }else {
+                mule();
+            }
             return;
         }
+
+        MyBanker.withdraw("Coins", 2147000000, false);
 
         if (!MyBanker.closeBank()){
             MyBanker.closeBank();
@@ -150,7 +159,17 @@ public class GrandExchangeRevManager {
         MyBanker.depositInventory();
         shouldRepeat = false;
 
-        mule();
+        Log.debug("bnd price: " + (Pricing.lookupPrice(13190).orElse(0) + 1000000));
+        Log.debug("money in bank: " + (Bank.getCount("Coins")));
+        Log.debug("Membership days: " + MyPlayer.getMembershipDaysRemaining());
+        if (BondManager.haveMoneyForBond() && BondManager.haveLowMembershipDays()) {
+            if (BondManager.buyBond()){
+                Log.debug("Used bond!");
+            }
+        }else {
+            mule();
+        }
+
     }
 
     public static void mule() {

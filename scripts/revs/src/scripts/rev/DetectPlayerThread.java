@@ -251,14 +251,15 @@ public class DetectPlayerThread extends Thread {
         if (MyAntiBan.shouldEat()) {
             var foodCount = Query.inventory().actionEquals("Eat").count();
             var brewCount = Query.inventory().nameContains("Saradomin brew").count();
+            var brewDoseCount = PrayerManager.getInventoryBrewDoses();
             if (foodCount > 0 && brewCount > 0) {
-                var comboEat = comboEat(foodCount, true);
+                var comboEat = comboEat(brewDoseCount, true);
                 if (comboEat) {
                     MyAntiBan.calculateNextEatPercent();
                 }
             } else if (brewCount == 0 && foodCount > 0 || brewCount > 0 && foodCount == 0) {
                 if (brewCount == 0) {
-                    if (comboEat(foodCount, false)) {
+                    if (comboEat(brewDoseCount, false)) {
                         MyAntiBan.calculateNextEatPercent();
                     }
                 } else {
@@ -277,22 +278,24 @@ public class DetectPlayerThread extends Thread {
         }
     }
 
-    private static boolean comboEat(int sharkCount, boolean comboEat) {
+    private static boolean comboEat(int brewDoseCount, boolean comboEat) {
+
+        var foodCount = Query.inventory().actionEquals("Eat").count();
 
         return comboEat ? Query.inventory()
                 .actionEquals("Eat")
                 .findClosestToMouse()
                 .map(c -> c.click("Eat")
-                        && Waiting.waitUntil(1000, () -> Query.inventory().actionEquals("Eat").count() < sharkCount))
-                .orElse(false) && Query.inventory().nameContains("Saradomin brew").findClosestToMouse().map(brew -> brew.click("Drink")).orElse(false)
+                        && Waiting.waitUntil(1000, () -> Query.inventory().actionEquals("Eat").count() < foodCount))
+                .orElse(false) && Query.inventory().nameContains("Saradomin brew").findClosestToMouse().map(brew -> brew.click("Drink")).orElse(false) && Waiting.waitUntil(1000, () ->  PrayerManager.getInventoryBrewDoses() < brewDoseCount)
 
                 :
 
                 Query.inventory()
-                        .nameEquals("Shark")
+                        .actionEquals("Eat")
                         .findClosestToMouse()
                         .map(c -> c.click("Eat")
-                                && Waiting.waitUntil(1000, () -> Inventory.getCount("Shark") < sharkCount))
+                                && Waiting.waitUntil(1000, () -> Inventory.getCount("Shark") < foodCount))
                         .orElse(false);
     }
 

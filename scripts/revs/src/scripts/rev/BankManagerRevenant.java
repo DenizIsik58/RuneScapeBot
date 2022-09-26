@@ -71,8 +71,8 @@ public class BankManagerRevenant {
     }
 
     public static void returnFromTrip() {
-        //EquipmentManager.checkCharges();
         Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
+
         Death.talkToDeath();
         PrayerManager.turnOffAllPrayer();
         MyBanker.openBank();

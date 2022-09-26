@@ -1,10 +1,14 @@
 package scripts.rev;
 
+import org.tribot.script.sdk.Inventory;
 import org.tribot.script.sdk.Prayer;
 import org.tribot.script.sdk.Skill;
 import org.tribot.script.sdk.Waiting;
 import org.tribot.script.sdk.query.Query;
 import scripts.api.MyPrayer;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PrayerManager {
 
@@ -60,6 +64,33 @@ public class PrayerManager {
         if (drankPotion) {
             MyPrayer.calculateNextPrayerDrinkPercent();
         }
+    }
+
+    private final static List<Integer> brewIds = List.of(-1, 1111, 1112, 1113, 1114);
+
+    private static int getCountFromName(String name) {
+        var cleanedName = name.replaceAll("\\D", "");
+        return cleanedName.isEmpty() ? 0 : Integer.parseInt(cleanedName);
+    }
+
+    public static int getInventoryBrewDoses() {
+        return Query.inventory().nameContains("brew").stream().mapToInt(item -> getCountFromName(item.getName())).sum();
+    }
+
+    public static int getBrewDoseCount(){
+        AtomicInteger count = new AtomicInteger();
+        Inventory.getAll().forEach(item -> {
+            if (item.getName().equals("Saradomin brew(1)")){
+                count.addAndGet(1);
+            }else if (item.getName().equals("Saradomin brew(2)")){
+                count.addAndGet(2);
+            }else if (item.getName().equals("Saradomin brew(3)")){
+                count.addAndGet(3);
+            }else if (item.getName().equals("Saradomin brew(4)")){
+                count.addAndGet(4);
+            }
+        });
+        return count.get();
     }
 
     public static void init(){
