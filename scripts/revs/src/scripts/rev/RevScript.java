@@ -92,6 +92,11 @@ public class RevScript extends MyScriptExtension {
         LocalWalking.Map.builder().travelThroughDoors(true);
 
         Log.debug(MyPlayer.getMembershipDaysRemaining());
+
+        if (!WorldHopper.isInMembersWorld()) {
+            WorldManager.hopToRandomMemberWorldWithRequirements();
+        }
+
         if (BondManager.haveMoneyForBond() && BondManager.haveNoMembershipDays()) {
             BondManager.buyBond();
         }
@@ -158,13 +163,9 @@ public class RevScript extends MyScriptExtension {
             Log.debug(e);
         }
 
-
         MyOptions.init();
         MyCamera.init();
         PrayerManager.init();
-        if (!WorldHopper.isInMembersWorld()) {
-            WorldManager.hopToRandomMemberWorldWithRequirements();
-        }
 
     }
 
@@ -289,7 +290,7 @@ public class RevScript extends MyScriptExtension {
 
     public BreakHandler getBreakHandler(){
         if (breakHandler == null) {
-            breakHandler = new BreakHandler(5, 10, 5, 10, 2);
+            breakHandler = new BreakHandler(20, 60, 2, 10);
         }
         return breakHandler;
     }

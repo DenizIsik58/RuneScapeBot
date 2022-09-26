@@ -25,7 +25,8 @@ public class MagicManager implements Runnable {
                 PrayerManager.enablePrayer(Prayer.EAGLE_EYE);
                 if (Combat.canUseSpecialAttack()) {
                     if (!Combat.isSpecialAttackEnabled()) {
-                            Waiting.waitUntil(250, Combat::isSpecialAttackEnabled);
+                        Combat.activateSpecialAttack();
+                        Waiting.waitUntil(250, Combat::isSpecialAttackEnabled);
                     }
 
                 }

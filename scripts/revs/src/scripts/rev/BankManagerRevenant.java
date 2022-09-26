@@ -72,11 +72,11 @@ public class BankManagerRevenant {
 
     public static void returnFromTrip() {
         Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
-
         Death.talkToDeath();
         PrayerManager.turnOffAllPrayer();
         MyBanker.openBank();
         drinkAntiVenom();
+        MyRevsClient.getScript().getBreakHandler().startBreak();
         equipAndChargeItems();
         equipNewWealthIfNeeded();
         checkIfWeHaveEmblemDrop();
