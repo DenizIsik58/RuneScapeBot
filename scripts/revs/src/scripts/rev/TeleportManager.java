@@ -164,7 +164,7 @@ public class TeleportManager {
         }
 
 
-        Mouse.setSpeed(300);
+        Mouse.setSpeed(197);
         return chosenMobArea;
     }
 

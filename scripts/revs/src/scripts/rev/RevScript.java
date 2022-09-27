@@ -91,7 +91,6 @@ public class RevScript extends MyScriptExtension {
         map = LocalWalking.createMap();
         LocalWalking.Map.builder().travelThroughDoors(true);
 
-        Log.debug(MyPlayer.getMembershipDaysRemaining());
 
         if (!WorldHopper.isInMembersWorld()) {
             WorldManager.hopToRandomMemberWorldWithRequirements();
@@ -185,7 +184,7 @@ public class RevScript extends MyScriptExtension {
         }
 
 
-        Mouse.setSpeed(300);
+        Mouse.setSpeed(197);
 
         MyOptions.setRunOn();
 

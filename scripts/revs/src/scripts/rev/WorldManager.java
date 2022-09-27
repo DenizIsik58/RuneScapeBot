@@ -1,8 +1,10 @@
 package scripts.rev;
 
+import org.tribot.api2007.GameTab;
 import org.tribot.script.sdk.WorldHopper;
 import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.World;
+import scripts.api.MyClient;
 
 public class WorldManager {
     public static boolean hopToRandomMemberWorldWithRequirements(){
@@ -23,7 +25,22 @@ public class WorldManager {
                 .worldNumberNotEquals(403, 404, 407, 408, 411, 412)
                 .isNotCurrentWorld()
                 .findRandom()
-                .map(i -> WorldHopper.hop(i.getWorldNumber()))
+                .map(i ->  {
+                    /*if (!GameTab.TABS.LOGOUT.isOpen()) {
+                        GameTab.TABS.LOGOUT.open();
+                    }
+
+                    if (MyClient.isWidgetVisible(182, 3)) {
+                        MyClient.clickWidget("World Switcher", 182, 3);
+                    }
+
+                    return Query.widgets()
+                            .textContains(i.toString())
+                            .actionEquals("Switch")
+                            .findFirst()
+                            .map(widget -> widget.click("Switch")).orElse(false);*/
+                    return WorldHopper.hop(i.getWorldNumber());
+                } )
                 .orElse(false);
     }
 }

@@ -369,6 +369,8 @@ public class GrandExchangeRevManager {
                 MyExchange.createGrandExchangeBuyOrder(item, 5, 0, true);
             }else if (item.contains("chaps")) {
                 MyExchange.createGrandExchangeBuyOrder(item, 5, 10000, false);
+            }else if (item.contains("Feather") || (item.contains("Arrow shaft"))) {
+                MyExchange.createGrandExchangeBuyOrder(item, 7000, 0, true);
             }else{
                 MyExchange.createGrandExchangeBuyOrder(item, 10, 0, true);
             }

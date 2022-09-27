@@ -667,8 +667,9 @@ public class DetectPlayerThread extends Thread {
 
 
                     Log.warn("[DANGER_LISTENER] HANDLING DANGER");
-                    if (Mouse.getSpeed() == 300) {
+                    if (Mouse.getSpeed() == 197) {
                         int dangerMouseSpeed = getRandomNumber(1500, 2000);
+                        Log.debug("Setting mouse to: " + dangerMouseSpeed);
                         Mouse.setSpeed(dangerMouseSpeed);
                     }
                     teleblocked = isTeleblocked();
@@ -793,7 +794,7 @@ public class DetectPlayerThread extends Thread {
         if (isTeleblocked()) setTeleblocked(false);
         if (hasPkerBeenDetected()) setHasPkerBeenDetected(false);
         if (inDanger()) setInDanger(false);
-        if (Mouse.getSpeed() != 300) Mouse.setSpeed(300);
+        if (Mouse.getSpeed() != 197) Mouse.setSpeed(197);
         if (entangleDetecter != null) entangleDetecter = null;
         hasTickCounterStarted = false;
         setHasHopped(false);

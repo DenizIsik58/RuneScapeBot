@@ -92,8 +92,13 @@ public class RevkillerManager {
         //if (iWasFirst) {
 
         if (!iWasFirst) {
-            if (pvmers().count() < 2) {
+            if (pvmers().count() < 2) { // < 2
                 iWasFirst = true;
+            }else {
+                if (MyRevsClient.getScript().getPlayerDetectionThread().hasPkerBeenDetected()) {
+                    return;
+                }
+                WorldManager.hopToRandomMemberWorldWithRequirements();
             }
         }
 
@@ -214,12 +219,7 @@ public class RevkillerManager {
                 return;
             }
 
-            if (!WorldManager.hopToRandomMemberWorldWithRequirements()){
-                Log.debug("We are being attacked!");
-            }
         }
-
-        Waiting.wait(100);
 
        /* }else {
             if ((Query.players().isEquipped("Black d'hide body", "Toxic blowpipe", "Magic shortbow", "Magic shortbow (i)", "Craw's bow", "Viggora's chainmace").isAny() || Query.players().isBeingInteractedWith().isAny() || Query.players().isHealthBarVisible().isAny()) && !iWasFirst) {

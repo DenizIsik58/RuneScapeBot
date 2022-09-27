@@ -106,7 +106,7 @@ public class MyOptions {
         GameTab.setSwitchPreference(GameTab.SwitchPreference.KEYS);
         Options.AttackOption.setPlayerAttackOption(Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE);
         Options.AttackOption.setNpcAttackOption(Options.AttackOption.LEFT_CLICK_WHERE_AVAILABLE);
-        Mouse.setSpeed(300);
+        Mouse.setSpeed(197);
         setAidOff();
         setRunOn();
         setSoundOff();
