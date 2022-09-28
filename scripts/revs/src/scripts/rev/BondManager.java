@@ -14,6 +14,11 @@ public class BondManager {
         if (!MyBanker.openBank()){
             MyBanker.openBank();
         }
+        if (Inventory.contains("Coins")) {
+            Log.debug("Trying to deposit coins");
+            Bank.depositAll("Coins");
+            Waiting.wait(3000);
+        }
         return Bank.getCount("Coins") >= (Pricing.lookupPrice(13190).orElse(0) + 1000000);
     }
 
@@ -22,6 +27,7 @@ public class BondManager {
     }
 
     public static boolean haveNoMembershipDays(){
+
         return MyPlayer.getMembershipDaysRemaining() == 0;
     }
 

@@ -96,6 +96,8 @@ public class RevScript extends MyScriptExtension {
             WorldManager.hopToRandomMemberWorldWithRequirements();
         }
 
+        Log.debug("" + (MyPlayer.getMembershipDaysRemaining() == 0));
+        Log.debug((Pricing.lookupPrice(13190).orElse(0) + 1000000));
         if (BondManager.haveMoneyForBond() && BondManager.haveNoMembershipDays()) {
             BondManager.buyBond();
         }
