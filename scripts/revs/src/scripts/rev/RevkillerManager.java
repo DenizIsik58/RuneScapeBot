@@ -95,11 +95,14 @@ public class RevkillerManager {
             if (pvmers().count() < 2) { // < 2
                 iWasFirst = true;
             }else {
-                if (MyRevsClient.getScript().getPlayerDetectionThread().hasPkerBeenDetected()) {
-                    return;
+                if (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
+                    if (MyRevsClient.getScript().getPlayerDetectionThread().hasPkerBeenDetected()) {
+                        return;
+                    }
+                    WorldManager.hopToRandomMemberWorldWithRequirements();
                 }
-                WorldManager.hopToRandomMemberWorldWithRequirements();
-            }
+                }
+
         }
 
         if (iWasFirst && Combat.isInWilderness()){
