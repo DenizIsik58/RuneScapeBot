@@ -1,8 +1,7 @@
 package scripts.rev;
 
-import org.tribot.script.sdk.Bank;
-import org.tribot.script.sdk.Log;
-import org.tribot.script.sdk.WorldHopper;
+import dax.walker.models.WaitCondition;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.interfaces.Stackable;
 import org.tribot.script.sdk.query.Query;
 import scripts.api.MyBanker;
@@ -19,8 +18,9 @@ public class MuleManager {
     public static void takeOutGp(){
         MyBanker.depositAll();
         //Query.bank().nameEquals("Coins").findFirst().ifPresent(gp -> MyBanker.withdraw(995, gp.getStack() - 3000000, false));
-        var haveCoins = MyBanker.withdraw("Coins", Bank.getCount("Coins") - 3000000, false);
-        if (!haveCoins) {
+        MyBanker.withdraw("Coins", Bank.getCount("Coins") - 3000000, false);
+        Waiting.waitNormal(1500, 100);
+        if (!Inventory.contains("Coins")) {
             Log.debug("We don't have cash in invy. Trying again");
             MyBanker.withdraw("Coins", Bank.getCount("Coins") - 3000000, false);
         }

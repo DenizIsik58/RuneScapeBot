@@ -96,6 +96,9 @@ public class RevScript extends MyScriptExtension {
             WorldManager.hopToRandomMemberWorldWithRequirements();
         }
 
+        if (Skill.PRAYER.getActualLevel() < 44) {
+            throw new RuntimeException("You are not 44 prayer");
+        }
         Log.debug("" + (MyPlayer.getMembershipDaysRemaining() == 0));
         Log.debug((Pricing.lookupPrice(13190).orElse(0) + 1000000));
         if (BondManager.haveMoneyForBond() && BondManager.haveNoMembershipDays()) {
