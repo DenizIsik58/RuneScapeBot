@@ -177,7 +177,7 @@ public class RevScript extends MyScriptExtension {
     @Override
     protected void onMainLoop() {
         if (stopScript.get()) {
-            stopScript("Script has stopped");
+            stopScript("You need 100k in order to enter cave");
         }
         MyScriptVariables.updateStatus(state.toString());
         handlePkThread();
