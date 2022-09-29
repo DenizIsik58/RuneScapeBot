@@ -34,11 +34,11 @@ public class TeleportManager {
     private static final List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(demons, south_ork));// demons,  // South ork removed for now
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
     private final static Area SOUTH_ORK = Area.fromRectangle(new WorldTile(3200, 10105, 0), new WorldTile(3231, 10085, 0));
+    private static final Area demonArea = Area.fromRectangle(new WorldTile(3137, 10129, 0), new WorldTile(3181, 10101, 0));
+
     private static GameObject pool = null;
     public static WorldTile refill() {
         // Random selection of mobs to kill
-
-
 
         var chosenMobArea = getRandomMobArea();
 
@@ -48,6 +48,7 @@ public class TeleportManager {
                 MyBanker.closeBank();
             }
             if (MyPlayer.getTile().getPlane() == 1 && !MyRevsClient.myPlayerIsInFerox()) {
+                Query.gameObjects().actionEquals("Climb-down").findFirst().map(GameObject::click);
                 MyTeleporting.Dueling.FeroxEnclave.useTeleport();
 
             }
@@ -310,6 +311,13 @@ public class TeleportManager {
 
     public static Area getSouthOrk() {
         return SOUTH_ORK;
+    }
+
+    public static Area getAreaBasedOnChosenMobLocation(){
+        if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == getSouth_ork().getX()) {
+            return getSouthOrk();
+        }
+        return demonArea;
     }
 
     /*

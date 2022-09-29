@@ -21,7 +21,7 @@ public class SuppliesChecker implements Runnable{
                 return;
             }
 
-            Query.npcs().nameEquals("Revenant maledictus").findRandom().ifPresent(boss -> {
+            Query.npcs().nameEquals("Revenant maledictus").inArea(TeleportManager.getAreaBasedOnChosenMobLocation()).findRandom().ifPresent(boss -> {
                 if (boss.isValid() || boss.isAnimating() || boss.isMoving() || boss.isHealthBarVisible()) {
                     //TeleportManager.teleportOutOfWilderness("Boss has been seen! Trying to teleport out");
                     Log.debug("Boss has been detected");

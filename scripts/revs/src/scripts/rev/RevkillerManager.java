@@ -176,6 +176,7 @@ public class RevkillerManager {
 
             if (target != null) {
                 if (!target.isHealthBarVisible() || (target.getHealthBarPercent() != 0 && !target.isAnimating() && !target.isHealthBarVisible())) {
+                    Log.debug("Found target mob!");
                     target.interact("Attack");
                     Waiting.waitUntil(3500, () -> target.isHealthBarVisible());
                     Query.npcs().idEquals(TeleportManager.getMonsterIdBasedOnLocation(MyRevsClient.getScript().getSelectedMonsterTile())).findRandom().ifPresent(monster -> {
