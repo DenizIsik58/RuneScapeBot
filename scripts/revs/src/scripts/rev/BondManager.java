@@ -20,9 +20,6 @@ public class BondManager {
             Waiting.wait(3000);
         }
 
-        if (!MyBanker.closeBank()){
-            MyBanker.closeBank();
-        }
 
         return Bank.getCount("Coins") >= (Pricing.lookupPrice(13190).orElse(0) + 1000000);
     }
