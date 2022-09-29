@@ -19,6 +19,11 @@ public class BondManager {
             Bank.depositAll("Coins");
             Waiting.wait(3000);
         }
+
+        if (!MyBanker.closeBank()){
+            MyBanker.closeBank();
+        }
+
         return Bank.getCount("Coins") >= (Pricing.lookupPrice(13190).orElse(0) + 1000000);
     }
 
@@ -33,6 +38,10 @@ public class BondManager {
 
     public static boolean buyBond(){
         var membershipDays = MyPlayer.getMembershipDaysRemaining();
+
+        if (!MyBanker.openBank()) {
+            MyBanker.openBank();
+        }
 
         // Withdraw our money
         if (!MyBanker.withdraw("Coins", 10000000, false)){
