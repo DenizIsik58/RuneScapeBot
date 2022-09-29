@@ -589,7 +589,7 @@ public class BankManagerRevenant {
             MyBanker.closeBank();
         }
 
-        if (!Equipment.contains(22557) && !Inventory.contains(22557) && Bank.contains(22557)) {
+        if (!Equipment.contains(22557) && !Inventory.contains(22557) && !Bank.contains(22557)) {
             GrandExchangeRevManager.restockFromBank(new ArrayList<>(Arrays.asList("Amulet of avarice")));
             MyBanker.depositAll();
         }

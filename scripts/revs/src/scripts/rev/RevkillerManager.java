@@ -147,10 +147,14 @@ public class RevkillerManager {
             }
 
             if (!BoostingManager.isBoosted()){
-                BoostingManager.boost();
-                if (target != null){
-                    target.interact("Attack");
-                    Waiting.waitUntil(2500, () -> target.isHealthBarVisible());
+                if (Query.inventory().nameContains("Divine ranging potion").isAny()){
+                    BoostingManager.boost();
+                    if (target != null){
+                        target.interact("Attack");
+                        Waiting.waitUntil(2500, () -> target.isHealthBarVisible());
+                    }
+                }else {
+                    Log.debug("We do not have divine ranging pot");
                 }
             }
 

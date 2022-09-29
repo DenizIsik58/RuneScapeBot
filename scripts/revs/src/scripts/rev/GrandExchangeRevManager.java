@@ -31,7 +31,6 @@ public class GrandExchangeRevManager {
     }
     public static void sellLoot() {
         Log.debug("Trying to sell loot");
-        closeBank();
         MyExchange.walkToGrandExchange();
         if(!openBank()){
             openBank();
