@@ -239,7 +239,7 @@ public class DetectPlayerThread extends Thread {
                 // Handle ranging weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
-            } else if (playerWeapon.toLowerCase().contains("bludgeon") || playerWeapon.toLowerCase().contains("sword") || playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar")) {
+            } else if (playerWeapon.toLowerCase().contains("bludgeon") || playerWeapon.toLowerCase().contains("sword") || playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar") || playerWeapon.toLowerCase().contains("mace")) {
                 // Handle melee weapon
                 // 1. Set up prayer according to weapon
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
@@ -333,7 +333,7 @@ public class DetectPlayerThread extends Thread {
                 if (!isFrozen()) {
                     // Start running
                     Log.debug("I'm not frozen running!");
-
+                    handleEatAndPrayer(pker);
                     if (MyRevsClient.myPlayerIsInCave()) {
                         WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
 
