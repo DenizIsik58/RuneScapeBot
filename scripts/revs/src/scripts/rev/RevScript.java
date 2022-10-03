@@ -288,6 +288,7 @@ public class RevScript extends MyScriptExtension {
                 BankManagerRevenant.checkIfNeedToRestockSupplies();
                 BankManagerRevenant.getEquipmentBankTask().execute();
                 BankManagerRevenant.getInventoryBankTask().execute();
+                Waiting.waitNormal(1000, 100);
                 BankManagerRevenant.wearAvarice();
                 MyBanker.closeBank();
             }

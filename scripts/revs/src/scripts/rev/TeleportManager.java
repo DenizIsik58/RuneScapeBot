@@ -95,6 +95,7 @@ public class TeleportManager {
                     MyBanker.depositInventory();
                     BankManagerRevenant.equipAndChargeItems();
                     BankManagerRevenant.getEquipmentBankTask().execute();
+                    Waiting.waitNormal(1000, 100);
                     BankManagerRevenant.wearAvarice();
                 }
 

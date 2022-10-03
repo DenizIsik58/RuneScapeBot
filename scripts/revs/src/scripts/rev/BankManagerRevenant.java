@@ -263,6 +263,7 @@ public class BankManagerRevenant {
             equipAndChargeItems();
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
+            Waiting.waitNormal(1000, 100);
             wearAvarice();
         }
 
@@ -594,7 +595,7 @@ public class BankManagerRevenant {
             MyBanker.depositAll();
         }
 
-
+        Waiting.waitNormal(1000, 200);
         Query.inventory().idEquals(22557).findFirst().map(c -> c.click("Wear"));
         Waiting.waitUntil(() -> isWidgetVisible(219, 1));
         Query.widgets()
@@ -633,6 +634,7 @@ public class BankManagerRevenant {
             Log.debug("Equipment task not satisfied. Checking if we need to buy gear..");
             checkIfNeedToBuyGear();
             getEquipmentBankTask().execute();
+            Waiting.waitNormal(1000, 100);
             wearAvarice();
             MyBanker.closeBank();
         }
