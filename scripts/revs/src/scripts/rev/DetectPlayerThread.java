@@ -1,7 +1,6 @@
 package scripts.rev;
 
 
-import dax.api_lib.DaxWalker;
 import javafx.beans.property.SimpleBooleanProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import org.tribot.script.sdk.types.Player;
 import org.tribot.script.sdk.types.Projectile;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
-import org.tribot.script.sdk.walking.LocalWalking;
 import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.*;
 import scripts.api.utility.StringsUtility;
@@ -248,22 +246,21 @@ public class DetectPlayerThread extends Thread {
             }
         });
 
-        if (MyAntiBan.shouldEat()) {
+        if (MyAntiBan.shouldEat() && Query.inventory().nameContains("restore").isAny()) {
             var foodCount = Query.inventory().actionEquals("Eat").count();
             var brewCount = Query.inventory().nameContains("Saradomin brew").count();
-            var brewDoseCount = PrayerManager.getInventoryBrewDoses();
             if (foodCount > 0 && brewCount > 0) {
-                var comboEat = comboEat(brewDoseCount, true);
+                var comboEat = comboEat(true);
                 if (comboEat) {
                     MyAntiBan.calculateNextEatPercent();
                 }
             } else if (brewCount == 0 && foodCount > 0 || brewCount > 0 && foodCount == 0) {
                 if (brewCount == 0) {
-                    if (comboEat(brewDoseCount, false)) {
+                    if (comboEat(false)) {
                         MyAntiBan.calculateNextEatPercent();
                     }
                 } else {
-                    if (eatBrew()) {
+                    if (drinkBrew()) {
                         MyAntiBan.calculateNextEatPercent();
                     }
                 }
@@ -271,6 +268,8 @@ public class DetectPlayerThread extends Thread {
                 outOfFood.set(true);
                 Log.warn("Out of food under eat percent");
             }
+        } else {
+            Log.debug("We have no restores");
         }
 
         if (Prayer.getPrayerPoints() < Skill.PRAYER.getActualLevel() - 22) {
@@ -278,8 +277,16 @@ public class DetectPlayerThread extends Thread {
         }
     }
 
-    private static boolean comboEat(int brewDoseCount, boolean comboEat) {
+    private static boolean comboEat(boolean comboEat) {
+        String potion;
 
+        if (Prayer.getPrayerPoints() < (Skill.PRAYER.getActualLevel() - 22)){
+            potion = "restore";
+        }else {
+            potion = "Saradomin brew";
+        }
+
+        var potionDoseCount = PrayerManager.getInventoryDoseCount(potion);
         var foodCount = Query.inventory().actionEquals("Eat").count();
 
         return comboEat ? Query.inventory()
@@ -287,7 +294,7 @@ public class DetectPlayerThread extends Thread {
                 .findClosestToMouse()
                 .map(c -> c.click("Eat")
                         && Waiting.waitUntil(1000, () -> Query.inventory().actionEquals("Eat").count() < foodCount))
-                .orElse(false) && Query.inventory().nameContains("Saradomin brew").findClosestToMouse().map(brew -> brew.click("Drink")).orElse(false) && Waiting.waitUntil(1000, () ->  PrayerManager.getInventoryBrewDoses() < brewDoseCount)
+                .orElse(false) && Query.inventory().nameContains(potion).findClosestToMouse().map(pot -> pot.click("Drink")).orElse(false) && Waiting.waitUntil(1000, () ->  PrayerManager.getInventoryDoseCount(potion) < potionDoseCount)
 
                 :
 
@@ -299,7 +306,7 @@ public class DetectPlayerThread extends Thread {
                         .orElse(false);
     }
 
-    private static boolean eatBrew() {
+    private static boolean drinkBrew() {
         return Query.inventory().nameContains("Saradomin brew").findClosestToMouse().map(brew -> brew.click("Drink")).orElse(false);
     }
 

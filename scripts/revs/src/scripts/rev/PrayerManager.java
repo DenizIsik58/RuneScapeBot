@@ -1,9 +1,6 @@
 package scripts.rev;
 
-import org.tribot.script.sdk.Inventory;
-import org.tribot.script.sdk.Prayer;
-import org.tribot.script.sdk.Skill;
-import org.tribot.script.sdk.Waiting;
+import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.query.Query;
 import scripts.api.MyPrayer;
 
@@ -57,9 +54,9 @@ public class PrayerManager {
         var drankPotion = Query.inventory().nameContains("Blighted super restore")
                 .findClosestToMouse()
                 .map(potion -> {
-                    var currentPrayer = MyPrayer.getCurrentPrayerPercent();
+                    var restoreDoses = getInventoryDoseCount("restore");
                     return potion.click("Drink")
-                            && Waiting.waitUntil(1000, () -> MyPrayer.getCurrentPrayerPercent() > currentPrayer || isFullPrayer());
+                            && Waiting.waitUntil(1000, () -> getInventoryDoseCount("restore") < restoreDoses || isFullPrayer());
                 }).orElse(false);
         if (drankPotion) {
             MyPrayer.calculateNextPrayerDrinkPercent();
@@ -68,13 +65,13 @@ public class PrayerManager {
 
     private final static List<Integer> brewIds = List.of(-1, 1111, 1112, 1113, 1114);
 
-    private static int getCountFromName(String name) {
+    private static int getDoseCountByName(String name) {
         var cleanedName = name.replaceAll("\\D", "");
         return cleanedName.isEmpty() ? 0 : Integer.parseInt(cleanedName);
     }
 
-    public static int getInventoryBrewDoses() {
-        return Query.inventory().nameContains("brew").stream().mapToInt(item -> getCountFromName(item.getName())).sum();
+    public static int getInventoryDoseCount(String name) {
+        return Query.inventory().nameContains(name).stream().mapToInt(item -> getDoseCountByName(item.getName())).sum();
     }
 
     public static int getBrewDoseCount(){
