@@ -92,7 +92,7 @@ public class RevkillerManager {
         //if (iWasFirst) {
 
         if (!iWasFirst) {
-            if (pvmers().count() < 2) { // < 2
+            if (getPvmers().count() < 2) { // < 2
                 iWasFirst = true;
             }else {
                 if (MyRevsClient.getScript().getPlayerDetectionThread() != null) {
@@ -126,6 +126,16 @@ public class RevkillerManager {
                     GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
                 }
             }
+
+            getPotentialBots().findFirst().ifPresent(bot -> {
+                Log.debug("Pvmer: " + bot.getName());
+                Log.debug("Found pvmer!");
+                if (getPotentialBots().isMyPlayerNotInteractingWith().nameEquals(bot.getName()).isAny()) {
+                    Log.debug("Not attacking pvmer");
+                    bot.click("Attack");
+                }
+            });
+
 
             PrayerManager.enableQuickPrayer();
             MyCamera.init();
@@ -244,9 +254,18 @@ public class RevkillerManager {
         RevkillerManager.checkedSupplies = checkedSupplies;
     }
 
-    private static PlayerQuery pvmers(){
+    private static PlayerQuery getPvmers(){
         return Query.players().isEquipped(DetectPlayerThread.getPvmGear());
     }
+
+    private static PlayerQuery getPotentialBots(){
+        return Query.players()
+                .isEquipped("Ava's accumulator", "Ava's attractor")
+                .hasSkullIcon()
+                .inArea(LootingManager.getSouthOrk(), LootingManager.getDemons())
+                .withinCombatLevels(Combat.getWildernessLevel());
+    }
+
     public static boolean hasLevelGained(){
         return startRangeLevel != Skill.RANGED.getCurrentLevel();
     }

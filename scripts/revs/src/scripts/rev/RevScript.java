@@ -432,6 +432,7 @@ public class RevScript extends MyScriptExtension {
     }
 
     public void setState(State state) {
+        MyScriptVariables.updateStatus(state.toString());
         this.state.set(state);
     }
 

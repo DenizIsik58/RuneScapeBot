@@ -37,6 +37,14 @@ public class LootingManager {
     private static int tripValue = 0;
     private static int totalValue = 0;
 
+    public static Area getDemons() {
+        return demons;
+    }
+
+    public static Area getSouthOrk() {
+        return southOrk;
+    }
+
     public static void loot() {
         MyRevsClient.getScript().handlePkThread();
 
