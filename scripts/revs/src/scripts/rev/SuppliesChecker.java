@@ -14,7 +14,7 @@ public class SuppliesChecker implements Runnable{
                 continue;
             }
 
-            if (Query.inventory().nameContains("Blighted super restore").count() == 0) {
+            if (PrayerManager.getInventoryDoseCount("restore") < 5) {
                 Log.debug("Low of restore");
                 RevkillerManager.setLowRestores(true);
 
