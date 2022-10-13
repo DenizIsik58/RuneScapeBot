@@ -94,4 +94,7 @@ public class MyExchange {
         return Waiting.waitUntil(5000, MyExchange::isExchangeNearby);
     }
 
+    public static Area getGrandExchangeArea() {
+        return grandExchangeArea;
+    }
 }

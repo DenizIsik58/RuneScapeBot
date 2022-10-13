@@ -3,6 +3,7 @@ package scripts.rev;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.pricing.Pricing;
 import org.tribot.script.sdk.query.Query;
+import org.tribot.script.sdk.walking.GlobalWalking;
 import scripts.api.MyBanker;
 import scripts.api.MyClient;
 import scripts.api.MyExchange;
@@ -50,6 +51,10 @@ public class BondManager {
             MyBanker.closeBank();
         }
 
+        if (!MyRevsClient.myPlayerIsInGE()) {
+            GlobalWalking.walkTo(MyExchange.getGrandExchangeArea().getRandomTile());
+        }
+
         // Open GE
         if (MyExchange.openExchange()) {
             MyExchange.openExchange();
@@ -88,8 +93,10 @@ public class BondManager {
             MyClient.clickWidget("Confirm", 66, 24);
             return true;
         });
-
         Waiting.wait(2500);
+
+        Login.logout();
+
         return MyPlayer.getMembershipDaysRemaining() > membershipDays;
     }
 }
