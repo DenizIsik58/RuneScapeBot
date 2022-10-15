@@ -92,15 +92,14 @@ public class RevScript extends MyScriptExtension {
         LocalWalking.Map.builder().travelThroughDoors(true);
 
 
-        if (!WorldHopper.isInMembersWorld()) {
-            WorldManager.hopToRandomMemberWorldWithRequirements();
-        }
-
-
         Log.debug("" + (MyPlayer.getMembershipDaysRemaining() == 0));
         Log.debug((Pricing.lookupPrice(13190).orElse(0) + 1000000));
         if (BondManager.haveMoneyForBond() && BondManager.haveNoMembershipDays()) {
             BondManager.buyBond();
+        }
+
+        if (!WorldHopper.isInMembersWorld()) {
+            WorldManager.hopToRandomMemberWorldWithRequirements();
         }
 
         if (Skill.PRAYER.getActualLevel() < 44) {

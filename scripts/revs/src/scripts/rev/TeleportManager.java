@@ -1,6 +1,8 @@
 package scripts.rev;
 
+import dax.api_lib.DaxWalker;
 import dax.teleports.Teleport;
+import dax.walker.DaxWalkerEngine;
 import org.tribot.script.sdk.*;
 import org.tribot.script.sdk.input.Mouse;
 import org.tribot.script.sdk.query.Query;
@@ -9,15 +11,13 @@ import org.tribot.script.sdk.types.GameObject;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
 import org.tribot.script.sdk.walking.WalkState;
+import org.tribot.script.sdk.walking.adapter.GlobalWalkerAdapter;
 import scripts.api.MyBanker;
 import scripts.api.MyClient;
 import scripts.api.MyExchange;
 import scripts.api.MyTeleporting;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.tribot.script.sdk.Waiting.waitUntil;
 
@@ -30,11 +30,15 @@ public class TeleportManager {
     private static final WorldTile north_ork = new WorldTile(3226, 10132,0 );
     private static final WorldTile east_goblin = new WorldTile(3240, 10095, 0);
     private static final WorldTile demons = new WorldTile(3162, 10109,0 );
+    private static final WorldTile cyclops = new WorldTile(3175, 10192,0 );
+
     private static boolean hasVisitedBeforeTrip = false;
-    private static final List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(demons, south_ork));// demons,  // South ork removed for now
+    private static final List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(demons, cyclops));// demons,  // South ork removed for now
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
     private final static Area SOUTH_ORK = Area.fromRectangle(new WorldTile(3200, 10105, 0), new WorldTile(3231, 10085, 0));
     private static final Area demonArea = Area.fromRectangle(new WorldTile(3137, 10129, 0), new WorldTile(3181, 10101, 0));
+    private static final Area cyclopsArea = Area.fromRectangle(new WorldTile(3158, 10206, 0), new WorldTile(3194, 10178, 0));
+    private static final Area[] monsterAreas = new Area[] {demonArea, cyclopsArea};
 
     private static GameObject pool = null;
     public static WorldTile refill() {
@@ -67,13 +71,14 @@ public class TeleportManager {
                         MyRevsClient.getScript().setState(State.BANKING);
                         return WalkState.FAILURE;
                     }
-                    if (!MyRevsClient.myPlayerIsInCave()) {
-                        refill();
-                        return WalkState.SUCCESS;
-                    }
+
+
                     return WalkState.CONTINUE;
                 });
-                chosenMobArea.clickOnMinimap();
+
+                if (chosenMobArea.isVisible()){
+                    chosenMobArea.clickOnMinimap();
+                }
             }
 //
             if (MyRevsClient.myPlayerIsInGE() || MyRevsClient.myPlayerIsInCasteWars() || MyRevsClient.myPlayerIsAtEdge() || MyPlayer.getTile().getPlane() == 2){
@@ -201,7 +206,11 @@ public class TeleportManager {
     }
 
     public static boolean monsterTileIsDetected(WorldTile tile){
-        return tile.isRendered() || tile.isVisible();
+        if (MyRevsClient.getScript().getSelectedMonsterTile().getX() != TeleportManager.getCyclops().getX()){
+            return tile.isRendered() || tile.isVisible();
+        }
+        return MyRevsClient.myPlayerIsAtCyclops();
+
     }
 
     public static void teleportOutOfWilderness(String message){
@@ -246,13 +255,26 @@ public class TeleportManager {
         return demons;
     }
 
+    public static WorldTile getCyclops() {
+        return cyclops;
+    }
+
     public static WorldTile getSouth_ork() {
         return south_ork;
     }
 
     public static int getMonsterIdBasedOnLocation(WorldTile tile){
-        if (tile.getX() == 3240) {
-            return 7933;
+        if (tile.getX() == 3175) {
+            if (Skill.RANGED.getActualLevel() < 70) {
+                return 7934;
+            }
+
+            int random = new Random().nextInt(100) + 1;
+            Log.debug(random);
+            if (random > 50) {
+                return 7934;
+            }
+            return 7936;
         }
         if (tile.getX() != demons.getX()){
             return 7937;
@@ -286,8 +308,21 @@ public class TeleportManager {
                     }
                     return WalkState.CONTINUE;
                 });
+        } else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getCyclops().getX()) {
+                var location = new WorldTile(3177,10148, 0);
+                GlobalWalking.walkTo(location, () -> {
+                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || Combat.getWildernessLevel() <= 30 || !Combat.isInWilderness()) {
+                        Log.debug("Breaking out..");
+                        return WalkState.FAILURE;
+                    }
+                    return WalkState.CONTINUE;
+                });
             }
     }
+        if (Combat.getWildernessLevel() > 30) {
+            Log.debug("We are above 30 wilderness and will not teleport");
+            return;
+        }
 
         Waiting.wait(2500);
         if (Query.inventory().nameContains("Ring of wealth (").isAny() && !Query.equipment().nameContains("Ring of wealth (").isAny()) {
@@ -301,6 +336,7 @@ public class TeleportManager {
         }
 
         var inGe = Waiting.waitUntil(5000, MyRevsClient::myPlayerIsInGE);
+
         if (!inGe) {
             Log.debug("Not in GE. trying again....");
             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
@@ -314,11 +350,25 @@ public class TeleportManager {
         return SOUTH_ORK;
     }
 
+    public static Area getDemonArea() {
+        return demonArea;
+    }
+
+    public static Area getCyclopsArea() {
+        return cyclopsArea;
+    }
+
     public static Area getAreaBasedOnChosenMobLocation(){
         if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == getSouth_ork().getX()) {
             return getSouthOrk();
+        }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == getCyclops().getX()){
+            return getCyclopsArea();
         }
-        return demonArea;
+        return getDemonArea();
+    }
+
+    public static Area[] getMonsterAreas() {
+        return monsterAreas;
     }
 
     /*

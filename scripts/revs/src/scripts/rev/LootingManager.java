@@ -77,6 +77,10 @@ public class LootingManager {
 
                 var countBeforePickingUp = getAllLoot().size();
 
+                if (item.getName().contains("restore") && PrayerManager.getInventoryDoseCount("restore") < 12 && item.getStack() == 1) {
+                    // Close bag to pick up restore
+                    closeLootingBag();
+                }
 
                 // TODO: If loot value is over X amount don't tele. Try to take it no matter what.
                 item.interact("Take", () -> hasPkerBeenDetected() || !Combat.isInWilderness());
@@ -112,10 +116,9 @@ public class LootingManager {
                 }
             }
 
-            if (getTripValue() >= 200000) {
+            if (getTripValue() >= RevkillerManager.getTripLimit()) {
 
                     TeleportManager.teleportOut();
-
 
                 try {
                     var outputFile = ScreenShotManager.takeScreenShotAndSave("success");
@@ -216,14 +219,14 @@ public class LootingManager {
     private static List<GroundItem> getAllLoot() {
         return Query.groundItems()
                 .nameEquals(lootToPickUp)
-                .inArea(southOrk,demons)
+                .inArea(TeleportManager.getMonsterAreas())
                 .sorted(Comparator.comparingInt(item -> Pricing.lookupPrice(item.getId()).orElse(0) * item.getStack()))
                 .toList();
     }
 
     private static List<GroundItem> getAllFood(){
             return Query.groundItems()
-                    .inArea(southOrk, demons)
+                    .inArea(TeleportManager.getMonsterAreas())
                     .nameEquals("Blighted manta ray", "Blighted anglerfish")
                     .toList();
 

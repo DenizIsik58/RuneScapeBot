@@ -8,6 +8,7 @@ import org.tribot.script.sdk.query.Query;
 import org.tribot.script.sdk.types.Npc;
 import org.tribot.script.sdk.types.WorldTile;
 import org.tribot.script.sdk.walking.GlobalWalking;
+import org.tribot.script.sdk.walking.WalkState;
 import scripts.api.FoodManager;
 import scripts.api.MyAntiBan;
 import scripts.api.MyCamera;
@@ -28,6 +29,7 @@ public class RevkillerManager {
     @Getter @Setter
     private static boolean hasClickedSpot = false;
     private static boolean checkedSupplies = false;
+    private static final int tripLimit = 300000;
 
     private static AtomicBoolean bossDetected = new AtomicBoolean(false);
 
@@ -122,7 +124,11 @@ public class RevkillerManager {
                     GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
                 }
             }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getDemons().getX()) {
-                if (!MyRevsClient.myPlayerIsAtDemons()){// South ork
+                if (!MyRevsClient.myPlayerIsAtDemons()){// Demons
+                    GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
+                }
+            }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getCyclops().getX()) {
+                if (!MyRevsClient.myPlayerIsAtCyclops()){// Cyclops
                     GlobalWalking.walkTo(MyRevsClient.getScript().getSelectedMonsterTile());
                 }
             }
@@ -217,10 +223,22 @@ public class RevkillerManager {
 
             }
 
-            if (LootingManager.getTripValue() >= 200000) {
+            if (LootingManager.getTripValue() >= tripLimit) {
                 if (!MyRevsClient.myPlayerIsInGE()) {
-                    Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
-                    Waiting.wait(2000);
+                    if (Combat.getWildernessLevel() >= 29) {
+                        var location = new WorldTile(3177,10148, 0);
+                        GlobalWalking.walkTo(location,  () -> {
+                            if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || Combat.getWildernessLevel() <= 30) {
+                                return WalkState.FAILURE;
+                            }
+                            return WalkState.CONTINUE;
+                        });
+
+                    } else {
+                        Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+                        Waiting.wait(2000);
+                    }
+
                     Equipment.Slot.RING.getItem().map(c -> c.click("Grand Exchange"));
 
                     MyRevsClient.getScript().setState(State.BANKING);
@@ -262,7 +280,7 @@ public class RevkillerManager {
         return Query.players()
                 .isEquipped("Ava's accumulator", "Ava's attractor")
                 .hasSkullIcon()
-                .inArea(LootingManager.getSouthOrk(), LootingManager.getDemons())
+                .inArea(TeleportManager.getMonsterAreas())
                 .withinCombatLevels(Combat.getWildernessLevel());
     }
 
@@ -305,6 +323,10 @@ public class RevkillerManager {
 
     public static void setBossDetected(boolean lowFood) {
         RevkillerManager.bossDetected.set(lowFood);
+    }
+
+    public static int getTripLimit() {
+        return tripLimit;
     }
 
     public static void setLowRestores(boolean lowFood) {

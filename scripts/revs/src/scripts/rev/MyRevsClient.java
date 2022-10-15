@@ -67,8 +67,12 @@ public class MyRevsClient {
         return Area.fromRectangle(new WorldTile(3137, 10129, 0), new WorldTile(3181, 10101, 0)).containsMyPlayer();
     }
 
+    public static boolean myPlayerIsAtCyclops(){
+        return TeleportManager.getCyclopsArea().containsMyPlayer();
+    }
+
     public static boolean myPlayerIsInCave(){
-        return Area.fromRectangle(new WorldTile(3136, 10142, 0), new WorldTile(3270, 10053, 0)).containsMyPlayer();
+        return Area.fromRectangle(new WorldTile(3139, 10232, 0), new WorldTile(3285, 10053, 0)).containsMyPlayer();
     }
 
     public static boolean myPlayerIsInFerox(){
@@ -104,6 +108,11 @@ public class MyRevsClient {
         if (message.equals("<col=ef1020>You don't have 100,000 coins in your inventory or bank to pay the entry fee.")) {
             TeleportManager.teleportOut();
             MyRevsClient.getScript().stopScript.set(true);
+        }
+
+        if (message.equals("<col=ef1020>You have been frozen!</col>") && LootingManager.hasPkerBeenDetected()) {
+            Log.debug("We have beenn barraged");
+            MyScriptVariables.setVariable("barraged", true);
         }
 
         if (StringsUtility.hasMatches(TELEBLOCK_MESSAGE_REGEX, message)) {

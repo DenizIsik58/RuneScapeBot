@@ -144,7 +144,7 @@ public class BankManagerRevenant {
             itemsToBuy.add("Blighted super restore(4)");
         }
 
-        if (Bank.getCount("Saradomin brew(4)") < 3) {
+        if (Bank.getCount("Saradomin brew(4)") <= 4) {
             itemsToBuy.add("Saradomin brew(4)");
         }
 
@@ -662,9 +662,9 @@ public class BankManagerRevenant {
     public static BankTask getInventoryBankTask() {
         return BankTask.builder()
                 .addInvItem(24598, Amount.of(4)) // Blighted super restore
-                .addInvItem(6685, Amount.of(3)) // brew
+                .addInvItem(6685, Amount.of(4)) // brew
                 .addInvItem(2550, Amount.of(1)) // recoil
-                .addInvItem(385, Amount.of(14)) // shark
+                .addInvItem(385, Amount.of(13)) // shark
                 .addInvItem(() -> {
                     var id = Query.bank().nameContains("Ring of dueling(").findFirst().map(Identifiable::getId).orElse(0);
                     var amount = id == 0 ? Amount.of(-1) : Amount.of(1);

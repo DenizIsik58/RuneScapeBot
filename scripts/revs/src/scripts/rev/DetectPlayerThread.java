@@ -195,6 +195,7 @@ public class DetectPlayerThread extends Thread {
 
     public static Player getPker() {
         var name = getPkerName();
+
         if (name.isEmpty()) return null;
         return Query.players()
                 .filter(player -> StringsUtility.runescapeStringsMatch(player.getName(), name))
@@ -206,46 +207,21 @@ public class DetectPlayerThread extends Thread {
         return MyScriptVariables.getVariable("pkerName", "");
     }
 
-    public static void resetFreezeTimer() {
+    public static void resetFreezeTimer(boolean entangle) {
         new java.util.Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 if (!Combat.isInWilderness()) {
                     this.cancel();
                 }
+
                 Log.debug("Timer is over we are unfrozen!");
                 resetFreezeSigns();
             }
-        }, 14000);
+        }, (entangle ? 14000: 19000));
     }
 
-    public static void handleEatAndPrayer(Player pker) {
-        if (isFrozen()) {
-                PrayerManager.enablePrayer(Prayer.EAGLE_EYE);
-        }else {
-                PrayerManager.enablePrayer(Prayer.MYSTIC_MIGHT);
-        }
-
-
-        pker.getEquippedItem(Equipment.Slot.WEAPON).map(Item::getName).ifPresent(playerWeapon -> {
-            if (playerWeapon.toLowerCase().contains("staff") || playerWeapon.toLowerCase().contains("wand") || playerWeapon.toLowerCase().contains("trident")) {
-                // Magic weapon
-                // 1. Set up prayer according to weapon
-                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MAGIC);
-
-            } else if (playerWeapon.toLowerCase().contains("bow") || playerWeapon.toLowerCase().contains("knife") || playerWeapon.toLowerCase().contains("dart") ||(playerWeapon.toLowerCase().contains("ballista"))) {
-                // Handle ranging weapon
-                // 1. Set up prayer according to weapon
-                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
-            } else if (playerWeapon.toLowerCase().contains("bludgeon") || playerWeapon.toLowerCase().contains("sword") || playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar") || playerWeapon.toLowerCase().contains("mace")) {
-                // Handle melee weapon
-                // 1. Set up prayer according to weapon
-                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
-            } else {
-                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
-            }
-        });
-
+    public static void eat(){
         if (MyAntiBan.shouldEat() && (PrayerManager.getInventoryDoseCount("restore") >= 2)) {
             var foodCount = Query.inventory().actionEquals("Eat").count();
             var brewCount = Query.inventory().nameContains("Saradomin brew").count();
@@ -279,6 +255,36 @@ public class DetectPlayerThread extends Thread {
         if (Prayer.getPrayerPoints() < Skill.PRAYER.getActualLevel() - 22) {
             PrayerManager.maintainPrayerPotion();
         }
+    }
+
+    public static void handleEatAndPrayer(Player pker) {
+        if (isFrozen()) {
+                PrayerManager.enablePrayer(Prayer.EAGLE_EYE);
+        }else {
+                PrayerManager.enablePrayer(Prayer.MYSTIC_MIGHT);
+        }
+
+
+        pker.getEquippedItem(Equipment.Slot.WEAPON).map(Item::getName).ifPresent(playerWeapon -> {
+            if (playerWeapon.toLowerCase().contains("staff") || playerWeapon.toLowerCase().contains("wand") || playerWeapon.toLowerCase().contains("trident")) {
+                // Magic weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MAGIC);
+
+            } else if (playerWeapon.toLowerCase().contains("bow") || playerWeapon.toLowerCase().contains("knife") || playerWeapon.toLowerCase().contains("dart") ||(playerWeapon.toLowerCase().contains("ballista"))) {
+                // Handle ranging weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
+            } else if (playerWeapon.toLowerCase().contains("bludgeon") || playerWeapon.toLowerCase().contains("sword") || playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar") || playerWeapon.toLowerCase().contains("mace")) {
+                // Handle melee weapon
+                // 1. Set up prayer according to weapon
+                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
+            } else {
+                PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
+            }
+        });
+
+        eat();
     }
 
     private static boolean comboEat(boolean comboEat) {
@@ -320,20 +326,23 @@ public class DetectPlayerThread extends Thread {
         while (Combat.isInWilderness()) {
             MyCamera.init();
             handleTeleblock();
-            if (!isTeleblocked()) {
-                Log.debug("Teleblock timer is over");
-                if (Query.inventory().nameContains("Ring of wealth (").isAny() && !Query.equipment().nameContains("Ring of wealth (").isAny()) {
-                    Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().map(c -> c.click("Wear"));
-                    Waiting.waitUntil(() -> Query.equipment().nameContains("Ring of wealth (").isAny());
-                    Equipment.Slot.RING.getItem().ifPresent(ring -> ring.click("Grand Exchange"));
-                }
 
-                if (Query.equipment().nameContains("Ring of wealth (").isAny()) {
-                    Equipment.Slot.RING.getItem().ifPresent(ring -> ring.click("Grand Exchange"));
+            if (!isTeleblocked()) {
+                if (Combat.getWildernessLevel() <= 30) {
+                    Log.debug("Teleblock timer is over");
+                    if (Query.inventory().nameContains("Ring of wealth (").isAny() && !Query.equipment().nameContains("Ring of wealth (").isAny()) {
+                        Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().map(c -> c.click("Wear"));
+                        Waiting.waitUntil(() -> Query.equipment().nameContains("Ring of wealth (").isAny());
+                        Equipment.Slot.RING.getItem().ifPresent(ring -> ring.click("Grand Exchange"));
+                    }
+
+                    if (Query.equipment().nameContains("Ring of wealth (").isAny()) {
+                        Equipment.Slot.RING.getItem().ifPresent(ring -> ring.click("Grand Exchange"));
+                    }
                 }
             }
 
-            if (pker != null) {
+            if (pker != null && isTeleblocked()) {
                 Equipment.Slot.RING.getItem().ifPresent(ring -> {
                     if (ring.getId() != 2550) {
                         Query.inventory().nameEquals("Ring of recoil").findClosestToMouse().ifPresent(recoil -> recoil.click("Wear"));
@@ -347,9 +356,14 @@ public class DetectPlayerThread extends Thread {
                     handleEatAndPrayer(pker);
                     if (MyRevsClient.myPlayerIsInCave()) {
                         WorldTile stairs = new WorldTile(3217, 10058, 0); // Tile to climb up at
-
+                        // 3217, 10058
                         GlobalWalking.walkTo(stairs, () -> {
-                            handleEatAndPrayer(pker);
+                            if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getCyclops().getX()) {
+                                if (Combat.getWildernessLevel() <= 30) {
+                                    return WalkState.SUCCESS;
+                                }
+                            }
+                                handleEatAndPrayer(pker);
                             MyOptions.setRunOn();
                             /*if (!canTargetAttackMe(pker.getName())) {
 
@@ -374,8 +388,10 @@ public class DetectPlayerThread extends Thread {
                         });
                         handleEatAndPrayer(pker);
                         Query.gameObjects().idEquals(31558).findFirst()
-                                .map(c -> c.interact("Climb-up"));
-                        Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave());
+                                .ifPresent(c -> {
+                                    c.interact("Climb-up");
+                                    Waiting.waitUntil(2000, () -> !MyRevsClient.myPlayerIsInCave());
+                                });
                     } else {
                         ensureWalkingPermission();
                         //MyExchange.walkToGrandExchange();
@@ -433,10 +449,13 @@ public class DetectPlayerThread extends Thread {
 
         if (lastEntangle != null && !isEntangleTimerStarted) {
             var isFrozen = lastEntangle.getDestination().equals(MyPlayer.getTile()) && !MyPlayer.isMoving();
-            if (isFrozen) {
+            var barraged = MyScriptVariables.getVariable("barraged", false);
+            Log.debug(isFrozen);
+            Log.debug(barraged);
+            if (isFrozen || barraged) {
                 isEntangleTimerStarted = true;
                 isEntangled = true;
-                resetFreezeTimer();
+                resetFreezeTimer(isFrozen);
                 return true;
             }
         }
@@ -458,11 +477,23 @@ public class DetectPlayerThread extends Thread {
     }
 
     private void escape(Player pker) {
-        setHasPkerBeenDetected(true);
-        if (isTeleblocked()) {
-            Log.debug("We are teleblocked. Running instead of teleporting");
-            return;
-        }
+
+
+        if (processing.get()) {
+            setHasPkerBeenDetected(true);
+
+            if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getCyclops().getX()){
+                MyScriptVariables.setVariable("pkerName", pker.getName());
+                antiPk();
+                //setTeleblocked(true);
+                return;
+
+            }
+
+            if (isTeleblocked()) {
+                Log.debug("We are teleblocked. Running instead of teleporting");
+                return;
+            }
 
 
         /*if (RevkillerManager.getTarget() != null) {
@@ -477,77 +508,91 @@ public class DetectPlayerThread extends Thread {
 
                                             Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
                                         }*/
-        if (!MyRevsClient.myPlayerIsInCave()) {
-            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-            var inGe = Waiting.waitUntil(4000, MyRevsClient::myPlayerIsInGE);
-            if (!inGe) {
+            if (!MyRevsClient.myPlayerIsInCave()) {
                 Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                var inGe = Waiting.waitUntil(4000, MyRevsClient::myPlayerIsInGE);
+                if (!inGe) {
+                    Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+                }
+                MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+
+                return;
             }
-            MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
+            double startTime;
+            var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
 
-            return;
-        }
-        double startTime;
-        var yCoordDifference = pker.getTile().getY() - MyPlayer.getTile().getY();
-
-        if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getSouth_ork().getX()) {
-            if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
-                // Player is north east
-                // Run south west
-                Log.debug("Player on north east. Running west!");
-                //if (!hasTickCounterStarted) {
-                WorldTile location = new WorldTile(3202, 10060, 0); // Tile to climb up at
-                GlobalWalking.walkTo(location,  () -> {
-                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isVisible()) {
-                        return WalkState.FAILURE;
-                    }
-                    return WalkState.CONTINUE;
-                });
-                startTime = GameState.getLoopCycle() / 30D;
-                location.clickOnMinimap();
-
-                //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
-            } else if (pker.getTile().getX() < MyPlayer.getTile().getX() && (yCoordDifference) >= 5) {
-                //Player north-west
-                // Run east
-                Log.debug("Player on north west. Running south east!");
-                var location = new WorldTile(3229, 10095, 0);
-                GlobalWalking.walkTo(location,  () -> {
-                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
-                        return WalkState.FAILURE;
-                    }
-                    return WalkState.CONTINUE;
-                });
-                startTime = GameState.getLoopCycle() / 30D;
-                location.clickOnMinimap();
-                //Waiting.waitUntil(250, () -> new WorldTile(3229, 10095, 0).clickOnMinimap());
-            } else if ((MyPlayer.getTile().getY() - pker.getTile().getY()) >= 3 && pker.getTile().getX() < MyPlayer.getTile().getX()) {
-                // Player south west
-                // Run north
-                var location = new WorldTile(3226, 10105, 0);
+            if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getCyclops().getX()) {
+                Log.debug("I'm in cyclops area");
+                var location = new WorldTile(3177,10148, 0);
                 GlobalWalking.walkTo(location, () -> {
-                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
+                    Log.debug(Combat.getWildernessLevel());
+                    handleEatAndPrayer(pker);
+                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || Combat.getWildernessLevel() <= 30 || !Combat.isInWilderness()) {
+
+                        Log.debug("Breaking out..");
                         return WalkState.FAILURE;
                     }
+                    handleEatAndPrayer(pker);
                     return WalkState.CONTINUE;
                 });
-                startTime = GameState.getLoopCycle() / 30D;
-                location.clickOnMinimap();
+            } else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getSouth_ork().getX()) {
+                if (pker.getTile().getX() > MyPlayer.getTile().getX() && yCoordDifference >= 5) {
+                    // Player is north east
+                    // Run south west
+                    Log.debug("Player on north east. Running west!");
+                    //if (!hasTickCounterStarted) {
+                    WorldTile location = new WorldTile(3202, 10060, 0); // Tile to climb up at
+                    GlobalWalking.walkTo(location, () -> {
+                        if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isVisible()) {
+                            return WalkState.FAILURE;
+                        }
+                        return WalkState.CONTINUE;
+                    });
+                    startTime = GameState.getLoopCycle() / 30D;
+                    location.clickOnMinimap();
 
-            } else {
-                var location = new WorldTile(3205, 10082, 0);
-                GlobalWalking.walkTo(location,  () -> {
-                    if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
-                        return WalkState.FAILURE;
-                    }
-                    return WalkState.CONTINUE;
-                });
-                location.clickOnMinimap();
-                startTime = GameState.getLoopCycle() / 30D;
-                //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+                    //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+                } else if (pker.getTile().getX() < MyPlayer.getTile().getX() && (yCoordDifference) >= 5) {
+                    //Player north-west
+                    // Run east
+                    Log.debug("Player on north west. Running south east!");
+                    var location = new WorldTile(3229, 10095, 0);
+                    GlobalWalking.walkTo(location, () -> {
+                        if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
+                            return WalkState.FAILURE;
+                        }
+                        return WalkState.CONTINUE;
+                    });
+                    startTime = GameState.getLoopCycle() / 30D;
+                    location.clickOnMinimap();
+                    //Waiting.waitUntil(250, () -> new WorldTile(3229, 10095, 0).clickOnMinimap());
+                } else if ((MyPlayer.getTile().getY() - pker.getTile().getY()) >= 3 && pker.getTile().getX() < MyPlayer.getTile().getX()) {
+                    // Player south west
+                    // Run north
+                    var location = new WorldTile(3226, 10105, 0);
+                    GlobalWalking.walkTo(location, () -> {
+                        if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
+                            return WalkState.FAILURE;
+                        }
+                        return WalkState.CONTINUE;
+                    });
+                    startTime = GameState.getLoopCycle() / 30D;
+                    location.clickOnMinimap();
 
-            }
-        }else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getDemons().getX()) {
+                } else {
+                    var location = new WorldTile(3205, 10082, 0);
+                    GlobalWalking.walkTo(location, () -> {
+                        if ((LootingManager.hasPkerBeenDetected() && !Combat.isInWilderness()) || location.isOnMinimap()) {
+                            return WalkState.FAILURE;
+                        }
+                        return WalkState.CONTINUE;
+                    });
+                    location.clickOnMinimap();
+                    startTime = GameState.getLoopCycle() / 30D;
+                    //Waiting.waitUntil(250, () -> new WorldTile(3205, 10082, 0).clickOnMinimap());
+
+                }
+            } else if (MyRevsClient.getScript().getSelectedMonsterTile().getX() == TeleportManager.getDemons().getX()) {
 
                 if (pker.getTile().getX() > MyPlayer.getTile().getX()) {
                     // Player is east
@@ -555,63 +600,73 @@ public class DetectPlayerThread extends Thread {
                     Log.debug("Player on east. Running west!");
                     MyPlayer.getTile().translate(-15, 0).clickOnMinimap();
 
-                }else {
+                } else {
                     //Player west
                     // Run east
                     Log.debug("Player on west. Running east!");
                     MyPlayer.getTile().translate(15, 0).clickOnMinimap();
 
                 }
-        }
-
-
-
-
-        if (!Combat.isInWilderness()) {
-            Log.debug("We are not in wilderness");
-            return;
-        }
-
-        handleEatAndPrayer(pker);
-
-        Equipment.Slot.RING.getItem().ifPresent(ring -> {
-            if (ring.isHovering()) {
-                Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
             }
-        });
 
-        if (isTeleblocked()) {
-            Log.debug("We are teleblocked. Running instead of teleporting");
-            return;
-        }
+            if (!Combat.isInWilderness()) {
+                Log.debug("We are not in wilderness");
+                return;
+            }
 
-        Log.debug("Timer for teleport has been started");
+            eat();
 
-        //var stopTime = startTime + 4D;
-        //Waiting.waitUntil(() -> GameState.getLoopCycle() / 30D > stopTime);
-        Waiting.wait(2400);
-        //Log.debug("After waiting: " + GameState.getLoopCycle());
-        //Log.debug("1,8 seconds gone Teleporting now");
-        if (isTeleblocked()) {
-            Log.debug("We are teleblocked. Running instead of teleporting");
-            return;
-        }
-        Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-        //MyExchange.walkToGrandExchange();
+            if (Combat.getWildernessLevel() > 30) {
+                Log.debug("Wildy level greater than 30");
+                return;
+            }
 
-        var inGE = Waiting.waitUntil(3000, MyRevsClient::myPlayerIsInGE);
-        if (!inGE) {
-            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
-        }
-        if (Equipment.Slot.RING.getItem().isEmpty()){
-            Log.debug("Cannot find wealth in equipment. Checking inventory");
-            Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
-                Log.debug("found it! Wearing it now!");
-                ring.click("Wear");
-                Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
+            Equipment.Slot.RING.getItem().ifPresent(ring -> {
+                if (ring.isHovering()) {
+                    Equipment.Slot.RING.getItem().ifPresent(c -> c.hoverMenu("Grand Exchange"));
+                }
             });
+
+            if (isTeleblocked()) {
+                Log.debug("We are teleblocked. Running instead of teleporting");
+                return;
+            }
+
+            Log.debug("Timer for teleport has been started");
+
+            //var stopTime = startTime + 4D;
+            //Waiting.waitUntil(() -> GameState.getLoopCycle() / 30D > stopTime);
+            if (MyRevsClient.getScript().getSelectedMonsterTile().getX() != TeleportManager.getCyclops().getX()) {
+                Log.debug("Not in cyclops area waiting 2,4 seconds");
+                if (MyRevsClient.myPlayerIsInCave()) {
+                    Waiting.wait(2400);
+                }
+
+            }
+
+            //Log.debug("After waiting: " + GameState.getLoopCycle());
+            //Log.debug("1,8 seconds gone Teleporting now");
+            if (isTeleblocked()) {
+                Log.debug("We are teleblocked. Running instead of teleporting");
+                return;
+            }
+            Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+            //MyExchange.walkToGrandExchange();
+
+            var inGE = Waiting.waitUntil(3000, MyRevsClient::myPlayerIsInGE);
+            if (!inGE) {
+                Equipment.Slot.RING.getItem().ifPresent(c -> c.click("Grand Exchange"));
+            }
+            if (Equipment.Slot.RING.getItem().isEmpty()) {
+                Log.debug("Cannot find wealth in equipment. Checking inventory");
+                Query.inventory().nameContains("Ring of wealth (").findClosestToMouse().ifPresent(ring -> {
+                    Log.debug("found it! Wearing it now!");
+                    ring.click("Wear");
+                    Waiting.waitUntil(() -> Query.equipment().slotEquals(Equipment.Slot.RING).nameContains("Ring of wealth (").isAny());
+                });
+            }
+            MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
         }
-        MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
 
     }
 
@@ -714,7 +769,10 @@ public class DetectPlayerThread extends Thread {
                                 continue;
                             }
 
-                            TeleportManager.teleportOut();
+                            if (MyRevsClient.getScript().getSelectedMonsterTile().getX() != TeleportManager.getCyclops().getX()) {
+                                TeleportManager.teleportOut();
+                            }
+
                             processing.set(false);
                             continue;
                         }
@@ -735,8 +793,9 @@ public class DetectPlayerThread extends Thread {
                                     continue;
                                 }
 
-                                TeleportManager.teleportOut();
-
+                                if (MyRevsClient.getScript().getSelectedMonsterTile().getX() != TeleportManager.getCyclops().getX()) {
+                                    TeleportManager.teleportOut();
+                                }
 
                                 MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
                             }
@@ -762,7 +821,10 @@ public class DetectPlayerThread extends Thread {
                                     continue;
                                 }
 
-                                TeleportManager.teleportOut();
+                                if (MyRevsClient.getScript().getSelectedMonsterTile().getX() != TeleportManager.getCyclops().getX()) {
+                                    TeleportManager.teleportOut();
+                                }
+
                                 MyRevsClient.getScript().setState(scripts.rev.State.BANKING);
 
                             }
@@ -816,6 +878,7 @@ public class DetectPlayerThread extends Thread {
     }
 
     private static void resetFreezeSigns(){
+        MyScriptVariables.setVariable("barraged", false);
         lastEntangle = null;
         isEntangleTimerStarted = false;
         isEntangled = false;
