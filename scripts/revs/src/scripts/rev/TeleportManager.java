@@ -33,12 +33,12 @@ public class TeleportManager {
     private static final WorldTile cyclops = new WorldTile(3175, 10192,0 );
 
     private static boolean hasVisitedBeforeTrip = false;
-    private static final List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(demons, cyclops));// demons,  // South ork removed for now
+    private static final List<WorldTile> monsterTiles = new ArrayList<>(Arrays.asList(demons, south_ork, cyclops));// demons,  // South ork removed for now
     private final static Area FEROX_ENCLAVE = Area.fromRectangle(new WorldTile(3155, 3640, 0), new WorldTile(3116, 3623, 0));
     private final static Area SOUTH_ORK = Area.fromRectangle(new WorldTile(3200, 10105, 0), new WorldTile(3231, 10085, 0));
     private static final Area demonArea = Area.fromRectangle(new WorldTile(3137, 10129, 0), new WorldTile(3181, 10101, 0));
     private static final Area cyclopsArea = Area.fromRectangle(new WorldTile(3158, 10206, 0), new WorldTile(3194, 10178, 0));
-    private static final Area[] monsterAreas = new Area[] {demonArea, cyclopsArea};
+    private static final Area[] monsterAreas = new Area[] {demonArea, SOUTH_ORK, cyclopsArea};
 
     private static GameObject pool = null;
     public static WorldTile refill() {
