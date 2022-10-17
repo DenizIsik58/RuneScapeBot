@@ -23,12 +23,17 @@ public class MagicManager implements Runnable {
                 // Do antipk here
                 PrayerManager.enablePrayer(Prayer.PROTECT_ITEMS);
                 PrayerManager.enablePrayer(Prayer.EAGLE_EYE);
-                if (Combat.canUseSpecialAttack()) {
-                    if (!Combat.isSpecialAttackEnabled()) {
-                        Combat.activateSpecialAttack();
-                        Waiting.waitUntil(250, Combat::isSpecialAttackEnabled);
-                    }
 
+                if (Combat.canUseSpecialAttack()) {
+                    assert pker != null;
+                    if (pker.getHealthBarPercent() < 40) {
+                        Log.debug("Pker has less than 40 percent health I'm speccing!");
+                        if (!Combat.isSpecialAttackEnabled()) {
+                            Combat.activateSpecialAttack();
+                            Waiting.waitUntil(250, Combat::isSpecialAttackEnabled);
+                        }
+
+                    }
                 }
 
                 // 2. Fight back pker if not
@@ -40,6 +45,20 @@ public class MagicManager implements Runnable {
                     DetectPlayerThread.handleEatAndPrayer(pker);
                 }
                 }
+
+            assert pker != null;
+            if (pker.getHealthBarPercent() == 0) {
+                try {
+                    var screenshot = ScreenShotManager.takeScreenShotAndSave("kills");
+
+                    MyRevsClient.getScript().getPkKills().setUsername("Pk")
+                            .setContent("@everyone **" + MyPlayer.getUsername() + "** has just killed - **" + pker.getName() + "**")
+                            .addFile(screenshot)
+                            .execute();
+                } catch (Exception e) {
+                    Log.error(e);
+                }
+            }
 
             try {
                 Thread.sleep(50);

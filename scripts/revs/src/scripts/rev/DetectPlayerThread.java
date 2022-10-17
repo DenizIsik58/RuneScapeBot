@@ -231,11 +231,25 @@ public class DetectPlayerThread extends Thread {
             if (playerWeapon.toLowerCase().contains("staff") || playerWeapon.toLowerCase().contains("wand") || playerWeapon.toLowerCase().contains("trident")) {
                 // Magic weapon
                 // 1. Set up prayer according to weapon
+                var pkerTile = pker.getTile();
+                var myTile = MyPlayer.getTile();
+
+                if (playerWeapon.toLowerCase().contains("staff of the dea")) {
+                    if (pkerTile.getX() == myTile.getX() - 1 || pkerTile.getX() == myTile.getX() + 1 || pkerTile.getY() == myTile.getY() -1 || pkerTile.getY() == myTile.getY() + 1){
+                        PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
+                    }
+                }
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MAGIC);
 
             } else if (playerWeapon.toLowerCase().contains("bow") || playerWeapon.toLowerCase().contains("knife") || playerWeapon.toLowerCase().contains("dart") ||(playerWeapon.toLowerCase().contains("ballista"))) {
                 // Handle ranging weapon
                 // 1. Set up prayer according to weapon
+                /*if (playerWeapon.toLowerCase().contains("crossbow")) {
+                    && !Query.players().nameEquals(pker.getName()).isReachable().isAny()
+                    PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MAGIC);
+                }else {
+                    PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
+                }*/
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MISSILES);
             } else if (playerWeapon.toLowerCase().contains("bludgeon") || playerWeapon.toLowerCase().contains("sword") || playerWeapon.toLowerCase().contains("dragon") || playerWeapon.toLowerCase().contains("maul") || playerWeapon.toLowerCase().contains("scimitar") || playerWeapon.toLowerCase().contains("mace")) {
                 // Handle melee weapon

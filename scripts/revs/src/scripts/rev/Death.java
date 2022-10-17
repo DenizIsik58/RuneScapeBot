@@ -8,7 +8,6 @@ import org.tribot.script.sdk.query.Query;
 public class Death {
 
 
-
     public static void talkToDeath(){
         if (Query.npcs().nameEquals("Death").isAny()){
             ChatScreen.setConfig(ChatScreen.Config.builder().holdSpaceForContinue(true)

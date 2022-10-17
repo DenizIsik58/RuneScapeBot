@@ -49,10 +49,10 @@ public class RevScript extends MyScriptExtension {
     private DiscordWebhook onEndWebhook;
     private DiscordWebhook onDeathWebhook;
     private DiscordWebhook successfullTripHook;
+    private DiscordWebhook pkKills;
     private URL fxml;
     private LocalWalking.Map map;
     private BreakHandler breakHandler;
-
 
 
 
@@ -88,9 +88,12 @@ public class RevScript extends MyScriptExtension {
         onEndWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006528403580649564/bTiJDmc9LL-XPRMViwi8I5qkOnPlDdfQK9m-VV3FReGvCTh_F8IKYXFYJ8uuJPKDfOI4");
         onDeathWebhook = new DiscordWebhook("https://discord.com/api/webhooks/1006886106870075443/KgnJFpyL07_92FZ2fk8pxpCSDCxDQ_pIDDU0i2NwhxvRFG8KScu1eLKMz9VfT1xcwI3N");
         successfullTripHook = new DiscordWebhook("https://discord.com/api/webhooks/1007597804274847824/0BeuF_rHMu3N1Gqa0Lm1teNGl2-KSDSfCu7A4GmyZIlSx6x0I5KlXAvfnO8UNFSirN5V");
+        pkKills = new DiscordWebhook("https://discord.com/api/webhooks/1031123597428797440/s0KTzYSWBl5dePY9hYu43RQRdcYrUAxfMa0KpC0DTjr3wcrQUlQAoIfRxBXHoUloGYtG");
+
         map = LocalWalking.createMap();
         LocalWalking.Map.builder().travelThroughDoors(true);
 
+        Death.talkToDeath();
 
         if (!WorldHopper.isInMembersWorld()) {
             WorldManager.hopToRandomMemberWorldWithRequirements();
@@ -265,6 +268,8 @@ public class RevScript extends MyScriptExtension {
                 playerDetectionThread.setHasPkerBeenDetected(false);
             }
         }
+
+        Death.talkToDeath();
 
         if (MyRevsClient.myPlayerIsAtEdgeDitch()) {
             Query.gameObjects().idEquals(23271).findRandom().map(c -> c.click("Cross"));
@@ -472,6 +477,10 @@ public class RevScript extends MyScriptExtension {
 
     public DiscordWebhook getSuccessfullTripHook() {
         return successfullTripHook;
+    }
+
+    public DiscordWebhook getPkKills() {
+        return pkKills;
     }
 
     public WorldTile getSelectedMonsterTile() {
