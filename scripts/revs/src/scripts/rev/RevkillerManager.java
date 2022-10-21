@@ -127,14 +127,14 @@ public class RevkillerManager {
                 }
             }
 
-            getPotentialBots().findFirst().ifPresent(bot -> {
+            /*getPotentialBots().findFirst().ifPresent(bot -> {
                 Log.debug("Pvmer: " + bot.getName());
                 Log.debug("Found pvmer!");
                 if (getPotentialBots().isMyPlayerNotInteractingWith().nameEquals(bot.getName()).isAny()) {
                     Log.debug("Not attacking pvmer");
                     bot.click("Attack");
                 }
-            });
+            });*/
 
 
             PrayerManager.enableQuickPrayer();
