@@ -25,15 +25,10 @@ public class MagicManager implements Runnable {
                 PrayerManager.enablePrayer(Prayer.EAGLE_EYE);
 
                 if (Combat.canUseSpecialAttack()) {
-                    assert pker != null;
-                    if (pker.getHealthBarPercent() < 40) {
-                        Log.debug("Pker has less than 40 percent health I'm speccing!");
                         if (!Combat.isSpecialAttackEnabled()) {
                             Combat.activateSpecialAttack();
                             Waiting.waitUntil(250, Combat::isSpecialAttackEnabled);
                         }
-
-                    }
                 }
 
                 // 2. Fight back pker if not
@@ -46,18 +41,6 @@ public class MagicManager implements Runnable {
                 }
                 }
 
-            assert pker != null;
-            if (pker.getHealthBarPercent() == 0) {
-                try {
-                    var screenshot = ScreenShotManager.takeScreenShotAndSave("kills");
-
-                    MyRevsClient.getScript().getPkKills().setUsername("Pk")
-                            .setContent("@everyone **" + MyPlayer.getUsername() + "** has just killed - **" + pker.getName() + "**")
-                            .addFile(screenshot)
-                            .execute();
-                } catch (Exception e) {
-                    Log.error(e);
-                }
             }
 
             try {
@@ -67,4 +50,4 @@ public class MagicManager implements Runnable {
             }
         }
     }
-}
+
