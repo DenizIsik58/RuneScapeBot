@@ -31,7 +31,8 @@ public class WorldManager {
                     523, 524, 525, 531, 532, 535, 559));
 
     public static boolean hopToRandomMemberWorldWithRequirements(){
-        return Query
+        return WorldHopping.hopWorlds();
+        /*return Query
                 .worlds()
                 .isMembers()
                 .isNotDangerous()
@@ -63,10 +64,10 @@ public class WorldManager {
                             .textContains(i.toString())
                             .actionEquals("Switch")
                             .findFirst()
-                            .map(widget -> widget.click("Switch")).orElse(false);*/
-                    return WorldHopping.hopWorlds();
+                            .map(widget -> widget.click("Switch")).orElse(false);
+
                     //return WorldHopper.hop(i.getWorldNumber());
                 } )
-                .orElse(false);
+                .orElse(false);*/
     }
 }
