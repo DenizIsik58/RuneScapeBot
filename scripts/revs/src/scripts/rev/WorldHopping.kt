@@ -11,6 +11,9 @@ import java.util.function.Supplier
 
 /* Written by IvanEOD 10/24/2022, at 12:07 PM */
 object WorldHopping {
+    private val maxWorldHopAttempts = 3
+    private var worldSwitchFails = 0
+
 
     private var randomWorldNumberGenerator: () -> Int = {
         Query.worlds().isMembers
@@ -128,7 +131,8 @@ object WorldHopping {
 
     @JvmStatic
     fun hopWorlds(number: Int): Boolean {
-        if (number == WorldHopper.getCurrentWorld() || number == -1) {
+        val currentWorld = WorldHopper.getCurrentWorld()
+        if (number == currentWorld || number == -1) {
             if (number == -1) {
                 Log.warn("Failed to find a world to hop to.")
                 return false
@@ -138,7 +142,7 @@ object WorldHopping {
         }
         if (number < 300) throw IndexOutOfBoundsException("World number must be greater than 300.")
         if (number > 600) throw IndexOutOfBoundsException("World number must be less than 600.")
-        Log.trace("Hopping to World #$number")
+        Log.trace("Hopping to World #$number from World #$currentWorld")
         if (!Login.isLoggedIn()) return WorldHopper.hop(number)
 
         if (!openWorldHopper()) {
@@ -179,6 +183,8 @@ object WorldHopping {
             return false
         }
 
+        worldWidget.hover()
+
         val clicked = worldWidget.click("Switch")
 
         if (!clicked) {
@@ -198,7 +204,20 @@ object WorldHopping {
             Log.warn("Failed to hop worlds.")
             return false
         }
+
+        val members = WorldHopper.isInMembersWorld()
+
+        if (!members) {
+            worldSwitchFails++
+            return if (worldSwitchFails >= maxWorldHopAttempts) {
+                Log.error("Failed to change to a members world $maxWorldHopAttempts times, stopping.")
+                false
+            } else {
+                Log.error("Changed to a free world, trying again. Attempt $worldSwitchFails of $maxWorldHopAttempts...")
+                hopWorlds()
+            }
+        }
+        worldSwitchFails = 0
         return true
     }
-
 }
