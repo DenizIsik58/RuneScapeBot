@@ -231,14 +231,14 @@ public class DetectPlayerThread extends Thread {
             if (playerWeapon.toLowerCase().contains("staff") || playerWeapon.toLowerCase().contains("wand") || playerWeapon.toLowerCase().contains("trident")) {
                 // Magic weapon
                 // 1. Set up prayer according to weapon
-                var pkerTile = pker.getTile();
+                /*var pkerTile = pker.getTile();
                 var myTile = MyPlayer.getTile();
 
                 if (playerWeapon.toLowerCase().contains("staff of the dea")) {
                     if (pkerTile.getX() == myTile.getX() - 1 || pkerTile.getX() == myTile.getX() + 1 || pkerTile.getY() == myTile.getY() -1 || pkerTile.getY() == myTile.getY() + 1){
                         PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MELEE);
                     }
-                }
+                }*/
                 PrayerManager.enablePrayer(Prayer.PROTECT_FROM_MAGIC);
 
             } else if (playerWeapon.toLowerCase().contains("bow") || playerWeapon.toLowerCase().contains("knife") || playerWeapon.toLowerCase().contains("dart") ||(playerWeapon.toLowerCase().contains("ballista"))) {
