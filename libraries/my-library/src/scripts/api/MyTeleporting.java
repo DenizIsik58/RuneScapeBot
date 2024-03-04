@@ -18,7 +18,7 @@ public class MyTeleporting {
         // MyTeleporting.Dueling.FeroxEnclave.useTeleport();
 
         public static MyTeleport FeroxEnclave = () -> Teleport.RING_OF_DUELING_FEROX_ENCLAVE;
-        public static MyTeleport DuelArena = () -> Teleport.RING_OF_DUELING_DUEL_ARENA;
+        public static MyTeleport DuelArena = () -> Teleport.RING_OF_DUELING_PVP_ARENA;
         public static MyTeleport CastleWars = () -> Teleport.RING_OF_DUELING_CASTLE_WARS;
 
     }

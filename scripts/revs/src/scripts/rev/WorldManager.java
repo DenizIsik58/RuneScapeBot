@@ -45,7 +45,6 @@ public class WorldManager {
                         World.Type.LEAGUE,
                         World.Type.PVP,
                         World.Type.DEADMAN,
-                        World.Type.DEADMAN_TOURNAMENT,
                         World.Type.SKILL_TOTAL,
                         World.Type.QUEST_SPEEDRUNNING)
                 .worldNumberNotEquals(403, 404, 407, 408, 411, 412, 502, 503, 527, 427, 540, 541, 549, 550, 568, 569, 576, 581)

@@ -53,12 +53,22 @@ public class MyExchange {
         return !Query.grandExchangeOffers().statusEquals(GrandExchangeOffer.Status.EMPTY).isAny();
     }
 
+    public static boolean collectGrandExhcangeOffers() {
+        return Waiting.waitUntil(2000, GrandExchange::collectAll);
+    }
+
     public static boolean createGrandExchangeSellOrder(InventoryItem item){
         GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).priceAdjustment(-3).type(GrandExchangeOffer.Type.SELL).build());
         return Waiting.waitUntil(2000, () -> Query.grandExchangeOffers().itemNameEquals(item.getName()).isAny());
     }
 
+    public static boolean createGrandExchangeSellOrder(InventoryItem item, int price){
+        GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item.getName()).quantity(Inventory.getCount(item.getId())).price(price).type(GrandExchangeOffer.Type.SELL).build());
+        return Waiting.waitUntil(2000, () -> Query.grandExchangeOffers().itemNameEquals(item.getName()).isAny());
+    }
+
     public static boolean createGrandExchangeBuyOrder(String item, int quantity,  int price, boolean adjustment){
+        openExchange();
         if (!Query.grandExchangeOffers().itemNameEquals(item).isAny()) {
             if (adjustment) {
                 GrandExchange.placeOffer(GrandExchange.CreateOfferConfig.builder().itemName(item).quantity(quantity).priceAdjustment(4).type(GrandExchangeOffer.Type.BUY).build());

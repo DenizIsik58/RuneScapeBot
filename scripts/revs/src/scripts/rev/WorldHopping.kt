@@ -28,7 +28,6 @@ object WorldHopping {
                         World.Type.LEAGUE,
                         World.Type.PVP,
                         World.Type.DEADMAN,
-                        World.Type.DEADMAN_TOURNAMENT,
                         World.Type.SKILL_TOTAL,
                         World.Type.QUEST_SPEEDRUNNING
                 ).worldNumberNotEquals(

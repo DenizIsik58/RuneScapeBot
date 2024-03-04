@@ -182,7 +182,7 @@ public class Blowpipe{
                 int excess = inventoryAmount - dartsNeeded;
                 int excessCost = excess * dartPrice;
                 if (excessCost > 50000) {
-                    Bank.open();
+                    Bank.ensureOpen();
                     Waiting.waitUntil(1000, Bank::isOpen);
                     var depositAmount = MathUtility.roundDownToNearest(excess, 50);
                     bankDartCount.set((int) depositAmount);
